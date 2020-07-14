@@ -1,0 +1,25 @@
+name: Build and Deploy
+on:
+  push:
+    branches:
+      - travis-deploy-3
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false 
+
+      - name: Install and Build 🔧
+        run: |
+          npm install
+          npm run-script build
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          GITHUB_TOKEN: aa60564706663c431d907927f971c07a2a1815a2
+          BRANCH: gh-pages
+          FOLDER: dist
