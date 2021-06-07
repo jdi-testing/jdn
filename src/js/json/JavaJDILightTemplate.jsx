@@ -32,7 +32,7 @@ public class {{type}} extends WebPage {
 }`,
   pageElementCss: `    @UI("{{locator}}") public {{type}} {{name}};`,
   pageElementXPath: `    @UI("{{locator}}") public {{type}} {{name}};`,
-  pageElementComplex: `    @JDropdown({{locators}}) 
+  pageElementComplex: `    @J{{type}}({{locators}})
 	public {{type}} {{name}};`,
   locatorCss: `{{type}} = "{{locator}}",`,
   locatorXPath: `{{type}} = "{{locator}}",`,

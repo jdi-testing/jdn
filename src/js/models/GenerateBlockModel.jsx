@@ -230,6 +230,7 @@ const applyFoundResult = ({ mainModel }, e, parent, ruleId) => {
     parent: e.parent || null,
     parentId: e.parentId,
     elId: e.elId,
+    isList: e.isList
   };
   if (simple.indexOf(e.Type) > -1) {
     element.Locator = e.Locator;
@@ -278,11 +279,11 @@ const applyFoundResult = ({ mainModel }, e, parent, ruleId) => {
   }
 };
 
-function fillEl({ results, mainModel }, element, type, parent, ruleId) {
+function fillEl({ results, mainModel }, element, type, parent, ruleId, isList = false) {
   const { ruleBlockModel, generateBlockModel } = mainModel;
   const rulesObj = ruleBlockModel.rules;
   const composites = Object.keys(rulesObj.CompositeRules);
-  let result = { ...element, Type: type };
+  let result = { ...element, Type: type, isList };
   if (composites.includes(type)) {
     result.parent = null;
     result.parentId = null;
@@ -420,6 +421,18 @@ const defineElements = (
         }
         fillEl({ results, mainModel }, e, t, parent, ruleId);
       } else {
+        let e = {
+          Locator: isSimpleRule(t, uniq, mainModel)
+            ? `EMPTY_LOCATOR_${finalLocator}`
+            : finalLocator,
+          // Locator: finalLocator,
+          content: s2.elements[0],
+          Name: nameElement(finalLocator, uniq, val, s2.elements[0]).slice(
+            0,
+            20
+          ),
+        };
+        fillEl({ results, mainModel }, e, t, parent, ruleId, true);
         generateBlockModel.log.addToLog({
           message: `Warning! Too much elements found by locator ${finalLocator}; ${s2.elements.length} elements`,
           type: "warning",

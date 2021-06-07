@@ -63,8 +63,8 @@ const AutoFind = ({ classes }) => {
   const getAvailableElements = () => {
     return allowRemoveElements
       ? (predictedElements || []).filter(
-          (e) => e.predicted_probability >= perception
-        ).length
+        (e) => e.predicted_probability >= perception
+      ).length
       : 0;
   };
 

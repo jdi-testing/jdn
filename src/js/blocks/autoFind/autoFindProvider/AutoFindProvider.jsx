@@ -23,7 +23,7 @@ const AutoFindProvider = inject("mainModel")(
     const [pageElements, setPageElements] = useState(null);
     const [predictedElements, setPredictedElements] = useState(null);
     const [status, setStatus] = useState(autoFindStatus.noStatus);
-    const [allowIdetifyElements, setAllowIdetifyElements] = useState(true);
+    const [allowIdentifyElements, setAllowIdentifyElements] = useState(true);
     const [allowRemoveElements, setAllowRemoveElements] = useState(false);
     const [perception, setPerception] = useState(0.5);
 
@@ -38,7 +38,7 @@ const AutoFindProvider = inject("mainModel")(
     };
 
     const identifyElements = () => {
-      setAllowIdetifyElements(!allowIdetifyElements);
+      setAllowIdentifyElements(!allowIdentifyElements);
       setStatus(autoFindStatus.loading);
 
       const callback = () => {
@@ -60,7 +60,7 @@ const AutoFindProvider = inject("mainModel")(
     };
 
     const removeHighlighs = () => {
-      setAllowIdetifyElements(!allowIdetifyElements);
+      setAllowIdentifyElements(!allowIdentifyElements);
       const callback = () => {
         setStatus(autoFindStatus.removed);
         setAllowRemoveElements(!allowRemoveElements);
@@ -90,7 +90,7 @@ const AutoFindProvider = inject("mainModel")(
         pageElements,
         predictedElements,
         status,
-        allowIdetifyElements,
+        allowIdentifyElements,
         allowRemoveElements,
         perception,
       },
