@@ -232,11 +232,14 @@ export const highlightOnPage = () => {
     if (message === "ASSIGN_TYPE") {
       assignType(param);
     }
+
+    if (message === "PING_SCRIPT" && (param.scriptName === "highlightOnPage")) {      
+      sendResponse({ message: true });
+    }
   };
 
   const disconnectHandler = () => {
     removeHighlight(() => console.log("JDN highlight has been killed"))();
-    chrome.runtime.onMessage.removeListener(messageHandler);
   };
 
   chrome.runtime.onConnect.addListener((p) => {
