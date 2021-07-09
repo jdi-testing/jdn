@@ -1,7 +1,7 @@
 name: Release version
 
 on:
-  push:
+  pull_request:
     branches: [master]
 
 jobs:
@@ -38,3 +38,14 @@ jobs:
         artifacts: "${{ steps.package-version.outputs.current-version}}.zip"
         replacesArtifacts: false
         token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Microsoft Teams Notification
+      uses: skitionek/notify-microsoft-teams@master
+      with:
+        webhook_url: ${{ secrets.MSTEAMS_WEBHOOK }}
+        raw: >-
+          {
+            "@type": "MessageCard",
+            "@context": "http://schema.org/extensions",
+            "title": "New release draft arrived",
+            "text": "Approve or discard new release ${{ steps.package-version.outputs.current-version }} at https://github.com/jdi-testing/jdn/releases"
+          }
