@@ -46,6 +46,6 @@ jobs:
           {
             "@type": "MessageCard",
             "@context": "http://schema.org/extensions",
-            "title": "New release draft arrived",
-            "text": "Approve or discard new release ${{ steps.package-version.outputs.current-version }} at https://github.com/jdi-testing/jdn/releases"
+            "title": "NEW release ${{ steps.package-version.outputs.current-version }} arrived",
+            "text": "Approve or discard new release ${{ steps.package-version.outputs.current-version }} draft at https://github.com/jdi-testing/jdn/releases"
           }
