@@ -24,3 +24,9 @@ export const JDIclasses = {
 };
 
 export const getJDILabel = (label) => JDIclasses[label] || label;
+
+export const getJdiClassName = (label) => {
+  let jdiClass = getJDILabel(label);
+  if (jdiClass === defaultClass) jdiClass += ` (${label})`;
+  return jdiClass ? jdiClass : label;
+};

@@ -1,5 +1,5 @@
 import { camelCase } from "../../../models/GenerateBlockModel";
-import { defaultClass, getJDILabel } from "./generationClassesMap";
+import { getJDILabel } from "./generationClassesMap";
 import { connector } from "./connector";
 
 const getPackage = (url) => {
@@ -11,11 +11,6 @@ const getPackage = (url) => {
       .join(".");
 };
 
-export const getJdiClassName = (label) => {
-  let jdiClass = getJDILabel(label);
-  if (jdiClass === defaultClass) jdiClass += ` (${label})`;
-  return jdiClass ? jdiClass : label;
-};
 
 export const predictedToConvert = (elements, perception) => {
   const f = elements.filter((el) => el && !el.skipGeneration && !el.hidden && el.predicted_probability >= perception);

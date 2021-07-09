@@ -10,9 +10,8 @@ import {
   generatePageObject
 } from "./pageDataHandlers";
 
-import { JDIclasses } from "./generationClassesMap";
+import { JDIclasses, getJdiClassName } from "./generationClassesMap";
 import { connector, sendMessage } from "./connector";
-import { getJdiClassName } from "./pageObject";
 
 /*global chrome*/
 
