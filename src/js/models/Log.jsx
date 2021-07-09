@@ -16,7 +16,7 @@ export default class Log {
     const date = new Date();
     this.log.push({ message, type, time: date });
   }
-
+ 
   @action
   clearLog() {
     this.log = [];
