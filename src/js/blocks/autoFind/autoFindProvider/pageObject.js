@@ -11,6 +11,7 @@ const getPackage = (url) => {
       .join(".");
 };
 
+
 export const predictedToConvert = (elements, perception) => {
   const f = elements.filter((el) => el && !el.skipGeneration && !el.hidden && el.predicted_probability >= perception);
   const uniqueNames = [];

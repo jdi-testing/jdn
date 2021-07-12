@@ -294,11 +294,11 @@ export const runContextMenu = () => {
   let predictedElement;
 
   const menuItems = (
-    { predicted_label, element_id, skipGeneration },
+    { jdi_class_name, element_id, skipGeneration },
     types
   ) => [
     {
-      text: `<b>Block type: ${predicted_label}</b>`,
+      text: `<b>Block type: ${jdi_class_name}</b>`,
       sub: typesMenu(types),
     },
     {

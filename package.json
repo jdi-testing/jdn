@@ -1,6 +1,6 @@
 {
   "name": "jdi-react-extension",
-  "version": "3.0.21",
+  "version": "3.0.23",
   "description": "jdi react extension",
   "scripts": {
     "start": "npm run webpack",
@@ -8,7 +8,8 @@
     "webpack:watch": "webpack --watch",
     "build": "webpack",
     "server": "node server.js",
-    "prettier": "prettier"
+    "prettier": "prettier",
+    "patch": "npx mversion patch"
   },
   "main": "src/js/main.js",
   "repository": {
@@ -44,6 +45,7 @@
     "mobx": "^6.1.8",
     "mobx-react": "^7.1.0",
     "mobx-react-devtools": "^6.1.1",
+    "mversion": "^2.0.1",
     "parcel-bundler": "^1.12.5",
     "primer": "^11.0.0",
     "react": "^17.0.1",
