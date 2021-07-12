@@ -361,7 +361,7 @@ export const runContextMenu = () => {
     document.addEventListener("mouseleave", mouseLeaveListener);
   };
 
-  const messageHandler = ({ message, param }) => {
+  const messageHandler = ({ message, param }, sender, sendResponse) => {
     if (message === "ELEMENT_DATA") {
       // element can be undefined in case of outdated event listener (after refresh, for example). better solution is to kill listener, but I can't implement it for now
       if (!param.element) return;
@@ -374,6 +374,10 @@ export const runContextMenu = () => {
 
     if (message === "HIGHLIGHT_TOGGLED") {
       predictedElement = param;
+    }
+
+    if (message === "PING_SCRIPT" && (param.scriptName === "runContextMenu")) {
+      sendResponse({ message: true });
     }
   };
 
