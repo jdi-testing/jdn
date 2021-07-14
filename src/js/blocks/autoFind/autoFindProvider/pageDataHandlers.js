@@ -39,7 +39,6 @@ const setUrlListener = (onHighlightOff) => {
 };
 
 export const getElements = (callback) => {
-  connector.scripts.delete(getPageData);
   return connector.attachContentScript(getPageData)
     .then(uploadElements)
     .then(callback);
@@ -51,8 +50,8 @@ export const highlightElements = (elements, successCallback, perception) => {
     successCallback();
   };
 
-  connector.attachContentScript(highlightOnPage).then(
-    connector.createPort().then(setHighlight)
+  connector.attachContentScript(highlightOnPage).then(() =>
+      connector.createPort().then(setHighlight)
   );
 };
 

@@ -2,7 +2,6 @@ class Connector {
   constructor() {
     this.tab = null;
     this.port = null;
-    this.scripts = new Set();
     this.getPageId();
 
     this.onerror = null;
@@ -14,18 +13,21 @@ class Connector {
   }
 
   getPageId() {
-    chrome.tabs.query({active: true, currentWindow: true}, (res) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (res) => {
       if (res && res[0]) this.tab = res[0];
       else this.handleError("Connector: active page id is not available.");
     });
   }
 
   sendMessage(action, payload, onResponse) {
-    chrome.tabs.sendMessage(this.tab.id, {
-      message: action,
-      param: payload,
-    },
-    onResponse);
+    chrome.tabs.sendMessage(
+      this.tab.id,
+      {
+        message: action,
+        param: payload,
+      },
+      onResponse
+    );
   }
 
   updateMessageListener(callback) {
@@ -41,8 +43,10 @@ class Connector {
         changeinfo.status === "complete" &&
         this.tab.id === tabId
       ) {
-        this.port = null;
-        this.scripts.clear();
+        if (this.port) {
+          this.port.disconnect();
+          this.port = null;
+        }
         if (typeof callback === "function") callback();
       }
     });
@@ -58,15 +62,16 @@ class Connector {
   }
 
   attachContentScript(script) {
-    return new Promise((resolve) => {
-      if (this.scripts.has(script)) return resolve(true);
-      chrome.scripting.executeScript(
+    return this.scriptExists(script.name).then((result) => {
+      return new Promise((resolve) => {
+        if (result) return resolve(true);
+        chrome.scripting.executeScript(
           { target: { tabId: this.tab.id }, function: script },
           (invoked) => {
-            this.scripts.add(script);
             resolve(invoked || true);
           }
-      );
+        );
+      });
     });
   }
 
@@ -74,6 +79,19 @@ class Connector {
     chrome.scripting.insertCSS({
       target: { tabId: this.tab.id },
       files: [file],
+    });
+  }
+
+  scriptExists(scriptName) {
+    return new Promise((resolve) => {
+      sendMessage.pingScript({ scriptName }, (response) => {
+        if (chrome.runtime.lastError) {
+          resolve(false);
+        }
+        if (response && response.message) {
+          resolve(true);
+        } else resolve(false);
+      });
     });
   }
 }
@@ -86,9 +104,12 @@ export const sendMessage = {
   changeType: (el) => connector.sendMessage("ASSIGN_TYPE", el),
   elementData: (payload) => connector.sendMessage("ELEMENT_DATA", payload),
   setHighlight: (payload) => connector.sendMessage("SET_HIGHLIGHT", payload),
-  killHighlight: (payload, onResponse) => connector.sendMessage("KILL_HIGHLIGHT", null, onResponse),
-  generateXpathes: (payload, onResponse) => connector.sendMessage("GENERATE_XPATHES", payload, onResponse)
+  killHighlight: (payload, onResponse) =>
+    connector.sendMessage("KILL_HIGHLIGHT", null, onResponse),
+  generateXpathes: (payload, onResponse) =>
+    connector.sendMessage("GENERATE_XPATHES", payload, onResponse),
+  pingScript: (payload, onResponse) =>
+    connector.sendMessage("PING_SCRIPT", payload, onResponse),
 };
-
 
 export default Connector;
