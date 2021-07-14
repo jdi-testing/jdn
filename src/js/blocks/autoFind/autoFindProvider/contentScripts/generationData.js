@@ -34,6 +34,7 @@ export const generateXpathes = () => {
         "size",
         "maxlength",
         "jdn-hash",
+        "xml:space",
       ];
       if (options) {
         this.attributePriorizationList = options.attributePriorizationList;
