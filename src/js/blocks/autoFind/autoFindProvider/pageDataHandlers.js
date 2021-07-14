@@ -41,22 +41,18 @@ const setUrlListener = (onHighlightOff) => {
 export const getElements = (callback) => {
   connector.scripts.delete(getPageData);
   return connector.attachContentScript(getPageData)
-      .then(uploadElements)
-      .then(callback);
+    .then(uploadElements)
+    .then(callback);
 };
 
-export const highlightElements = (
-    elements,
-    successCallback,
-    perception,
-) => {
+export const highlightElements = (elements, successCallback, perception) => {
   const setHighlight = () => {
     sendMessage.setHighlight({ elements, perception });
     successCallback();
   };
 
   connector.attachContentScript(highlightOnPage).then(
-      connector.createPort().then(setHighlight)
+    connector.createPort().then(setHighlight)
   );
 };
 
@@ -67,7 +63,9 @@ const messageHandler = ({ message, param }, actions) => {
 };
 
 export const runDocumentListeners = (actions) => {
-  connector.updateMessageListener((payload) => messageHandler(payload, actions));
+  connector.updateMessageListener((payload) =>
+    messageHandler(payload, actions)
+  );
 
   if (!documentListenersStarted) {
     setUrlListener(actions["HIGHLIGHT_OFF"]);
@@ -77,31 +75,23 @@ export const runDocumentListeners = (actions) => {
   }
 };
 
-export const generatePageObject = (
-    elements,
-    perception,
-    mainModel,
-    onGenerated,
-) => {
-  const onXpathGenerated = ({ xpathElements, unreachableNodes }) => {
-    const elToConvert = predictedToConvert(xpathElements, perception);
-    getPage(elToConvert, (page) => {
-      mainModel.conversionModel.genPageCode(page, mainModel, true);
-      mainModel.conversionModel.downloadPageCode(page, ".java");
-      onGenerated({ unreachableNodes });
-    });
-  };
+export const requestXpathes = (elements, callback) => {
+  connector
+    .attachContentScript(generateXpathes)
+    .then(() => sendMessage.generateXpathes(elements, callback));
+};
 
-  const requestXpathes = () => {
-    sendMessage.generateXpathes(elements, onXpathGenerated);
-  };
-
-  connector.attachContentScript(generateXpathes).then(requestXpathes);
+export const generatePageObject = (elements, mainModel) => {
+  const elToConvert = predictedToConvert(elements);
+  getPage(elToConvert, (page) => {
+    mainModel.conversionModel.genPageCode(page, mainModel, true);
+    mainModel.conversionModel.downloadPageCode(page, ".java");
+  });
 };
 
 export const highlightUnreached = (ids) => {
   connector.port.postMessage({
     message: "HIGHLIGHT_ERRORS",
-    param: ids
+    param: ids,
   });
 };

@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import injectSheet from "react-jss";
 import { Slider, Row, Alert } from "antd";
-import { useAutoFind } from "./autoFindProvider/AutoFindProvider";
+import {
+  useAutoFind,
+  xpathGenerationStatus,
+} from "./autoFindProvider/AutoFindProvider";
 
 import "./slider.less";
 import Layout, { Content, Footer } from "antd/lib/layout/layout";
@@ -20,6 +23,8 @@ const AutoFind = ({ classes }) => {
       allowRemoveElements,
       perception,
       unreachableNodes,
+      availableForGeneration,
+      xpathStatus,
     },
     {
       identifyElements,
@@ -61,14 +66,6 @@ const AutoFind = ({ classes }) => {
     }, 300);
   };
 
-  const getAvailableElements = () => {
-    return allowRemoveElements
-      ? (predictedElements || []).filter(
-          (e) => e.predicted_probability >= perception && !e.skipGeneration && !e.hidden
-        ).length
-      : 0;
-  };
-
   const getPredictedElements = () => {
     return predictedElements && allowRemoveElements
       ? predictedElements.length
@@ -85,7 +82,10 @@ const AutoFind = ({ classes }) => {
           <button disabled={!allowRemoveElements} onClick={handleRemove}>
             Remove
           </button>
-          <button disabled={!allowRemoveElements} onClick={handleGenerate}>
+          <button
+            disabled={xpathStatus !== xpathGenerationStatus.complete}
+            onClick={handleGenerate}
+          >
             Generate And Download
           </button>
         </Row>
@@ -106,10 +106,11 @@ const AutoFind = ({ classes }) => {
         <div>{pageElements || 0} found on page.</div>
         <div>{getPredictedElements()} predicted.</div>
         <div>
-          {getAvailableElements() -
+          {availableForGeneration.length -
             (unreachableNodes ? unreachableNodes.length : 0)}{" "}
           available for generation.
         </div>
+        <div>{xpathStatus}</div>
         {unreachableNodes && unreachableNodes.length ? (
           <Alert
             type="warning"
