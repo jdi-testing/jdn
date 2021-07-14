@@ -152,4 +152,27 @@ const contextMenuCssConfig = {
   },
 };
 
-module.exports = [mainConfig, indexConfig, contextMenuCssConfig];
+const reportProblemPopupCssConfig = {
+  entry:
+    "./src/js/blocks/autoFind/autoFindProvider/contentScripts/reportProblemPopup/reportProblemPopup.css",
+  mode: "production",
+  plugins: [new MiniCssExtractPlugin({ filename: "reportproblempopup.css" })],
+  module: {
+    rules: [
+      {
+        test: /reportproblempopup.css$/i,
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              publicPath: "./",
+            },
+          },
+          "css-loader",
+        ],
+      },
+    ],
+  },
+};
+
+module.exports = [mainConfig, indexConfig, contextMenuCssConfig, reportProblemPopupCssConfig];

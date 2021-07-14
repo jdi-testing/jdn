@@ -26,7 +26,7 @@ const AutoFind = ({ classes }) => {
       removeHighlighs,
       generateAndDownload,
       onChangePerception,
-      getScreenAndJson
+      reportProblem
     },
   ] = useAutoFind();
 
@@ -76,8 +76,8 @@ const AutoFind = ({ classes }) => {
       : 0;
   };
 
-  const reportProblem = () => {
-    getScreenAndJson();
+  const handleReportProblem = () => {
+    reportProblem(predictedElements);
   };
 
   return (
@@ -125,10 +125,9 @@ const AutoFind = ({ classes }) => {
       </Content>
       <Footer className={classes.footer}>
         <div>
-          <a 
-            hidden={!allowRemoveElements} 
-            onClick={reportProblem} 
-            href="mailto:Vyacheslav_Fuga@epam.com?cc=Darya_Gurtovenko@epam.com&subject=Some%20elements%20were%20not%20identified%20on%20page%3A&body=Hi%2C%0D%0ASome%20elements%20were%20not%20identified%20on%20the%20page%2C%20please%20have%20a%20look.">
+          <a
+            hidden={!allowRemoveElements}
+            onClick={handleReportProblem}>
               Report Problem
           </a>
         </div>

@@ -9,14 +9,12 @@ import {
   runDocumentListeners,
 } from "./pageDataHandlers";
 import { generatePageObject } from "./pageDataHandlers";
-import { getPageId, runContentScript } from "./pageScriptHandlers";
+import { getPageId, runContentScript, insertCSS } from "./pageScriptHandlers";
 import { JDIclasses } from "./generationClassesMap";
-import { saveScreenSite } from './contentScripts/saveScreenSite';
+import { reportProblemPopup } from "./contentScripts/reportProblemPopup/reportProblemPopup";
 import { saveJson } from './contentScripts/saveJson';
 
 /*global chrome*/
-
-let predictedElementsJSON;
 
 const autoFindStatus = {
   noStatus: "",
@@ -101,9 +99,10 @@ const AutoFindProvider = inject("mainModel")(
       });
     };
 
-    const getScreenAndJson = () => {
-      runContentScript(saveScreenSite);
-      runContentScript(saveJson(JSON.stringify(predictedElementsJSON)));
+    const reportProblem = (predictedElements) => {
+      insertCSS("reportproblempopup.css");
+      runContentScript(reportProblemPopup);
+      runContentScript(saveJson(JSON.stringify(predictedElements)));
     };
 
     const identifyElements = () => {
@@ -111,7 +110,7 @@ const AutoFindProvider = inject("mainModel")(
       setStatus(autoFindStatus.loading);
 
       const updateElements = ([predicted, page]) => {
-        const rounded = predictedElementsJSON = predicted.map((el) => ({
+        const rounded = predicted.map((el) => ({
           ...el,
           predicted_probability:
             Math.round(el.predicted_probability * 100) / 100,
@@ -194,7 +193,7 @@ const AutoFindProvider = inject("mainModel")(
         removeHighlighs,
         generateAndDownload,
         onChangePerception,
-        getScreenAndJson
+        reportProblem,
       },
     ];
 
