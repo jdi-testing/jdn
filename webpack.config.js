@@ -129,15 +129,15 @@ const indexConfig = {
   },
 };
 
-const contextMenuCssConfig = {
+const highlightCssConfig = {
   entry:
-    "./src/js/blocks/autoFind/autoFindProvider/contentScripts/contextMenu/contextmenu.css",
+    "./src/js/blocks/autoFind/autoFindProvider/contentScripts/highlight.css",
   mode: "production",
-  plugins: [new MiniCssExtractPlugin({ filename: "contextmenu.css" })],
+  plugins: [new MiniCssExtractPlugin({ filename: "highlight.css" })],
   module: {
     rules: [
       {
-        test: /contextmenu.css$/i,
+        test: /highlight.css$/i,
         use: [
           {
             loader: MiniCssExtractPlugin.loader,
@@ -152,4 +152,4 @@ const contextMenuCssConfig = {
   },
 };
 
-module.exports = [mainConfig, indexConfig, contextMenuCssConfig];
+module.exports = [mainConfig, indexConfig, highlightCssConfig];
