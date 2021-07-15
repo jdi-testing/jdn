@@ -179,13 +179,10 @@ export const highlightOnPage = () => {
   };
 
   const highlightErrors = (ids) => {
-    const errorStyle = {
-      backgroundColor: "rgba(216, 44, 21, 0.4)",
-    };
     ids.forEach((id) => {
       const div = document.getElementById(id);
       div.onclick = () => { };
-      Object.assign(div.style, errorStyle);
+      div.className = "jdn-highlight jdn-error";
     });
   };
 

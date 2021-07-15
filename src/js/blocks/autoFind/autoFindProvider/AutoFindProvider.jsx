@@ -5,7 +5,6 @@ import { useContext } from "react";
 import {
   getElements,
   highlightElements,
-  highlightUnreached,
   runDocumentListeners,
   generatePageObject
 } from "./pageDataHandlers";
@@ -74,7 +73,7 @@ const AutoFindProvider = inject("mainModel")(
       });
     };
 
-    const changeType = ({id, newType}) => {
+    const changeType = ({ id, newType }) => {
       setPredictedElements((previousValue) => {
         const changed = previousValue.map((el) => {
           if (el.element_id === id) {
@@ -118,7 +117,7 @@ const AutoFindProvider = inject("mainModel")(
     const generateAndDownload = (perception) => {
       generatePageObject(predictedElements, perception, mainModel, (result) => {
         setUnreachableNodes(result.unreachableNodes);
-        highlightUnreached(result.unreachableNodes);
+        sendMessage.highlightUnreached(result.unreachableNodes);
       });
     };
 

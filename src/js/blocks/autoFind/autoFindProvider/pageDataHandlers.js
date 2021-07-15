@@ -97,10 +97,3 @@ export const generatePageObject = (
 
   connector.attachContentScript(generateXpathes).then(requestXpathes);
 };
-
-export const highlightUnreached = (ids) => {
-  connector.port.postMessage({
-    message: "HIGHLIGHT_ERRORS",
-    param: ids
-  });
-};

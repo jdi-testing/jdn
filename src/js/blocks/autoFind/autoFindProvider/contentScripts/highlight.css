@@ -136,9 +136,18 @@
 
 .jdn-secondary {
   border: 1px solid rgba(216, 161, 21, 1);
-  background-color: rgba(216, 161, 21, 0.4);
+  background-color: rgba(216, 161, 21, 0.2);
 }
 
 .jdn-secondary .jdn-label {
   background-color: rgba(216, 161, 21, 1);
+}
+
+.jdn-error {
+  border: 1px solid rgba(216, 44, 21, 1);
+  background-color: rgba(216, 44, 21, 0.2);
+}
+
+.jdn-error .jdn-label {
+  background-color: rgba(216, 44, 21, 1);
 }
