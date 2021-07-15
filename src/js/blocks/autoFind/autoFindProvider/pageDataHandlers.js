@@ -5,13 +5,27 @@ import { highlightOnPage } from "./contentScripts/highlight";
 import { getPageData } from "./contentScripts/pageData";
 import { urlListener } from "./contentScripts/urlListener";
 import { getPage, predictedToConvert } from "./pageObject";
-
+import { autoFindStatus } from "./AutoFindProvider";
 /* global chrome*/
 
 let documentListenersStarted;
+let overlayID;
+
+const removeOverlay = () => {
+  if (overlayID) {
+    chrome.storage.sync.set({ overlayID });
+
+    connector.attachContentScript(() => {
+      chrome.storage.sync.get(["overlayID"], ({ overlayID }) => {
+        document.getElementById(overlayID).remove();
+      });
+    });
+  }
+};
 
 const clearState = () => {
   documentListenersStarted = false;
+  removeOverlay();
 };
 
 const uploadElements = async ([{ result }]) => {
@@ -38,10 +52,25 @@ const setUrlListener = (onHighlightOff) => {
   connector.attachContentScript(urlListener);
 };
 
-export const getElements = (callback) => {
+export const getElements = (callback, setStatus) => {
+  const pageAccessTimeout = setTimeout(() => {
+    setStatus(autoFindStatus.blocked);
+  }, 5000 );
+
+  connector.updateMessageListener((payload) => {
+    if (payload.message === "START_COLLECT_DATA") {
+      clearTimeout(pageAccessTimeout);
+      setStatus(autoFindStatus.loading);
+      overlayID = payload.param.overlayID;
+    }
+  });
+
   return connector.attachContentScript(getPageData)
       .then(uploadElements)
-      .then(callback);
+      .then((data) => {
+        removeOverlay();
+        callback(data);
+      });
 };
 
 export const highlightElements = (
@@ -55,7 +84,7 @@ export const highlightElements = (
   };
 
   connector.attachContentScript(highlightOnPage).then(() =>
-      connector.createPort().then(setHighlight)
+    connector.createPort().then(setHighlight)
   );
 };
 

@@ -1,4 +1,26 @@
 export const getPageData = () => {
+  function createOverlay() {
+    const overlayID = "jdn-overlay-" + Date.now().toString().substring(5);
+    const overlay = document.createElement("div");
+    overlay.id = overlayID;
+    const overlayStyle = {
+      top: 0,
+      left: 0,
+      position: "fixed",
+      width: "100%",
+      height: "100%",
+      zIndex: 999999,
+    };
+    Object.assign(overlay.style, overlayStyle);
+    console.log(overlay);
+    document.body.appendChild(overlay);
+
+    return overlayID;
+  }
+  const overlayID = createOverlay();
+
+  chrome.runtime.sendMessage({ message: "START_COLLECT_DATA", param: { overlayID }});
+
   const hashAttribute = 'jdn-hash';
   function gen_uuid(e) {
     let hashValue = e.getAttribute(hashAttribute);

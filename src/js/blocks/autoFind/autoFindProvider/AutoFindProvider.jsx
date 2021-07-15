@@ -15,12 +15,13 @@ import { connector, sendMessage } from "./connector";
 
 /*global chrome*/
 
-const autoFindStatus = {
+export const autoFindStatus = {
   noStatus: "",
   loading: "Loading...",
   success: "Successful!",
   removed: "Removed",
   error: "An error occured",
+  blocked: "Script is blocked. Close all popups"
 };
 
 const AutoFindContext = React.createContext();
@@ -103,7 +104,7 @@ const AutoFindProvider = inject("mainModel")(
     const identifyElements = () => {
       setAllowIdentifyElements(!allowIdentifyElements);
       setStatus(autoFindStatus.loading);
-      getElements(updateElements);
+      getElements(updateElements, setStatus);
     };
 
     const removeHighlighs = () => {
