@@ -1,5 +1,4 @@
 export const generateXpathes = () => {
-  // Object.defineProperty(exports, "__esModule", { value: true });
   let exports = {};
   /**
    * Main class, containing the Algorithm.
