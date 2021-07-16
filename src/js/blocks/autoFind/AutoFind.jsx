@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import injectSheet from "react-jss";
 import { Slider, Row, Alert } from "antd";
 import { useAutoFind } from "./autoFindProvider/AutoFindProvider";
+import { connector } from "./autoFindProvider/connector";
 
 import "./slider.less";
 import Layout, { Content, Footer } from "antd/lib/layout/layout";
@@ -39,7 +40,13 @@ const AutoFind = ({ classes }) => {
       setBackendVer(r);
     };
 
+    const attachCss = () => {
+      connector.attachCSS("contextmenu.css");
+      connector.attachCSS("reportproblempopup.css");
+    };
+
     fetchData();
+    attachCss();
   }, []);
 
   const handleGetElements = () => {

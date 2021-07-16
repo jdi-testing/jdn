@@ -90,7 +90,6 @@ const AutoFindProvider = inject("mainModel")(
     };
 
     const reportProblem = (predictedElements) => {
-      connector.attachCSS("reportproblempopup.css");
       connector.attachContentScript(reportProblemPopup);
       connector.attachContentScript(saveJson(JSON.stringify(predictedElements)));
     };
