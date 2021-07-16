@@ -3,7 +3,7 @@
  */
 /* global chrome */
 export const highlightOnPage = () => {
-  const highlightElements = [];
+  let highlightElements = [];
   let isHighlightElementsReverse = false;
   let port;
 
@@ -48,12 +48,12 @@ export const highlightOnPage = () => {
 
   const assignType = (element) => {
     const div = document.getElementById(element.element_id);
-    div.querySelector(".jdn-label").textContent = element.predicted_label;
+    div.querySelector(".jdn-label").textContent = element.jdi_class_name;
   };
 
   const drawRectangle = (
     element,
-    { element_id, predicted_label, predicted_probability }
+    { element_id, jdi_class_name, predicted_probability }
   ) => {
     const divDefaultStyle = (rect) => {
       const { top, left, height, width } = rect || {};
@@ -78,7 +78,7 @@ export const highlightOnPage = () => {
     const div = document.createElement("div");
     div.id = element_id;
     div.setAttribute("jdn-highlight", true);
-    div.innerHTML = `<span class="jdn-label">${predicted_label}</span>: ${predicted_probability}`;
+    div.innerHTML = `<span class="jdn-label">${jdi_class_name}</span>: ${predicted_probability}`;
     Object.assign(div.style, divDefaultStyle(element.getBoundingClientRect()));
 
     div.onclick = () => {
@@ -166,6 +166,7 @@ export const highlightOnPage = () => {
         const el = document.getElementById(elementId);
         if (el) el.remove();
       });
+      highlightElements = [];
       callback();
     }
   };
@@ -175,10 +176,16 @@ export const highlightOnPage = () => {
     events.forEach((eventName) => {
       document.removeEventListener(eventName, scrollListenerCallback);
     });
+    document.removeEventListener("click", clickListener);
   };
 
   const removeHighlight = (callback) => () => {
     removeEventListeners(removeHighlightElements(callback));
+  };
+
+  const clickListener = (event) => {
+    if (!event.clientX && !event.clientY) return;
+    selectAllElementsOnClick(event);
   };
 
   const setDocumentListeners = () => {
@@ -186,10 +193,7 @@ export const highlightOnPage = () => {
       document.addEventListener(eventName, scrollListenerCallback);
     });
 
-    document.addEventListener("click", (event) => {
-      if (!event.clientX && !event.clientY) return;
-      selectAllElementsOnClick(event);
-    });
+    document.addEventListener("click", clickListener);
   };
 
   const highlightErrors = (ids) => {
@@ -203,18 +207,14 @@ export const highlightOnPage = () => {
     });
   };
 
-  const messageHandler = ({ message, param }) => {
-    const removedCallback = () => {
-      chrome.runtime.sendMessage({ message: "HIGHLIGHT_REMOVED" });
-    };
-
+  const messageHandler = ({ message, param }, sender, sendResponse) => {
     if (message === "SET_HIGHLIGHT") {
+      if (!highlightElements.length) setDocumentListeners();
       findAndHighlight(param);
-      setDocumentListeners();
     }
 
     if (message === "KILL_HIGHLIGHT") {
-      removeHighlight(removedCallback)();
+      removeHighlight(sendResponse)();
     }
 
     if (message === "HIGHLIGHT_ERRORS") {
@@ -231,6 +231,10 @@ export const highlightOnPage = () => {
 
     if (message === "ASSIGN_TYPE") {
       assignType(param);
+    }
+
+    if (message === "PING_SCRIPT" && (param.scriptName === "highlightOnPage")) {      
+      sendResponse({ message: true });
     }
   };
 

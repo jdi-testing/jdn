@@ -6,7 +6,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const mainConfig = {
   devtool: "inline-cheap-module-source-map",
   mode: "development",
-  entry: ["./src/js/main.jsx", "./src/manifest.json"],
+  entry: ["./src/js/main.jsx", "./manifest.json"],
   output: {
     path: path.join(__dirname, "dist"),
     filename: "[name].bundle.js",

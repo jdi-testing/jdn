@@ -16,7 +16,7 @@ const AutoFind = ({ classes }) => {
       status,
       predictedElements,
       pageElements,
-      allowIdetifyElements,
+      allowIdentifyElements,
       allowRemoveElements,
       perception,
       unreachableNodes,
@@ -84,8 +84,8 @@ const AutoFind = ({ classes }) => {
     <Layout>
       <Content className={classes.content}>
         <Row>
-          <button disabled={!allowIdetifyElements} onClick={handleGetElements}>
-            Idetify
+          <button disabled={!allowIdentifyElements} onClick={handleGetElements}>
+            Identify
           </button>
           <button disabled={!allowRemoveElements} onClick={handleRemove}>
             Remove

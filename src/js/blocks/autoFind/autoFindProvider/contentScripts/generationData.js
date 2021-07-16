@@ -116,9 +116,13 @@ export const generateXpathes = () => {
     };
   };
 
-  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.message === "GENERATE_XPATHES") {
-      sendResponse(mapElements(request.param));
+  chrome.runtime.onMessage.addListener(({message, param}, sender, sendResponse) => {
+    if (message === "GENERATE_XPATHES") {
+      sendResponse(mapElements(param));
+    }
+
+    if (message === "PING_SCRIPT" && (param.scriptName === "generateXpathes")) {
+      sendResponse({ message: true });
     }
   })
 };

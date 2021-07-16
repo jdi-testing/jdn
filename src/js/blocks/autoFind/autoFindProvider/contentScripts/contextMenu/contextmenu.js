@@ -294,11 +294,11 @@ export const runContextMenu = () => {
   let predictedElement;
 
   const menuItems = (
-    { predicted_label, element_id, skipGeneration },
+    { jdi_class_name, element_id, skipGeneration },
     types
   ) => [
     {
-      text: `<b>Block type: ${predicted_label}</b>`,
+      text: `<b>Block type: ${jdi_class_name}</b>`,
       sub: typesMenu(types),
     },
     {
@@ -340,7 +340,7 @@ export const runContextMenu = () => {
     });
   };
 
-  document.oncontextmenu = (event) => {
+  const contextMenuListener = (event) => {
     const highlightTarget = event.target.closest("[jdn-highlight=true]");
     if (highlightTarget) {
       event.preventDefault();
@@ -352,12 +352,16 @@ export const runContextMenu = () => {
     }
   };
 
-  document.addEventListener(
-    "mouseleave",
-    () => elementMenu && elementMenu.hide()
-  );
+  const mouseLeaveListener = () => {
+    elementMenu && elementMenu.hide();
+  };
 
-  chrome.runtime.onMessage.addListener(({ message, param }) => {
+  const runDocumentListeners = () => {
+    document.oncontextmenu = contextMenuListener;
+    document.addEventListener("mouseleave", mouseLeaveListener);
+  };
+
+  const messageHandler = ({ message, param }, sender, sendResponse) => {
     if (message === "ELEMENT_DATA") {
       // element can be undefined in case of outdated event listener (after refresh, for example). better solution is to kill listener, but I can't implement it for now
       if (!param.element) return;
@@ -371,5 +375,12 @@ export const runContextMenu = () => {
     if (message === "HIGHLIGHT_TOGGLED") {
       predictedElement = param;
     }
-  });
+
+    if (message === "PING_SCRIPT" && (param.scriptName === "runContextMenu")) {
+      sendResponse({ message: true });
+    }
+  };
+
+  runDocumentListeners();
+  chrome.runtime.onMessage.addListener(messageHandler);
 };
