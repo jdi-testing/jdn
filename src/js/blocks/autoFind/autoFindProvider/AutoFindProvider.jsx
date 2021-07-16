@@ -10,7 +10,8 @@ import {
   generatePageObject,
   requestXpathes,
 } from "./pageDataHandlers";
-
+import { reportProblemPopup } from "./contentScripts/reportProblemPopup/reportProblemPopup";
+import { saveJson } from './contentScripts/saveJson';
 import { JDIclasses, getJdiClassName } from "./generationClassesMap";
 import { connector, sendMessage } from "./connector";
 
@@ -99,6 +100,11 @@ const AutoFindProvider = inject("mainModel")(
         });
         return changed;
       });
+    };
+
+    const reportProblem = (predictedElements) => {
+      connector.attachContentScript(reportProblemPopup);
+      connector.attachContentScript(saveJson(JSON.stringify(predictedElements)));
     };
 
     const updateElements = ([predicted, page]) => {
@@ -221,6 +227,7 @@ const AutoFindProvider = inject("mainModel")(
         removeHighlighs,
         generateAndDownload,
         onChangePerception,
+        reportProblem,
       },
     ];
 

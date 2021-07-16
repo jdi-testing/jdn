@@ -5,6 +5,7 @@ import {
   useAutoFind,
   xpathGenerationStatus,
 } from "./autoFindProvider/AutoFindProvider";
+import { connector } from "./autoFindProvider/connector";
 
 import "./slider.less";
 import Layout, { Content, Footer } from "antd/lib/layout/layout";
@@ -31,6 +32,7 @@ const AutoFind = ({ classes }) => {
       removeHighlighs,
       generateAndDownload,
       onChangePerception,
+      reportProblem
     },
   ] = useAutoFind();
 
@@ -43,7 +45,13 @@ const AutoFind = ({ classes }) => {
       setBackendVer(r);
     };
 
+    const attachCss = () => {
+      connector.attachCSS("contextmenu.css");
+      connector.attachCSS("reportproblempopup.css");
+    };
+
     fetchData();
+    attachCss();
   }, []);
 
   const handleGetElements = () => {
@@ -70,6 +78,10 @@ const AutoFind = ({ classes }) => {
     return predictedElements && allowRemoveElements
       ? predictedElements.length
       : 0;
+  };
+
+  const handleReportProblem = () => {
+    reportProblem(predictedElements);
   };
 
   return (
@@ -119,7 +131,16 @@ const AutoFind = ({ classes }) => {
           />
         ) : null}
       </Content>
-      <Footer className={classes.footer}>backend ver. {backendVer}</Footer>
+      <Footer className={classes.footer}>
+        <div>
+          <a
+            hidden={!allowRemoveElements}
+            onClick={handleReportProblem}>
+              Report Problem
+          </a>
+        </div>
+        backend ver. {backendVer}
+      </Footer>
     </Layout>
   );
 };
