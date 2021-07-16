@@ -12,7 +12,6 @@ export const getPageData = () => {
       zIndex: 999999,
     };
     Object.assign(overlay.style, overlayStyle);
-    console.log(overlay);
     document.body.appendChild(overlay);
 
     return overlayID;
