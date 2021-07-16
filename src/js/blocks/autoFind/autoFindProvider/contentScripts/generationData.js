@@ -1,5 +1,387 @@
 export const generateXpathes = () => {
+  let exports = {};
+  /**
+   * Main class, containing the Algorithm.
+   *
+   * @remarks For more information on how the algorithm works, please refer to:
+   * Maurizio Leotta, Andrea Stocco, Filippo Ricca, Paolo Tonella. ROBULA+:
+   * An Algorithm for Generating Robust XPath Locators for Web Testing. Journal
+   * of Software: Evolution and Process (JSEP), Volume 28, Issue 3, pp.177–204.
+   * John Wiley & Sons, 2016.
+   * https://doi.org/10.1002/smr.1771
+   *
+   * @param options - (optional) algorithm options.
+   */
+  class RobulaPlus {
+    constructor(options) {
+      this.attributePriorizationList = [
+        "name",
+        "class",
+        "title",
+        "alt",
+        "value",
+      ];
+      this.attributeBlackList = [
+        "href",
+        "src",
+        "onclick",
+        "onload",
+        "tabindex",
+        "width",
+        "height",
+        "style",
+        "size",
+        "maxlength",
+        "jdn-hash",
+        "xml:space",
+      ];
+      if (options) {
+        this.attributePriorizationList = options.attributePriorizationList;
+        this.attributeBlackList = options.attributeBlackList;
+      }
+    }
+    /**
+     * Returns an optimized robust XPath locator string.
+     *
+     * @param element - The desired element.
+     * @param document - The document to analyse, that contains the desired element.
+     *
+     * @returns - A robust xPath locator string, describing the desired element.
+     */
+    getRobustXPath(element, document) {
+      if (!document.body.contains(element)) {
+        throw new Error("Document does not contain given element!");
+      }
+      const xPathList = [new XPath("//*")];
+      while (xPathList.length > 0) {
+        const xPath = xPathList.shift();
+        let temp = [];
+        temp = temp.concat(this.transfConvertStar(xPath, element));
+        temp = temp.concat(this.transfAddId(xPath, element));
+        temp = temp.concat(this.transfAddText(xPath, element));
+        temp = temp.concat(this.transfAddAttribute(xPath, element));
+        temp = temp.concat(this.transfAddAttributeSet(xPath, element));
+        temp = temp.concat(this.transfAddPosition(xPath, element));
+        temp = temp.concat(this.transfAddLevel(xPath, element));
+        temp = [...new Set(temp)]; // removes duplicates
+        for (const x of temp) {
+          if (this.uniquelyLocate(x.getValue(), element, document)) {
+            return x.getValue();
+          }
+          xPathList.push(x);
+        }
+      }
+      throw new Error("Internal Error: xPathList.shift returns undefined");
+    }
+    /**
+     * Returns an element in the given document located by the given xPath locator.
+     *
+     * @param xPath - A xPath string, describing the desired element.
+     * @param document - The document to analyse, that contains the desired element.
+     *
+     * @returns - The first maching Element located.
+     */
+    getElementByXPath(xPath, document) {
+      return document.evaluate(
+        xPath,
+        document,
+        null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE,
+        null
+      ).singleNodeValue;
+    }
+    /**
+     * Returns, wheater an xPath describes only the given element.
+     *
+     * @param xPath - A xPath string, describing the desired element.
+     * @param element - The desired element.
+     * @param document - The document to analyse, that contains the desired element.
+     *
+     * @returns - True, if the xPath describes only the desired element.
+     */
+    uniquelyLocate(xPath, element, document) {
+      const nodesSnapshot = document.evaluate(
+        xPath,
+        document,
+        null,
+        XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+        null
+      );
+      return (
+        nodesSnapshot.snapshotLength === 1 &&
+        nodesSnapshot.snapshotItem(0) === element
+      );
+    }
+    transfConvertStar(xPath, element) {
+      const output = [];
+      const ancestor = this.getAncestor(element, xPath.getLength() - 1);
+      if (xPath.startsWith("//*")) {
+        output.push(
+          new XPath("//" + ancestor.tagName.toLowerCase() + xPath.substring(3))
+        );
+      }
+      return output;
+    }
+    transfAddId(xPath, element) {
+      const output = [];
+      const ancestor = this.getAncestor(element, xPath.getLength() - 1);
+      if (ancestor.id && !xPath.headHasAnyPredicates()) {
+        const newXPath = new XPath(xPath.getValue());
+        newXPath.addPredicateToHead(`[@id='${ancestor.id}']`);
+        output.push(newXPath);
+      }
+      return output;
+    }
+    transfAddText(xPath, element) {
+      const output = [];
+      const ancestor = this.getAncestor(element, xPath.getLength() - 1);
+      if (
+        ancestor.textContent &&
+        !xPath.headHasPositionPredicate() &&
+        !xPath.headHasTextPredicate()
+      ) {
+        const text = ancestor.textContent.replace(/\'/g, "&quot;").trim();
+        const newXPath = new XPath(xPath.getValue());
+        newXPath.addPredicateToHead(`[contains(text(),'${text}')]`);
+        output.push(newXPath);
+      }
+      return output;
+    }
+    transfAddAttribute(xPath, element) {
+      const output = [];
+      const ancestor = this.getAncestor(element, xPath.getLength() - 1);
+      if (!xPath.headHasAnyPredicates()) {
+        // add priority attributes to output
+        for (const priorityAttribute of this.attributePriorizationList) {
+          for (const attribute of ancestor.attributes) {
+            if (attribute.name === priorityAttribute) {
+              const newXPath = new XPath(xPath.getValue());
+              newXPath.addPredicateToHead(
+                `[@${attribute.name}='${attribute.value}']`
+              );
+              output.push(newXPath);
+              break;
+            }
+          }
+        }
+        // append all other non-blacklist attributes to output
+        for (const attribute of ancestor.attributes) {
+          if (
+            !this.attributeBlackList.includes(attribute.name) &&
+            !this.attributePriorizationList.includes(attribute.name)
+          ) {
+            const newXPath = new XPath(xPath.getValue());
+            newXPath.addPredicateToHead(
+              `[@${attribute.name}='${attribute.value}']`
+            );
+            output.push(newXPath);
+          }
+        }
+      }
+      return output;
+    }
+    transfAddAttributeSet(xPath, element) {
+      const output = [];
+      const ancestor = this.getAncestor(element, xPath.getLength() - 1);
+      if (!xPath.headHasAnyPredicates()) {
+        // add id to attributePriorizationList
+        this.attributePriorizationList.unshift("id");
+        let attributes = [...ancestor.attributes];
+        // remove black list attributes
+        attributes = attributes.filter(
+          (attribute) => !this.attributeBlackList.includes(attribute.name)
+        );
+        // generate power set
+        let attributePowerSet = this.generatePowerSet(attributes);
+        // remove sets with cardinality < 2
+        attributePowerSet = attributePowerSet.filter(
+          (attributeSet) => attributeSet.length >= 2
+        );
+        // sort elements inside each powerset
+        for (const attributeSet of attributePowerSet) {
+          attributeSet.sort(this.elementCompareFunction.bind(this));
+        }
+        // sort attributePowerSet
+        attributePowerSet.sort((set1, set2) => {
+          if (set1.length < set2.length) {
+            return -1;
+          }
+          if (set1.length > set2.length) {
+            return 1;
+          }
+          for (let i = 0; i < set1.length; i++) {
+            if (set1[i] !== set2[i]) {
+              return this.elementCompareFunction(set1[i], set2[i]);
+            }
+          }
+          return 0;
+        });
+        // remove id from attributePriorizationList
+        this.attributePriorizationList.shift();
+        // convert to predicate
+        for (const attributeSet of attributePowerSet) {
+          let predicate = `[@${attributeSet[0].name}='${attributeSet[0].value}'`;
+          for (let i = 1; i < attributeSet.length; i++) {
+            predicate += ` and @${attributeSet[i].name}='${attributeSet[i].value}'`;
+          }
+          predicate += "]";
+          const newXPath = new XPath(xPath.getValue());
+          newXPath.addPredicateToHead(predicate);
+          output.push(newXPath);
+        }
+      }
+      return output;
+    }
+    transfAddPosition(xPath, element) {
+      const output = [];
+      const ancestor = this.getAncestor(element, xPath.getLength() - 1);
+      if (!xPath.headHasPositionPredicate()) {
+        let position = 1;
+        if (xPath.startsWith("//*")) {
+          position =
+            Array.from(ancestor.parentNode.children).indexOf(ancestor) + 1;
+        } else {
+          for (const child of ancestor.parentNode.children) {
+            if (ancestor === child) {
+              break;
+            }
+            if (ancestor.tagName === child.tagName) {
+              position++;
+            }
+          }
+        }
+        const newXPath = new XPath(xPath.getValue());
+        newXPath.addPredicateToHead(`[${position}]`);
+        output.push(newXPath);
+      }
+      return output;
+    }
+    transfAddLevel(xPath, element) {
+      const output = [];
+      if (xPath.getLength() - 1 < this.getAncestorCount(element)) {
+        output.push(new XPath("//*" + xPath.substring(1)));
+      }
+      return output;
+    }
+    generatePowerSet(input) {
+      return input.reduce(
+        (subsets, value) =>
+          subsets.concat(subsets.map((set) => [value, ...set])),
+        [[]]
+      );
+    }
+    elementCompareFunction(attr1, attr2) {
+      for (const element of this.attributePriorizationList) {
+        if (element === attr1.name) {
+          return -1;
+        }
+        if (element === attr2.name) {
+          return 1;
+        }
+      }
+      return 0;
+    }
+    getAncestor(element, index) {
+      let output = element;
+      for (let i = 0; i < index; i++) {
+        if (!output) {
+          debugger;
+          console.log(output);
+        }
+        if (output.parentElement) {
+          output = output.parentElement;
+        }
+      }
+      return output;
+    }
+    getAncestorCount(element) {
+      let count = 0;
+      while (element.parentElement) {
+        element = element.parentElement;
+        count++;
+      }
+      return count;
+    }
+  }
+  exports.RobulaPlus = RobulaPlus;
+  class XPath {
+    constructor(value) {
+      this.value = value;
+    }
+    getValue() {
+      return this.value;
+    }
+    startsWith(value) {
+      return this.value.startsWith(value);
+    }
+    substring(value) {
+      return this.value.substring(value);
+    }
+    headHasAnyPredicates() {
+      return this.value.split("/")[2].includes("[");
+    }
+    headHasPositionPredicate() {
+      const splitXPath = this.value.split("/");
+      const regExp = new RegExp("[[0-9]]");
+      return (
+        splitXPath[2].includes("position()") ||
+        splitXPath[2].includes("last()") ||
+        regExp.test(splitXPath[2])
+      );
+    }
+    headHasTextPredicate() {
+      return this.value.split("/")[2].includes("text()");
+    }
+    addPredicateToHead(predicate) {
+      const splitXPath = this.value.split("/");
+      splitXPath[2] += predicate;
+      this.value = splitXPath.join("/");
+    }
+    getLength() {
+      const splitXPath = this.value.split("/");
+      let length = 0;
+      for (const piece of splitXPath) {
+        if (piece) {
+          length++;
+        }
+      }
+      return length;
+    }
+  }
+  exports.XPath = XPath;
+  class RobulaPlusOptions {
+    constructor() {
+      /**
+       * @attribute - attributePriorizationList: A prioritized list of HTML attributes, which are considered in the given order.
+       * @attribute - attributeBlackList: Contains HTML attributes, which are classified as too fragile and are ignored by the algorithm.
+       */
+      this.attributePriorizationList = [
+        "name",
+        "class",
+        "title",
+        "alt",
+        "value",
+      ];
+      this.attributeBlackList = [
+        "href",
+        "src",
+        "onclick",
+        "onload",
+        "tabindex",
+        "width",
+        "height",
+        "style",
+        "size",
+        "maxlength",
+      ];
+    }
+  }
+  exports.RobulaPlusOptions = RobulaPlusOptions;
+
+  window.robula = exports;
+
   const unreachableNodes = [];
+  const robula = new RobulaPlus();
 
   /*
     Make an 'ID' attribute to the camel notation. Rules:
@@ -8,106 +390,37 @@ export const generateXpathes = () => {
     - Otherwise, leave it as it is (searchButton -> searchButton)
   */
   const camelCase = (string) => {
-    if (string.indexOf('-') < 0 && string.indexOf('_') < 0) {
+    if (string.indexOf("-") < 0 && string.indexOf("_") < 0) {
       return string;
     }
     const regex = /(_|-)([a-z])/g;
     const toCamelCase = (string) => string[1].toUpperCase();
-    return string.toLowerCase().replace(regex, toCamelCase).replaceAll('-', '_');
+    return string
+      .toLowerCase()
+      .replace(regex, toCamelCase)
+      .replaceAll("-", "_");
   };
 
   const mapElements = (elements) => {
-    const xpathElements = elements.map((predictedElement) => {
+    const xpathElements = elements.map((predictedElement, index) => {
       let element = document.querySelector(
         `[jdn-hash='${predictedElement.element_id}']`
       );
-      if (!element) {        
-        unreachableNodes.push(predictedElement.element_id);       
+      if (!element) {
+        unreachableNodes.push(predictedElement.element_id);
         return;
       }
       predictedElement.attrId = element.id;
-      predictedElement.predictedAttrId = element.id ? camelCase(element.id) : "";
+      predictedElement.predictedAttrId = element.id
+        ? camelCase(element.id)
+        : "";
       predictedElement.tagName = element.tagName.toLowerCase();
 
-      /*
-        Software License Agreement (BSD License)
-  
-        Copyright (c) 2009, Mozilla Foundation
-        All rights reserved.
-  
-        Redistribution and use of this software in source and binary forms, with or without modification,
-        are permitted provided that the following conditions are met:
-  
-        * Redistributions of source code must retain the above
-          copyright notice, this list of conditions and the
-          following disclaimer.
-  
-        * Redistributions in binary form must reproduce the above
-          copyright notice, this list of conditions and the
-          following disclaimer in the documentation and/or other
-          materials provided with the distribution.
-  
-        * Neither the name of Mozilla Foundation nor the names of its
-          contributors may be used to endorse or promote products
-          derived from this software without specific prior
-          written permission of Mozilla Foundation.
-  
-        THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
-        IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-        FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-        CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-        DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-        DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-        IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
-        OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-        -->
-        */
-      const getElementTreeXPath = () => {
-        var paths = [];
+      console.log(`${index + 1} xpathes been generated`);
 
-        // Use nodeName (instead of localName) so namespace prefix is included (if any).
-        for (
-          ;
-          element && element.nodeType == Node.ELEMENT_NODE;
-          element = element.parentNode
-        ) {
-          var index = 0;
-          var hasFollowingSiblings = false;
-          for (
-            var sibling = element.previousSibling;
-            sibling;
-            sibling = sibling.previousSibling
-          ) {
-            // Ignore document type declaration.
-            if (sibling.nodeType == Node.DOCUMENT_TYPE_NODE) continue;
-
-            if (sibling.nodeName == element.nodeName) ++index;
-          }
-
-          for (
-            var sibling = element.nextSibling;
-            sibling && !hasFollowingSiblings;
-            sibling = sibling.nextSibling
-          ) {
-            if (sibling.nodeName == element.nodeName)
-              hasFollowingSiblings = true;
-          }
-
-          var tagName =
-            (element.prefix ? element.prefix + ":" : "") + element.localName;
-          var pathIndex =
-            index || hasFollowingSiblings ? "[" + (index + 1) + "]" : "";
-          paths.splice(0, 0, tagName + pathIndex);
-        }
-
-        return paths.length ? "/" + paths.join("/") : null;
-        /*
-          <---
-          */
-      };
       return {
         ...predictedElement,
-        xpath: getElementTreeXPath(),
+        xpath: robula.getRobustXPath(element, document),
       };
     });
     return {
@@ -116,7 +429,7 @@ export const generateXpathes = () => {
     };
   };
 
-  chrome.runtime.onMessage.addListener(({message, param}, sender, sendResponse) => {
+  chrome.runtime.onMessage.addListener(({ message, param }, sender, sendResponse) => {
     if (message === "GENERATE_XPATHES") {
       sendResponse(mapElements(param));
     }
@@ -124,5 +437,5 @@ export const generateXpathes = () => {
     if (message === "PING_SCRIPT" && (param.scriptName === "generateXpathes")) {
       sendResponse({ message: true });
     }
-  })
+  });
 };

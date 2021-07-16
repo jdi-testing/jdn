@@ -6,9 +6,11 @@ import {
   getElements,
   highlightElements,
   runDocumentListeners,
-  generatePageObject
+  generatePageObject,
+  requestXpathes,
 } from "./pageDataHandlers";
-
+import { reportProblemPopup } from "./contentScripts/reportProblemPopup/reportProblemPopup";
+import { saveJson } from './contentScripts/saveJson';
 import { JDIclasses, getJdiClassName } from "./generationClassesMap";
 import { connector, sendMessage } from "./connector";
 
@@ -22,6 +24,12 @@ const autoFindStatus = {
   error: "An error occured",
 };
 
+export const xpathGenerationStatus = {
+  noStatus: "",
+  started: "XPath generation is running in background...",
+  complete: "XPathes generation is successfully completed",
+};
+
 const AutoFindContext = React.createContext();
 
 const AutoFindProvider = inject("mainModel")(
@@ -32,7 +40,11 @@ const AutoFindProvider = inject("mainModel")(
     const [allowIdentifyElements, setAllowIdentifyElements] = useState(true);
     const [allowRemoveElements, setAllowRemoveElements] = useState(false);
     const [perception, setPerception] = useState(0.5);
-    const [unreachableNodes, setUnreachableNodes] = useState(null);
+    const [unreachableNodes, setUnreachableNodes] = useState([]);
+    const [availableForGeneration, setAvailableForGeneration] = useState([]);
+    const [xpathStatus, setXpathStatus] = useState(
+      xpathGenerationStatus.noStatus
+    );
 
     connector.onerror = () => {
       setStatus(autoFindStatus.error);
@@ -45,6 +57,8 @@ const AutoFindProvider = inject("mainModel")(
       setAllowIdentifyElements(true);
       setAllowRemoveElements(false);
       setUnreachableNodes([]);
+      setAvailableForGeneration([]);
+      setXpathStatus(xpathGenerationStatus.noStatus);
     };
 
     const toggleElementGeneration = (id) => {
@@ -87,12 +101,16 @@ const AutoFindProvider = inject("mainModel")(
       });
     };
 
+    const reportProblem = (predictedElements) => {
+      connector.attachContentScript(reportProblemPopup);
+      connector.attachContentScript(saveJson(JSON.stringify(predictedElements)));
+    };
+
     const updateElements = ([predicted, page]) => {
       const rounded = predicted.map((el) => ({
         ...el,
         jdi_class_name: getJdiClassName(el.predicted_label),
-        predicted_probability:
-          Math.round(el.predicted_probability * 100) / 100,
+        predicted_probability: Math.round(el.predicted_probability * 100) / 100,
       }));
       setPredictedElements(rounded);
       setPageElements(page);
@@ -114,11 +132,8 @@ const AutoFindProvider = inject("mainModel")(
       sendMessage.killHighlight(null, callback);
     };
 
-    const generateAndDownload = (perception) => {
-      generatePageObject(predictedElements, perception, mainModel, (result) => {
-        setUnreachableNodes(result.unreachableNodes);
-        sendMessage.highlightUnreached(result.unreachableNodes);
-      });
+    const generateAndDownload = () => {
+      generatePageObject(availableForGeneration, mainModel);
     };
 
     const onChangePerception = (value) => {
@@ -127,7 +142,10 @@ const AutoFindProvider = inject("mainModel")(
 
     const getPredictedElement = (id) => {
       const element = predictedElements.find((e) => e.element_id === id);
-      sendMessage.elementData({ element, types: Object.keys(JDIclasses).map(getJdiClassName) });
+      sendMessage.elementData({
+        element,
+        types: Object.keys(JDIclasses).map(getJdiClassName),
+      });
     };
 
     const actions = {
@@ -143,7 +161,15 @@ const AutoFindProvider = inject("mainModel")(
         highlightElements(
           predictedElements,
           () => setStatus(autoFindStatus.success),
-          perception,
+          perception
+        );
+        setAvailableForGeneration(
+          predictedElements.filter(
+            (e) =>
+              e.predicted_probability >= perception &&
+              !e.skipGeneration &&
+              !e.hidden
+          )
         );
       }
     }, [predictedElements, perception]);
@@ -154,6 +180,35 @@ const AutoFindProvider = inject("mainModel")(
       }
     }, [status]);
 
+    useEffect(() => {
+      if (!availableForGeneration) return;
+      const noXpath = availableForGeneration.filter(
+        (element) => !element.xpath
+      );
+      if (!noXpath.length) return;
+      setXpathStatus(xpathGenerationStatus.started);
+      requestXpathes(noXpath, ({ xpathElements, unreachableNodes }) => {
+        setAvailableForGeneration(xpathElements);
+        setUnreachableNodes(unreachableNodes);
+        const updated = predictedElements.map((predictedElement) => {
+          const xPathEl = xpathElements.find(
+            (x) => x.element_id === predictedElement.element_id
+          );
+          return {
+            ...predictedElement,
+            ...xPathEl,
+          };
+        });
+        setPredictedElements(updated);
+        setXpathStatus(xpathGenerationStatus.complete);
+      });
+    }, [availableForGeneration]);
+
+    useEffect(() => {
+      if (!unreachableNodes.length) return;
+      highlightUnreached(unreachableNodes);
+    }, [unreachableNodes]);
+
     const data = [
       {
         pageElements,
@@ -163,12 +218,15 @@ const AutoFindProvider = inject("mainModel")(
         allowRemoveElements,
         perception,
         unreachableNodes,
+        availableForGeneration,
+        xpathStatus,
       },
       {
         identifyElements,
         removeHighlighs,
         generateAndDownload,
         onChangePerception,
+        reportProblem,
       },
     ];
 
