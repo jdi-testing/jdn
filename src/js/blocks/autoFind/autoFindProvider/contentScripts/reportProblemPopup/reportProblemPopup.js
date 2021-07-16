@@ -20,10 +20,10 @@ export const reportProblemPopup = () => {
     }
 
     const backgroundModal = document.createElement('div');
-    backgroundModal.classList.add('report-problem-popup__background');
+    backgroundModal.classList.add('jdn-report-problem-popup__background');
     
     const modal = document.createElement('div');
-    modal.classList.add('report-problem-popup__modal');
+    modal.classList.add('jdn-report-problem-popup__modal');
 
     const title = document.createElement('h4');
     title.innerText = 'Report Problem';
@@ -42,7 +42,7 @@ export const reportProblemPopup = () => {
     `;
 
     const buttonOk = document.createElement('button');
-    buttonOk.classList.add('report-problem-popup__button');
+    buttonOk.classList.add('jdn-report-problem-popup__button');
     buttonOk.innerText = 'Ok';
 
     buttonOk.addEventListener('click', () => {
@@ -78,7 +78,7 @@ export const reportProblemPopup = () => {
     });
 
     const buttonCancel = document.createElement('button');
-    buttonCancel.classList.add('report-problem-popup__button');
+    buttonCancel.classList.add('jdn-report-problem-popup__button');
     buttonCancel.innerText = 'Cancel';
 
     buttonCancel.addEventListener('click', () => removePopup());

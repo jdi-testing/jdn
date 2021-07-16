@@ -45,13 +45,7 @@ const AutoFind = ({ classes }) => {
       setBackendVer(r);
     };
 
-    const attachCss = () => {
-      connector.attachCSS("contextmenu.css");
-      connector.attachCSS("reportproblempopup.css");
-    };
-
     fetchData();
-    attachCss();
   }, []);
 
   const handleGetElements = () => {
