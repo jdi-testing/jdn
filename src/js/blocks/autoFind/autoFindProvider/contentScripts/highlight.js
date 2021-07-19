@@ -22,8 +22,7 @@ export const highlightOnPage = () => {
 
   const toggleElement = (element) => {
     const div = document.getElementById(element.element_id);
-    if (element.skipGeneration) div.className = "jdn-highlight jdn-secondary";
-    else div.className = "jdn-highlight jdn-primary";
+    div.className = `jdn-highlight ${element.skipGeneration ? 'jdn-secondary' : 'jdn-primary'}`;
   };
 
   const removeElement = (element) => {
