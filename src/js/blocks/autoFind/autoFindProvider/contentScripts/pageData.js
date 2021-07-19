@@ -10,6 +10,7 @@ export const getPageData = () => {
       width: "100%",
       height: "100%",
       zIndex: 999999,
+      backgroundColor: "rgba(0,0,0,.3)",
     };
     Object.assign(overlay.style, overlayStyle);
     document.body.appendChild(overlay);
@@ -34,7 +35,7 @@ export const getPageData = () => {
   }
 
   function assign_uuid() {
-    [...document.querySelectorAll("*")].forEach((el) => {
+    [...document.querySelectorAll(`*:not(#${overlayID}`)].forEach((el) => {
       gen_uuid(el);
     });
   }
@@ -48,7 +49,7 @@ export const getPageData = () => {
   }
 
   function getTreeDataset() {
-    return [...document.querySelectorAll("*")].map((el) => {
+    return [...document.querySelectorAll(`*:not(#${overlayID}`)].map((el) => {
       const _x = pageXOffset + el.getBoundingClientRect()["x"];
       const _y = pageYOffset + el.getBoundingClientRect()["y"];
       const _width = el.getBoundingClientRect()["width"];
