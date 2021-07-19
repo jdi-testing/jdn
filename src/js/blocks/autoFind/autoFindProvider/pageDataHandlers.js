@@ -69,7 +69,6 @@ export const runDocumentListeners = (actions) => {
   if (!documentListenersStarted) {
     setUrlListener(actions["HIGHLIGHT_OFF"]);
     connector.attachContentScript(runContextMenu);
-    connector.attachCSS("highlight.css");
     documentListenersStarted = true;
   }
 };
