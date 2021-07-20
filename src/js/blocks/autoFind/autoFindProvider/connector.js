@@ -21,12 +21,12 @@ class Connector {
 
   sendMessage(action, payload, onResponse) {
     chrome.tabs.sendMessage(
-      this.tab.id,
-      {
-        message: action,
-        param: payload,
-      },
-      onResponse
+        this.tab.id,
+        {
+          message: action,
+          param: payload,
+        },
+        onResponse
     );
   }
 
@@ -66,10 +66,13 @@ class Connector {
       return new Promise((resolve) => {
         if (result) return resolve(true);
         chrome.scripting.executeScript(
-          { target: { tabId: this.tab.id }, function: script },
-          (invoked) => {
-            resolve(invoked || true);
-          }
+            {
+              target: { tabId: this.tab.id },
+              function: script
+            },
+            (invoked) => {
+              resolve(invoked || true);
+            }
         );
       });
     });
