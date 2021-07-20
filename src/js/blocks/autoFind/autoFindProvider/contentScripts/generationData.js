@@ -402,7 +402,7 @@ export const generateXpathes = () => {
   };
 
   const mapElements = (elements) => {
-    const xpathElements = elements.map((predictedElement, index) => {
+    const xpathElements = (elements.map((predictedElement, index) => {
       let element = document.querySelector(
         `[jdn-hash='${predictedElement.element_id}']`
       );
@@ -422,7 +422,7 @@ export const generateXpathes = () => {
         ...predictedElement,
         xpath: robula.getRobustXPath(element, document),
       };
-    });
+    })).filter(el => !!el);
     return {
       xpathElements,
       unreachableNodes,

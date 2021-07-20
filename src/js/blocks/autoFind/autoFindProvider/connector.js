@@ -110,6 +110,7 @@ export const sendMessage = {
     connector.sendMessage("GENERATE_XPATHES", payload, onResponse),
   pingScript: (payload, onResponse) =>
     connector.sendMessage("PING_SCRIPT", payload, onResponse),
+  highlightUnreached: (payload) => connector.sendMessage("HIGHLIGHT_ERRORS", payload),
 };
 
 export default Connector;

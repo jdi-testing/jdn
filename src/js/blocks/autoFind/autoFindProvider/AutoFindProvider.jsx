@@ -5,7 +5,6 @@ import { useContext } from "react";
 import {
   getElements,
   highlightElements,
-  highlightUnreached,
   runDocumentListeners,
   generatePageObject,
   requestXpathes,
@@ -159,19 +158,25 @@ const AutoFindProvider = inject("mainModel")(
 
     useEffect(() => {
       if (predictedElements) {
+        const onHighlighted = () => {
+          setStatus(autoFindStatus.success);
+          setAvailableForGeneration(
+            predictedElements.filter(
+              (e) =>
+                e.predicted_probability >= perception &&
+                !e.skipGeneration &&
+                !e.hidden &&
+                !unreachableNodes.includes(e.element_id)
+            )
+          );
+        }
+
         highlightElements(
           predictedElements,
-          () => setStatus(autoFindStatus.success),
+          onHighlighted,
           perception
         );
-        setAvailableForGeneration(
-          predictedElements.filter(
-            (e) =>
-              e.predicted_probability >= perception &&
-              !e.skipGeneration &&
-              !e.hidden
-          )
-        );
+
       }
     }, [predictedElements, perception]);
 
@@ -207,7 +212,7 @@ const AutoFindProvider = inject("mainModel")(
 
     useEffect(() => {
       if (!unreachableNodes.length) return;
-      highlightUnreached(unreachableNodes);
+      sendMessage.highlightUnreached(unreachableNodes);
     }, [unreachableNodes]);
 
     const data = [

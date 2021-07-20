@@ -86,10 +86,3 @@ export const generatePageObject = (elements, mainModel) => {
     mainModel.conversionModel.downloadPageCode(page, ".java");
   });
 };
-
-export const highlightUnreached = (ids) => {
-  connector.port.postMessage({
-    message: "HIGHLIGHT_ERRORS",
-    param: ids,
-  });
-};

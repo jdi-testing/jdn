@@ -7,17 +7,6 @@ export const highlightOnPage = () => {
   let isHighlightElementsReverse = false;
   let port;
 
-  const primaryColor = `rgba(74, 207, 237, 0.5)`;
-  const secondaryColor = `rgba(250, 238, 197, 0.5)`;
-
-  const divPrimaryStyle = {
-    backgroundColor: primaryColor,
-  };
-
-  const divSecondaryStyle = {
-    backgroundColor: secondaryColor,
-  };
-
   const isInViewport = (element) => {
     const { top, right, bottom, left } = element.getBoundingClientRect();
 
@@ -33,8 +22,7 @@ export const highlightOnPage = () => {
 
   const toggleElement = (element) => {
     const div = document.getElementById(element.element_id);
-    if (element.skipGeneration) Object.assign(div.style, divSecondaryStyle);
-    else Object.assign(div.style, divPrimaryStyle);
+    div.className = `jdn-highlight ${element.skipGeneration ? 'jdn-secondary' : 'jdn-primary'}`;
   };
 
   const removeElement = (element) => {
@@ -48,7 +36,7 @@ export const highlightOnPage = () => {
 
   const assignType = (element) => {
     const div = document.getElementById(element.element_id);
-    div.querySelector(".jdn-label").textContent = element.jdi_class_name;
+    div.querySelector(".jdn-class").textContent = element.jdi_class_name;
   };
 
   const drawRectangle = (
@@ -57,28 +45,21 @@ export const highlightOnPage = () => {
   ) => {
     const divDefaultStyle = (rect) => {
       const { top, left, height, width } = rect || {};
-      const coords = rect
+      return rect
         ? {
-            left: `${left + window.pageXOffset}px`,
-            top: `${top + window.pageYOffset}px`,
-            height: `${height}px`,
-            width: `${width}px`,
-          }
+          left: `${left + window.pageXOffset}px`,
+          top: `${top + window.pageYOffset}px`,
+          height: `${height}px`,
+          width: `${width}px`,
+        }
         : {};
-      return {
-        ...coords,
-        ...divPrimaryStyle,
-        position: "absolute",
-        border: `3px solid ${primaryColor}`,
-        zIndex: 5000,
-        color: "red",
-      };
     };
 
     const div = document.createElement("div");
     div.id = element_id;
+    div.className = "jdn-highlight jdn-primary"
     div.setAttribute("jdn-highlight", true);
-    div.innerHTML = `<span class="jdn-label">${jdi_class_name}</span>: ${predicted_probability}`;
+    div.innerHTML = `<div><span class="jdn-label"><span class="jdn-class">${jdi_class_name}</span> ${predicted_probability}</span></div>`;
     Object.assign(div.style, divDefaultStyle(element.getBoundingClientRect()));
 
     div.onclick = () => {
@@ -197,13 +178,10 @@ export const highlightOnPage = () => {
   };
 
   const highlightErrors = (ids) => {
-    const errorStyle = {
-      backgroundColor: "rgba(250, 0, 0, 0.5)",
-    };
     ids.forEach((id) => {
       const div = document.getElementById(id);
-      div.onclick = () => {};
-      Object.assign(div.style, errorStyle);
+      div.onclick = () => { };
+      div.className = "jdn-highlight jdn-error";
     });
   };
 
@@ -233,7 +211,7 @@ export const highlightOnPage = () => {
       assignType(param);
     }
 
-    if (message === "PING_SCRIPT" && (param.scriptName === "highlightOnPage")) {      
+    if (message === "PING_SCRIPT" && (param.scriptName === "highlightOnPage")) {
       sendResponse({ message: true });
     }
   };
