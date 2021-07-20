@@ -3,7 +3,7 @@
   "name": "JDN",
   "description": "",
   "devtools_page": "index.html",
-  "version": "3.0.28",
+  "version": "3.0.29",
   "permissions": [
     "activeTab",
     "tabs",
@@ -21,11 +21,11 @@
   "content_scripts": [
     {
       "matches": [
-        "http://*/*", 
+        "http://*/*",
         "https://*/*"
       ],
       "css": [
-        "reportProblemPopup.css", 
+        "reportProblemPopup.css",
         "highlight.css"
       ]
     }
