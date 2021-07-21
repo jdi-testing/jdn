@@ -101,8 +101,10 @@ const AutoFindProvider = inject("mainModel")(
     };
 
     const reportProblem = (predictedElements) => {
-      chrome.storage.sync.set({ predictedElements });
-      connector.attachContentScript(reportProblemPopup);
+      chrome.storage.sync.set(
+        { predictedElements }, 
+        connector.attachContentScript(reportProblemPopup)
+      );
     };
 
     const updateElements = ([predicted, page]) => {
