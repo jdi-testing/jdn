@@ -10,7 +10,6 @@ import {
   requestXpathes,
 } from "./pageDataHandlers";
 import { reportProblemPopup } from "./contentScripts/reportProblemPopup/reportProblemPopup";
-import { saveJson } from './contentScripts/saveJson';
 import { JDIclasses, getJdiClassName } from "./generationClassesMap";
 import { connector, sendMessage } from "./connector";
 
@@ -102,8 +101,10 @@ const AutoFindProvider = inject("mainModel")(
     };
 
     const reportProblem = (predictedElements) => {
-      connector.attachContentScript(reportProblemPopup)
-        .then(saveJson(JSON.stringify(predictedElements)));
+      chrome.storage.sync.set(
+        { predictedElements }, 
+        connector.attachContentScript(reportProblemPopup)
+      );
     };
 
     const updateElements = ([predicted, page]) => {
