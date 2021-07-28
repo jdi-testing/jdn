@@ -78,7 +78,7 @@ export const reportProblemPopup = () => {
                 captureStream.getTracks().forEach(track => track.stop());
 
                 chrome.storage.sync.get(["predictedElements"], ({predictedElements}) => {
-                    saveJson(predictedElements);
+                    saveJson(JSON.stringify(predictedElements));
                     saveImage(frame);
                     mailTo();
                 });
