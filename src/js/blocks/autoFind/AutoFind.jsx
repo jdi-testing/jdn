@@ -112,9 +112,7 @@ const AutoFind = ({ classes }) => {
         <div>{pageElements || 0} found on page.</div>
         <div>{getPredictedElements()} predicted.</div>
         <div>
-          {availableForGeneration.length -
-            (unreachableNodes ? unreachableNodes.length : 0)}{" "}
-          available for generation.
+          {availableForGeneration.length} available for generation.
         </div>
         <div>{xpathStatus}</div>
         {unreachableNodes && unreachableNodes.length ? (

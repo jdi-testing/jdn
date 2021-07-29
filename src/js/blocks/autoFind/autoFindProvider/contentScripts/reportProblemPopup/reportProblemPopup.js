@@ -13,10 +13,18 @@ export const reportProblemPopup = () => {
     }
 
     function saveImage(frame) {
-        var imageLink = document.createElement('a');
+        let imageLink = document.createElement('a');
         imageLink.href = frame;
         imageLink.download = 'screenshot.jpg';
         imageLink.click();
+    }
+
+    saveJson = (content) => {
+        let a = document.createElement("a");
+        let file = new Blob([content], {type: 'text/plain'});
+        a.href = URL.createObjectURL(file);
+        a.download = 'json.txt';
+        a.click();
     }
 
     const backgroundModal = document.createElement('div');
@@ -30,9 +38,9 @@ export const reportProblemPopup = () => {
 
     const descriptionText = document.createElement('p');
     descriptionText.innerHTML = `
-        To find the real problem, we need to get the TXT-file (json.txt, it was just downloaded) and a screenshot of the site with the identified elements on it (screenshot.jpg). <br> <br>
+        To find the real problem, we need to get the txt-file (json.txt) and a screenshot of the site with the identified elements on it (screenshot.jpg). <br> <br>
 
-        To take a screenshot, you need: <br>
+        To take a screenshot and get the json file, you need: <br>
             - press the OK button in this window <br>
             - select the 'Window' tab in the newly appeared window <br>
             - select the Chrome browser <br>
@@ -69,8 +77,11 @@ export const reportProblemPopup = () => {
                 const frame = canvas.toDataURL("image/png");
                 captureStream.getTracks().forEach(track => track.stop());
 
-                saveImage(frame);
-                mailTo();
+                chrome.storage.sync.get(["predictedElements"], ({predictedElements}) => {
+                    saveJson(JSON.stringify(predictedElements));
+                    saveImage(frame);
+                    mailTo();
+                });
             }
         };
         

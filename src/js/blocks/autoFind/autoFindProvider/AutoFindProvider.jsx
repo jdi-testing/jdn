@@ -5,13 +5,11 @@ import { useContext } from "react";
 import {
   getElements,
   highlightElements,
-  highlightUnreached,
   runDocumentListeners,
   generatePageObject,
   requestXpathes,
 } from "./pageDataHandlers";
 import { reportProblemPopup } from "./contentScripts/reportProblemPopup/reportProblemPopup";
-import { saveJson } from './contentScripts/saveJson';
 import { JDIclasses, getJdiClassName } from "./generationClassesMap";
 import { connector, sendMessage } from "./connector";
 
@@ -104,8 +102,10 @@ const AutoFindProvider = inject("mainModel")(
     };
 
     const reportProblem = (predictedElements) => {
-      connector.attachContentScript(reportProblemPopup)
-        .then(saveJson(JSON.stringify(predictedElements)));
+      chrome.storage.sync.set(
+        { predictedElements }, 
+        connector.attachContentScript(reportProblemPopup)
+      );
     };
 
     const updateElements = ([predicted, page]) => {
@@ -160,19 +160,25 @@ const AutoFindProvider = inject("mainModel")(
 
     useEffect(() => {
       if (predictedElements) {
+        const onHighlighted = () => {
+          setStatus(autoFindStatus.success);
+          setAvailableForGeneration(
+            predictedElements.filter(
+              (e) =>
+                e.predicted_probability >= perception &&
+                !e.skipGeneration &&
+                !e.hidden &&
+                !unreachableNodes.includes(e.element_id)
+            )
+          );
+        }
+
         highlightElements(
           predictedElements,
-          () => setStatus(autoFindStatus.success),
+          onHighlighted,
           perception
         );
-        setAvailableForGeneration(
-          predictedElements.filter(
-            (e) =>
-              e.predicted_probability >= perception &&
-              !e.skipGeneration &&
-              !e.hidden
-          )
-        );
+
       }
     }, [predictedElements, perception]);
 
@@ -208,7 +214,7 @@ const AutoFindProvider = inject("mainModel")(
 
     useEffect(() => {
       if (!unreachableNodes.length) return;
-      highlightUnreached(unreachableNodes);
+      sendMessage.highlightUnreached(unreachableNodes);
     }, [unreachableNodes]);
 
     const data = [

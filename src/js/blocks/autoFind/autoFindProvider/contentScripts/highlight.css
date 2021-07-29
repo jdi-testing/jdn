@@ -105,3 +105,49 @@
 .cm_container li[disabled=""]:hover {
   background-color: inherit;
 }
+
+.jdn-highlight {
+  position: absolute;
+  z-index: 5000;
+  color: rgba(255, 255, 255, 1);
+}
+
+.jdn-highlight div {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.jdn-label {
+  font-weight: 700;
+  font-size: 9px;
+  line-height: 12px;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+
+.jdn-primary {
+  background-color: rgba(21, 130, 216, 0.4);
+  border: 1px solid rgba(21, 130, 216, 1);
+}
+
+.jdn-primary .jdn-label {
+  background-color: rgba(21, 130, 216, 1);
+}
+
+.jdn-secondary {
+  border: 1px solid rgba(216, 161, 21, 1);
+  background-color: rgba(216, 161, 21, 0.2);
+}
+
+.jdn-secondary .jdn-label {
+  background-color: rgba(216, 161, 21, 1);
+}
+
+.jdn-error {
+  border: 1px solid rgba(216, 44, 21, 1);
+  background-color: rgba(216, 44, 21, 0.2);
+}
+
+.jdn-error .jdn-label {
+  background-color: rgba(216, 44, 21, 1);
+}
