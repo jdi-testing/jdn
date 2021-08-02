@@ -27,13 +27,13 @@ export const predictedToConvert = (elements) => {
     let elementName = getElementName(e);
     let elementTagId = e.predictedAttrId;
 
-    if (uniqueNames.indexOf(elementName) > 0) elementName += i;
-    if (elementTagId && uniqueNames.indexOf(elementTagId) > 0) elementTagId += i;
+    if (uniqueNames.indexOf(elementName) >= 0) elementName += i;
+    if (elementTagId && uniqueNames.indexOf(elementTagId) >= 0) elementTagId += i;
     uniqueNames.push(elementTagId, elementName);
 
     return {
       ...e,
-      Locator: e.attrId ? `#${e.attrId}` : e.xpath,
+      Locator: e.xpath,
       Name: elementTagId ? elementTagId : elementName,
       Type: getJDILabel(e.predicted_label),
       parent: null,
