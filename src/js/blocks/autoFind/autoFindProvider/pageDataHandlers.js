@@ -55,7 +55,7 @@ const setUrlListener = (onHighlightOff) => {
 export const getElements = (callback, setStatus) => {
   const pageAccessTimeout = setTimeout(() => {
     setStatus(autoFindStatus.blocked);
-  }, 5000 );
+  }, 5000);
 
   connector.updateMessageListener((payload) => {
     if (payload.message === "START_COLLECT_DATA") {
@@ -66,11 +66,11 @@ export const getElements = (callback, setStatus) => {
   });
 
   return connector.attachContentScript(getPageData)
-      .then(uploadElements)
-      .then((data) => {
-        removeOverlay();
-        callback(data);
-      });
+    .then(uploadElements)
+    .then((data) => {
+      removeOverlay();
+      callback(data);
+    });
 };
 
 export const highlightElements = (elements, successCallback, perception) => {
@@ -102,8 +102,8 @@ const requestGenerationAttributes = async (elements) => {
         resolve(response);
       } else resolve(false);
     });
-  })
-}
+  });
+};
 
 export const runDocumentListeners = (actions) => {
   connector.updateMessageListener((payload) =>
@@ -139,7 +139,7 @@ export const requestXpathes = async (elements) => {
     const unreachableNodes = r.filter(el => !el.xpath);
     return { xpathes: r.filter(el => !!el.xpath), unreachableNodes };
   } else {
-    throw new Error(response);
+    throw new Error(xPathResponse);
   }
 };
 
