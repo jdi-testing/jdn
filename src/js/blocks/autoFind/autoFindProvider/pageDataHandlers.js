@@ -1,6 +1,6 @@
 import { connector, sendMessage } from "./connector";
 import { runContextMenu } from "./contentScripts/contextMenu/contextmenu";
-import { generateXpathes } from "./contentScripts/generationData";
+import { getGenerationAttributes } from "./contentScripts/generationData";
 import { highlightOnPage } from "./contentScripts/highlight";
 import { getPageData } from "./contentScripts/pageData";
 import { urlListener } from "./contentScripts/urlListener";
@@ -55,7 +55,7 @@ const setUrlListener = (onHighlightOff) => {
 export const getElements = (callback, setStatus) => {
   const pageAccessTimeout = setTimeout(() => {
     setStatus(autoFindStatus.blocked);
-  }, 5000 );
+  }, 5000);
 
   connector.updateMessageListener((payload) => {
     if (payload.message === "START_COLLECT_DATA") {
@@ -66,11 +66,11 @@ export const getElements = (callback, setStatus) => {
   });
 
   return connector.attachContentScript(getPageData)
-      .then(uploadElements)
-      .then((data) => {
-        removeOverlay();
-        callback(data);
-      });
+    .then(uploadElements)
+    .then((data) => {
+      removeOverlay();
+      callback(data);
+    });
 };
 
 export const highlightElements = (elements, successCallback, perception) => {
@@ -90,6 +90,21 @@ const messageHandler = ({ message, param }, actions) => {
   }
 };
 
+const requestGenerationAttributes = async (elements) => {
+  await connector.attachContentScript(getGenerationAttributes);
+
+  return new Promise((resolve) => {
+    sendMessage.generateAttributes(elements, (response) => {
+      if (chrome.runtime.lastError) {
+        resolve(false);
+      }
+      if (response) {
+        resolve(response);
+      } else resolve(false);
+    });
+  });
+};
+
 export const runDocumentListeners = (actions) => {
   connector.updateMessageListener((payload) =>
     messageHandler(payload, actions)
@@ -102,11 +117,44 @@ export const runDocumentListeners = (actions) => {
   }
 };
 
-export const requestXpathes = (elements, callback) => {
-  connector
-      .attachContentScript(generateXpathes)
-      .then(() => sendMessage.generateXpathes(elements, callback));
+export const requestXpathes = async (elements) => {
+  const documentResult = await connector.attachContentScript(
+    (() => JSON.stringify(document.documentElement.innerHTML))
+  );
+
+  const document = await documentResult[0].result;
+  const ids = elements.map(el => el.element_id);
+
+  const xPathResponse = await fetch("http:localhost:5000/generate_xpath", {
+    method: "POST",
+    body: JSON.stringify({
+      ids,
+      document,
+    }),
+  });
+
+  if (xPathResponse.ok) {
+    const xPathes = await xPathResponse.json();
+    const r = elements.map(el => ({ ...el, xpath: xPathes[el.element_id] }));
+    const unreachableNodes = r.filter(el => !el.xpath);
+    return { xpathes: r.filter(el => !!el.xpath), unreachableNodes };
+  } else {
+    throw new Error(xPathResponse);
+  }
 };
+
+export const requestGenerationData = async (elements, callback) => {
+  const { xpathes, unreachableNodes } = await (await requestXpathes(elements));
+  const generationAttributes = await requestGenerationAttributes(elements);
+  const generationData = xpathes.map(el => {
+    const attr = generationAttributes.find(g => g.element_id === el.element_id);
+    return {
+      ...el,
+      ...attr,
+    }
+  });
+  callback({ generationData, unreachableNodes });
+}
 
 export const generatePageObject = (elements, mainModel) => {
   const elToConvert = predictedToConvert(elements);
