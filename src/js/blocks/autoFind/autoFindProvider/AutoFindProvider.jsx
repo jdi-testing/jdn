@@ -1,4 +1,5 @@
 /* eslint-disable indent */
+import _ from "lodash";
 import React, { useState, useEffect } from "react";
 import { inject, observer } from "mobx-react";
 import { useContext } from "react";
@@ -7,7 +8,7 @@ import {
   highlightElements,
   runDocumentListeners,
   generatePageObject,
-  requestXpathes,
+  requestGenerationData,
 } from "./pageDataHandlers";
 import { reportProblemPopup } from "./contentScripts/reportProblemPopup/reportProblemPopup";
 import { JDIclasses, getJdiClassName } from "./generationClassesMap";
@@ -102,7 +103,7 @@ const AutoFindProvider = inject("mainModel")(
 
     const reportProblem = (predictedElements) => {
       chrome.storage.sync.set(
-        { predictedElements }, 
+        { predictedElements },
         connector.attachContentScript(reportProblemPopup)
       );
     };
@@ -162,12 +163,16 @@ const AutoFindProvider = inject("mainModel")(
         const onHighlighted = () => {
           setStatus(autoFindStatus.success);
           setAvailableForGeneration(
-            predictedElements.filter(
-              (e) =>
-                e.predicted_probability >= perception &&
-                !e.skipGeneration &&
-                !e.hidden &&
-                !unreachableNodes.includes(e.element_id)
+            _.unionBy(
+              availableForGeneration,
+              predictedElements.filter(
+                (e) =>
+                  e.predicted_probability >= perception &&
+                  !e.skipGeneration &&
+                  !e.hidden &&
+                  !unreachableNodes.includes(e.element_id)
+              ),
+              'element_id'
             )
           );
         }
@@ -194,21 +199,17 @@ const AutoFindProvider = inject("mainModel")(
       );
       if (!noXpath.length) return;
       setXpathStatus(xpathGenerationStatus.started);
-      requestXpathes(noXpath, ({ xpathElements, unreachableNodes }) => {
-        setAvailableForGeneration(xpathElements);
+      requestGenerationData(noXpath, ({ generationData, unreachableNodes }) => {
+        setAvailableForGeneration(
+          _.chain(availableForGeneration)
+            .map((el) => _.chain(generationData).find({ element_id: el.element_id }).merge(el).value())
+            .differenceBy(unreachableNodes, 'element_id')
+            .value()
+        );
         setUnreachableNodes(unreachableNodes);
-        const updated = predictedElements.map((predictedElement) => {
-          const xPathEl = xpathElements.find(
-            (x) => x.element_id === predictedElement.element_id
-          );
-          return {
-            ...predictedElement,
-            ...xPathEl,
-          };
-        });
-        setPredictedElements(updated);
         setXpathStatus(xpathGenerationStatus.complete);
       });
+
     }, [availableForGeneration]);
 
     useEffect(() => {

@@ -106,8 +106,8 @@ export const sendMessage = {
   setHighlight: (payload) => connector.sendMessage("SET_HIGHLIGHT", payload),
   killHighlight: (payload, onResponse) =>
     connector.sendMessage("KILL_HIGHLIGHT", null, onResponse),
-  generateXpathes: (payload, onResponse) =>
-    connector.sendMessage("GENERATE_XPATHES", payload, onResponse),
+  generateAttributes: (payload, onResponse) =>
+    connector.sendMessage("GENERATE_ATTRIBUTES", payload, onResponse),
   pingScript: (payload, onResponse) =>
     connector.sendMessage("PING_SCRIPT", payload, onResponse),
   highlightUnreached: (payload) => connector.sendMessage("HIGHLIGHT_ERRORS", payload),
