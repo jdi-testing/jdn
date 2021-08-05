@@ -297,31 +297,43 @@ export const runContextMenu = () => {
     { jdi_class_name, element_id, skipGeneration },
     types
   ) => [
-    {
-      text: `<b>Block type: ${jdi_class_name}</b>`,
-      sub: typesMenu(types),
-    },
-    {
-      text: "Remove",
-      events: {
-        click: () =>
-          chrome.runtime.sendMessage({
-            message: "REMOVE_ELEMENT",
-            param: element_id,
-          }),
+      {
+        text: `<b>Block type: ${jdi_class_name}</b>`,
+        sub: typesMenu(types),
       },
-    },
-    {
-      text: `Switch ${skipGeneration ? "on" : "off"}`,
-      events: {
-        click: () =>
-          chrome.runtime.sendMessage({
-            message: "TOGGLE_ELEMENT",
-            param: element_id,
-          }),
+      {
+        text: "Remove",
+        events: {
+          click: () =>
+            chrome.runtime.sendMessage({
+              message: "REMOVE_ELEMENT",
+              param: element_id,
+            }),
+        },
       },
-    },
-  ];
+      {
+        text: `Switch ${skipGeneration ? "on" : "off"}`,
+        events: {
+          click: () =>
+            chrome.runtime.sendMessage({
+              message: "TOGGLE_ELEMENT",
+              param: element_id,
+            }),
+        },
+      },
+      {
+        text: `Bring to front`,
+        events: {
+          click: () => chrome.storage.local.set({ JDN_BRING_TO_FRONT: { hash: Date.now(), element_id } }),
+        },
+      },
+      {
+        text: `Bring to background`,
+        events: {
+          click: () => chrome.storage.local.set({ BRING_TO_BACKGROUND: { hash: Date.now(), element_id } }),
+        },
+      },
+    ];
 
   const typesMenu = (types) => {
     return types.map((type) => {
