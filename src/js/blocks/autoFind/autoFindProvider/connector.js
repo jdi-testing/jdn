@@ -105,6 +105,7 @@ export const sendMessage = {
   toggle: (el) => connector.sendMessage("HIGHLIGHT_TOGGLED", el),
   hide: (el) => connector.sendMessage("HIDE_ELEMENT", el),
   changeType: (el) => connector.sendMessage("ASSIGN_TYPE", el),
+  changeElementName: (el) => connector.sendMessage("CHANGE_ELEMENT_NAME", el),
   elementData: (payload) => connector.sendMessage("ELEMENT_DATA", payload),
   setHighlight: (payload) => connector.sendMessage("SET_HIGHLIGHT", payload),
   killHighlight: (payload, onResponse) =>

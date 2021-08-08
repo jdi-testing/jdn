@@ -26,19 +26,25 @@
   list-style-type: none;
   padding: 0;
   margin: 0;
-  background-color: #ccc;
+  background-color: #000;
+  color: #fff;
   box-shadow: 0 0 5px #333;
 }
 
 .cm_container li {
-  padding: 5px 10px;
+  padding: 10px 17px;
   padding-right: 1.7em;
   cursor: pointer;
   white-space: nowrap;
 }
 
 .cm_container li:hover {
-  background-color: #bbb;
+  background-color: #212228;
+  color: #1582D8;
+}
+
+.cm_container li:last-child {
+  color: #D82C15;
 }
 
 .cm_container li .cm_icon_span {
@@ -50,6 +56,12 @@
   margin-right: 5px;
   padding-right: 5px;
   text-align: center;
+}
+
+.cm_container li .cm_text_icon {
+  display: inline-block;
+  margin: 0 0 0 10px;
+  transform: scale(-1, 1);
 }
 
 .cm_container li .cm_sub_span {
@@ -150,4 +162,118 @@
 
 .jdn-error .jdn-label {
   background-color: rgba(216, 44, 21, 1);
+}
+
+/***************************
+  CHANGE ELEMENT NAME MODAL
+****************************/
+.jdn-change-element-name-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 270px;
+  height: 86px;
+  padding: 9px 18px 17px;
+  background-color: #000;
+  transform: translate(-50%, -50%);
+  z-index: 11111;
+  transition: all 0.5s ease-in-out;
+}
+
+.jdn-change-element-name-modal--success {
+  width: 145px;
+  height: 100px;
+}
+
+.jdn-change-element-name-modal__close-link {
+  position: absolute;
+  top: 1px;
+  right: 15px;
+  font-size: 23px;
+  text-decoration: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+.jdn-change-element-name-modal__close-link:hover {
+  color: #1582D8;
+}
+
+.jdn-change-element-name-modal__title {
+  margin: 0 0 14px;
+  font-weight: 700;
+  color: #fff;
+  transition: all 0.5s ease-in-out;
+}
+
+.jdn-change-element-name-modal__title--success {
+  margin: 0 0 5px;
+  padding: 50px 9px 0px;
+}
+
+.jdn-change-element-name-modal__title--success::before {
+  content: "";
+  position: absolute;
+  top: 27px;
+  right: 66px;
+  transform: rotate(-45deg);
+  animation-name: appearance;
+  animation-duration: 0.25s; 
+  animation-delay: 0.5s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  animation-play-state: running;
+}
+
+@keyframes appearance {
+  0% {
+    width: 0;
+    height: 0;
+  }
+  100% {
+    width: 15px;
+    height: 8px;
+    border-bottom: 1px solid #1582D8;
+    border-left: 1px solid #1582D8;
+  }
+}
+
+.jdn-change-element-name-modal__title--success::after {
+  content: "";
+  position: absolute;
+  top: 18px;
+  right: 59px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #1582D8;
+  opacity: 0;
+  animation-name: cirlce;
+  animation-duration: 0.25s; 
+  animation-delay: 1s;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  animation-play-state: running;
+}
+
+@keyframes cirlce {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.jdn-change-element-name-modal__form-input {
+  width: 180px;
+  padding: 3px 5px 4px;
+  margin: 0 5px 0 0;
+  color: #000;
+  border: 1px solid #1582D8;
+  border-radius: 3px;
+}
+
+.jdn-change-element-name-modal__form-button {
+  padding: 5px 10px;
+  background: #1582D8;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
 }

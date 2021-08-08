@@ -39,6 +39,11 @@ export const highlightOnPage = () => {
     div.querySelector(".jdn-class").textContent = element.jdi_class_name;
   };
 
+  const changeElementName = (element) => {
+    const div = document.getElementById(element.element_id);
+    div.querySelector(".jdn-class").textContent = element.jdi_class_name;
+  };
+
   const drawRectangle = (
     element,
     { element_id, jdi_class_name, predicted_probability }
@@ -209,6 +214,10 @@ export const highlightOnPage = () => {
 
     if (message === "ASSIGN_TYPE") {
       assignType(param);
+    }
+
+    if (message === "CHANGE_ELEMENT_NAME") {
+      changeElementName(param);
     }
 
     if (message === "PING_SCRIPT" && (param.scriptName === "highlightOnPage")) {

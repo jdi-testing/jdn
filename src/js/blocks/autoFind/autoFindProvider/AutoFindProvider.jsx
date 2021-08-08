@@ -102,6 +102,19 @@ const AutoFindProvider = inject("mainModel")(
       });
     };
 
+    const changeElementName = (id, name) => {
+      setPredictedElements((previousValue) => {
+        const hidden = previousValue.map((el) => {
+          if (el.element_id === id) {
+            el.jdi_class_name = name;
+            sendMessage.changeElementName(el);
+          }
+          return el;
+        });
+        return hidden;
+      });
+    };
+
     const reportProblem = (predictedElements) => {
       chrome.storage.sync.set(
         { predictedElements },
@@ -157,6 +170,7 @@ const AutoFindProvider = inject("mainModel")(
       HIGHLIGHT_OFF: clearElementsState,
       REMOVE_ELEMENT: hideElement,
       CHANGE_TYPE: changeType,
+      CHANGE_ELEMENT_NAME: changeElementName,
     };
 
     useEffect(() => {
