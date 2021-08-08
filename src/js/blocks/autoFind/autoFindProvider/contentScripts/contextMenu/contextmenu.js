@@ -93,7 +93,6 @@ export const runContextMenu = () => {
 
           var text_span = document.createElement("span");
           text_span.className = "cm_text";
-          console.log(item);
 
           if (ContextUtil.getProperty(item, "text", "") != "") {
             text_span.innerHTML = ContextUtil.getProperty(item, "text", "");
