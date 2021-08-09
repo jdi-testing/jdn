@@ -31,7 +31,7 @@ export const highlightOnPage = () => {
     });
 
     const div = document.getElementById(element.element_id);
-    div.remove();
+    if (div) div.remove();
   };
 
   const assignType = (element) => {
@@ -73,7 +73,23 @@ export const highlightOnPage = () => {
     highlightElements.push(element);
   };
 
-  let nodes; // not to run querySelector() on every scroll/resize
+  const clearContainer = (parent) => {
+    nodes.forEach(node => {
+      if (parent.contains(node)) {
+        const id = node.getAttribute('jdn-hash');
+        predictedElements.find(elem => elem.element_id === id).hidden = true;
+        chrome.runtime.sendMessage({
+          message: "REMOVE_ELEMENT",
+          param: id,
+        });
+        chrome.runtime.sendMessage({
+          message: "PREDICTION_IS_UNACTUAL"
+        })
+      };
+    });
+  };
+
+  let nodes;
   let predictedElements;
   let perception;
   const findAndHighlight = (param) => {
@@ -107,9 +123,10 @@ export const highlightOnPage = () => {
   };
 
   let timer;
-  const scrollListenerCallback = () => {
+  const scrollListenerCallback = ({ target }) => {
     if (timer) clearTimeout(timer);
     timer = setTimeout(() => {
+      if (target !== document) clearContainer(target);
       findAndHighlight();
     }, 300);
   };
@@ -155,7 +172,7 @@ export const highlightOnPage = () => {
   const events = ["scroll", "resize"];
   const removeEventListeners = () => {
     events.forEach((eventName) => {
-      document.removeEventListener(eventName, scrollListenerCallback);
+      document.removeEventListener(eventName, scrollListenerCallback, true);
     });
     document.removeEventListener("click", clickListener);
   };
@@ -171,7 +188,7 @@ export const highlightOnPage = () => {
 
   const setDocumentListeners = () => {
     events.forEach((eventName) => {
-      document.addEventListener(eventName, scrollListenerCallback);
+      document.addEventListener(eventName, scrollListenerCallback, true);
     });
 
     document.addEventListener("click", clickListener);
