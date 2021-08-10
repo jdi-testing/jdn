@@ -42,8 +42,8 @@ export const reportProblemPopup = () => {
 
         To take a screenshot and get the json file, you need: <br>
             - press the OK button in this window <br>
-            - select the 'Window' tab in the newly appeared window <br>
-            - select the Chrome browser <br>
+            - select the 'Chrome tab' tab in the newly appeared window <br>
+            - select the ${document.title} <br>
             - click the 'Share' button <br><br>
 
         After that, send a letter in which you describe the problem and attach the downloaded files.
