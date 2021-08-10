@@ -6,6 +6,7 @@ import { getPageData } from "./contentScripts/pageData";
 import { urlListener } from "./contentScripts/urlListener";
 import { getPage, predictedToConvert } from "./pageObject";
 import { autoFindStatus } from "./AutoFindProvider";
+import { highlightOrder } from "./contentScripts/highlightOrder";
 /* global chrome*/
 
 let documentListenersStarted;
@@ -113,6 +114,7 @@ export const runDocumentListeners = (actions) => {
   if (!documentListenersStarted) {
     setUrlListener(actions["HIGHLIGHT_OFF"]);
     connector.attachContentScript(runContextMenu);
+    connector.attachContentScript(highlightOrder);
     documentListenersStarted = true;
   }
 };

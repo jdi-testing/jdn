@@ -368,6 +368,16 @@ export const runContextMenu = () => {
       sub: typesMenu(types),
     },
     {
+      text: "Remove",
+      events: {
+        click: () =>
+          chrome.runtime.sendMessage({
+            message: "REMOVE_ELEMENT",
+            param: element_id,
+          }),
+      },
+    },
+    {
       text: `Switch ${skipGeneration ? "on" : "off"}`,
       events: {
         click: () =>
@@ -375,6 +385,18 @@ export const runContextMenu = () => {
             message: "TOGGLE_ELEMENT",
             param: element_id,
           }),
+      },
+    },
+    {
+      text: `Bring to front`,
+      events: {
+        click: () => chrome.storage.local.set({ JDN_BRING_TO_FRONT: { hash: Date.now(), element_id } }),
+      },
+    },
+    {
+      text: `Bring to background`,
+      events: {
+        click: () => chrome.storage.local.set({ BRING_TO_BACKGROUND: { hash: Date.now(), element_id } }),
       },
     },
     {
@@ -386,7 +408,7 @@ export const runContextMenu = () => {
             param: element_id,
           }),
       },
-    },
+    }
   ];
 
   const typesMenu = (types) => {

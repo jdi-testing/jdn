@@ -26,6 +26,7 @@ const AutoFind = ({ classes }) => {
       unreachableNodes,
       availableForGeneration,
       xpathStatus,
+      unactualPrediction,
     },
     {
       identifyElements,
@@ -122,13 +123,21 @@ const AutoFind = ({ classes }) => {
             description={`${unreachableNodes.length} controls are unreachable due to DOM updates.`}
           />
         ) : null}
+        {unactualPrediction ?
+          (<Alert
+            type="warning"
+            showIcon
+            description={`Prediction is not actual anymore. Please, remove highlight and re-run identification.`}
+          />)
+          : null
+        }
       </Content>
       <Footer className={classes.footer}>
         <div>
           <a
             hidden={!allowRemoveElements}
             onClick={handleReportProblem}>
-              Report Problem
+            Report Problem
           </a>
         </div>
         backend ver. {backendVer}

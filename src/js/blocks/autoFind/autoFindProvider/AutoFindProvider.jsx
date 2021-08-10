@@ -46,6 +46,7 @@ const AutoFindProvider = inject("mainModel")(
     const [xpathStatus, setXpathStatus] = useState(
       xpathGenerationStatus.noStatus
     );
+    const [unactualPrediction, setUnactualPrediction] = useState(false);
 
     connector.onerror = () => {
       setStatus(autoFindStatus.error);
@@ -60,6 +61,7 @@ const AutoFindProvider = inject("mainModel")(
       setUnreachableNodes([]);
       setAvailableForGeneration([]);
       setXpathStatus(xpathGenerationStatus.noStatus);
+      setUnactualPrediction(false);
     };
 
     const toggleElementGeneration = (id) => {
@@ -171,6 +173,7 @@ const AutoFindProvider = inject("mainModel")(
       REMOVE_ELEMENT: hideElement,
       CHANGE_TYPE: changeType,
       CHANGE_ELEMENT_NAME: changeElementName,
+      PREDICTION_IS_UNACTUAL: () => setUnactualPrediction(true),
     };
 
     useEffect(() => {
@@ -178,17 +181,18 @@ const AutoFindProvider = inject("mainModel")(
         const onHighlighted = () => {
           setStatus(autoFindStatus.success);
           setAvailableForGeneration(
-            _.unionBy(
-              availableForGeneration,
-              predictedElements.filter(
+            _.chain(predictedElements)
+              .map(predicted => {
+                const el = _.find(availableForGeneration, { element_id: predicted.element_id });
+                return { ...el, ...predicted };
+              })
+              .filter(
                 (e) =>
                   e.predicted_probability >= perception &&
                   !e.skipGeneration &&
                   !e.hidden &&
                   !unreachableNodes.includes(e.element_id)
-              ),
-              'element_id'
-            )
+              ).value()
           );
         }
 
@@ -243,6 +247,7 @@ const AutoFindProvider = inject("mainModel")(
         unreachableNodes,
         availableForGeneration,
         xpathStatus,
+        unactualPrediction,
       },
       {
         identifyElements,
