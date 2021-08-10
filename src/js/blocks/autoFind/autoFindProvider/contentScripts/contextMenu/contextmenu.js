@@ -285,6 +285,66 @@ export const runContextMenu = () => {
     },
   };
 
+  const changeElementNameModal = (element_id, jdi_class_name) => {
+
+    // MODAL
+    const modal = document.createElement('div');
+    modal.classList.add("jdn-change-element-name-modal");
+
+    // MODAL CLOSE LINK
+    const modalCloseLink = document.createElement('a');
+    modalCloseLink.innerHTML = "&#215;";
+    modalCloseLink.classList.add('jdn-change-element-name-modal__close-link');
+    modal.append(modalCloseLink);
+
+    // MODAL TITLE
+    const modalTitle = document.createElement('p');
+    modalTitle.innerText = "Change Name";
+    modalTitle.classList.add('jdn-change-element-name-modal__title');
+    modal.append(modalTitle);
+    
+    // MODAL FORM
+    const form = document.createElement('form');
+
+    // MODAL FORM INPUT
+    const formInput = document.createElement('input');
+    formInput.classList.add('jdn-change-element-name-modal__form-input');
+    formInput.value = jdi_class_name;
+    form.append(formInput);
+
+    // MODAL FORM BUTTON
+    const formButton = document.createElement('button');
+    formButton.classList.add('jdn-change-element-name-modal__form-button');
+    formButton.innerText = "Save";
+    form.append(formButton);
+
+    // MODAL INITIALIZATION
+    modal.append(form);
+    document.body.appendChild(modal);
+    formInput.focus();
+    
+    // ACTION: CHANGE ELEMENT NAME
+    formButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      chrome.runtime.sendMessage({
+        message: "CHANGE_ELEMENT_NAME",
+        param: { id: element_id, name: formInput.value },
+      });
+      nameBeenSuccessfullyChanged();
+    });
+
+    // ACTION: SHOW SUCCESS STATUS
+    const nameBeenSuccessfullyChanged = () => {
+      form.remove();
+      modal.classList.add('jdn-change-element-name-modal--success');
+      modalTitle.innerText = "Name Changed";
+      modalTitle.classList.add("jdn-change-element-name-modal__title--success");
+    };
+
+    // ACTION: CLOSE MODAL
+    modalCloseLink.addEventListener("click", () => modal.remove());
+  };
+
   // <-----
 
   /*global chrome*/
@@ -297,43 +357,49 @@ export const runContextMenu = () => {
     { jdi_class_name, element_id, skipGeneration },
     types
   ) => [
-      {
-        text: `<b>Block type: ${jdi_class_name}</b>`,
-        sub: typesMenu(types),
+    {
+      text: `Change name: ${jdi_class_name} <i class='cm_text_icon'>&#9998;</i>`,
+      events: {
+        click: () => changeElementNameModal(element_id, jdi_class_name),
       },
-      {
-        text: "Remove",
-        events: {
-          click: () =>
-            chrome.runtime.sendMessage({
-              message: "REMOVE_ELEMENT",
-              param: element_id,
-            }),
-        },
+    },
+    {
+      text: `<b>Block type: ${jdi_class_name}</b>`,
+      sub: typesMenu(types),
+    },
+    {
+      text: `Switch ${skipGeneration ? "on" : "off"}`,
+      events: {
+        click: () =>
+          chrome.runtime.sendMessage({
+            message: "TOGGLE_ELEMENT",
+            param: element_id,
+          }),
       },
-      {
-        text: `Switch ${skipGeneration ? "on" : "off"}`,
-        events: {
-          click: () =>
-            chrome.runtime.sendMessage({
-              message: "TOGGLE_ELEMENT",
-              param: element_id,
-            }),
-        },
+    },
+    {
+      text: `Bring to front`,
+      events: {
+        click: () => chrome.storage.local.set({ JDN_BRING_TO_FRONT: { hash: Date.now(), element_id } }),
       },
-      {
-        text: `Bring to front`,
-        events: {
-          click: () => chrome.storage.local.set({ JDN_BRING_TO_FRONT: { hash: Date.now(), element_id } }),
-        },
+    },
+    {
+      text: `Bring to background`,
+      events: {
+        click: () => chrome.storage.local.set({ BRING_TO_BACKGROUND: { hash: Date.now(), element_id } }),
       },
-      {
-        text: `Bring to background`,
-        events: {
-          click: () => chrome.storage.local.set({ BRING_TO_BACKGROUND: { hash: Date.now(), element_id } }),
-        },
+    },
+    {
+      text: "Remove",
+      events: {
+        click: () =>
+          chrome.runtime.sendMessage({
+            message: "REMOVE_ELEMENT",
+            param: element_id,
+          }),
       },
-    ];
+    }
+  ];
 
   const typesMenu = (types) => {
     return types.map((type) => {
