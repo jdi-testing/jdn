@@ -106,14 +106,14 @@ const AutoFindProvider = inject("mainModel")(
 
     const changeElementName = (id, name) => {
       setPredictedElements((previousValue) => {
-        const hidden = previousValue.map((el) => {
+        const renamed = previousValue.map((el) => {
           if (el.element_id === id) {
             el.jdi_class_name = name;
             sendMessage.changeElementName(el);
           }
           return el;
         });
-        return hidden;
+        return renamed;
       });
     };
 
