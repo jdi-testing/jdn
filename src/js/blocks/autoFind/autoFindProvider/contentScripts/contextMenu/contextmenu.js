@@ -368,16 +368,6 @@ export const runContextMenu = () => {
       sub: typesMenu(types),
     },
     {
-      text: "Remove",
-      events: {
-        click: () =>
-          chrome.runtime.sendMessage({
-            message: "REMOVE_ELEMENT",
-            param: element_id,
-          }),
-      },
-    },
-    {
       text: `Switch ${skipGeneration ? "on" : "off"}`,
       events: {
         click: () =>
