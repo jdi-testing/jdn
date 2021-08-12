@@ -32,7 +32,7 @@ export const predictedToConvert = (elements) => {
     if (elementTagId && uniqueNames.indexOf(elementTagId) >= 0) elementTagId += i;
     uniqueNames.push(elementTagId, elementName);
 
-    let name = customElementName
+    const name = customElementName
       ? customElementName
       : elementTagId
         ? elementTagId
