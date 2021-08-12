@@ -354,11 +354,11 @@ export const runContextMenu = () => {
   let predictedElement;
 
   const menuItems = (
-    { jdi_class_name, element_id, skipGeneration },
+    { jdi_class_name, jdi_custom_class_name = null,  element_id, skipGeneration },
     types
   ) => [
     {
-      text: `Change name: ${jdi_class_name} <i class='cm_text_icon'>&#9998;</i>`,
+      text: `Change name: ${jdi_custom_class_name ? jdi_custom_class_name :  jdi_class_name} <i class='cm_text_icon'>&#9998;</i>`,
       events: {
         click: () => changeElementNameModal(element_id, jdi_class_name),
       },
