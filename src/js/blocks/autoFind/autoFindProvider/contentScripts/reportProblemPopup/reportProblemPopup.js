@@ -8,7 +8,7 @@ export const reportProblemPopup = () => {
     function mailTo() {
         let mailToLink = document.createElement("a");
         mailToLink.target = "_blank";
-        mailToLink.href = `mailto:JDI-support+JDN@epam.com?subject=Some%20elements%20were%20not%20identified%20on%20page%3A%20${window.location.href}&body=Body%3A%20Hi%2C%0D%0ASome%20elements%20were%20not%20identified%20on%20the%20page%2C%20please%20have%20a%20look.`;
+        mailToLink.href = `mailto:JDI-support+JDN@epam.com?subject=Some%20elements%20were%20not%20identified%20on%20page%3A%20${window.location.href}&body=Hi%2C%0D%0ASome%20elements%20were%20not%20identified%20on%20the%20page%2C%20please%20have%20a%20look.%0D%0A%3CPlease%20save%20provided%20archive%20to%20disk%20and%20attach%20it%20to%20this%20email%3E%0D%0A%3CPROVIDE%20ADDITIONAL%20DETAILS%20IF%20NEEDED%3E`;
         mailToLink.click();
     }
 
@@ -42,8 +42,8 @@ export const reportProblemPopup = () => {
 
         To take a screenshot and get the json file, you need: <br>
             - press the OK button in this window <br>
-            - select the 'Window' tab in the newly appeared window <br>
-            - select the Chrome browser <br>
+            - select the 'Chrome tab' tab in the newly appeared window <br>
+            - select the ${document.title} <br>
             - click the 'Share' button <br><br>
 
         After that, send a letter in which you describe the problem and attach the downloaded files.
