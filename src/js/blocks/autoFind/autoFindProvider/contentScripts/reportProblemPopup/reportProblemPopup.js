@@ -8,7 +8,7 @@ export const reportProblemPopup = () => {
     function mailTo() {
         let mailToLink = document.createElement("a");
         mailToLink.target = "_blank";
-        mailToLink.href = `mailto:JDI-support+JDN@epam.com?subject=Some%20elements%20were%20not%20identified%20on%20page%3A%20${window.location.href}&body=Body%3A%20Hi%2C%0D%0ASome%20elements%20were%20not%20identified%20on%20the%20page%2C%20please%20have%20a%20look.`;
+        mailToLink.href = `mailto:JDI-support+JDN@epam.com?subject=Some%20elements%20were%20not%20identified%20on%20page%3A%20${window.location.href}&body=Hi%2C%0D%0ASome%20elements%20were%20not%20identified%20on%20the%20page%2C%20please%20have%20a%20look.%0D%0A%3CPlease%20save%20provided%20archive%20to%20disk%20and%20attach%20it%20to%20this%20email%3E%0D%0A%3CPROVIDE%20ADDITIONAL%20DETAILS%20IF%20NEEDED%3E`;
         mailToLink.click();
     }
 
