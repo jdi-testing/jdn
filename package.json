@@ -10,8 +10,7 @@
     "server": "node server.js",
     "prettier": "prettier",
     "patch": "npx mversion patch",
-    "test": "jest",
-    "coverage": "jest --coverage"
+    "test": "jest"
   },
   "main": "src/js/main.js",
   "repository": {
