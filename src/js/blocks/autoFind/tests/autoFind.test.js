@@ -7,6 +7,7 @@ import * as pageDataHandlers from "../autoFindProvider/pageDataHandlers";
 import { abovePerception, generationData, interactedGenerationData, mockResponseData, perceptiontreshold, perceptiontresholdLow, predictedAfterInteraction, updatedElements } from "./mockedData";
 import { chrome } from "jest-chrome";
 
+/*global jest*/
 
 const MainModel = {};
 
@@ -41,7 +42,7 @@ describe("AutoFind Identify functionality", () => {
                 <div id="pageElements">{pageElements}</div>
                 <div id="availableForGeneration">{JSON.stringify(availableForGeneration)}</div>
             </React.Fragment>
-        )
+        );
     };
 
     beforeEach(() => {
@@ -54,7 +55,7 @@ describe("AutoFind Identify functionality", () => {
         getPageIdSpy = jest.spyOn(connector, 'getPageId').mockReturnValue((() => { connector.tab = { id: '42' } })());
         getElementsSpy = jest.spyOn(pageDataHandlers, 'getElements').mockImplementation((callback) => callback([mockResponseData, 234]));
         highlightElementsSpy = jest.spyOn(pageDataHandlers, 'highlightElements').mockImplementation((arg1, successCallback, arg3) => successCallback());
-        requestGenerationDataSpy = jest.spyOn(pageDataHandlers, 'requestGenerationData').mockImplementation((elements, callback) => callback({ generationData: generationData, unreachableNodes: [] }));
+        requestGenerationDataSpy = jest.spyOn(pageDataHandlers, 'requestGenerationData').mockImplementation((elements, callback) => callback({ generationData, unreachableNodes: [] }));
     });
 
     afterEach(() => {
@@ -68,7 +69,7 @@ describe("AutoFind Identify functionality", () => {
         const button = container.querySelector('#idetify');
         button.dispatchEvent(new MouseEvent('click', { bubbles: true }));
         expect(container.querySelector('#status').textContent).toBe(autoFindStatus.loading);
-    })
+    });
 
     test("predicted elements are received, updated properly and passed to component", async () => {
         const button = container.querySelector('#idetify');
@@ -109,7 +110,7 @@ describe("AutoFind Identify functionality", () => {
         const perception = container.querySelector('#perception');
         act(() => {
             perception.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-        })
+        });
         const identify = container.querySelector('#idetify');
         await act(async () => {
             identify.dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -119,7 +120,7 @@ describe("AutoFind Identify functionality", () => {
         const perceptionLow = container.querySelector('#perceptionLow');
         act(() => {
             perceptionLow.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-        })
+        });
         expect(container.querySelector('#predictedElements').textContent).toBe(JSON.stringify(updatedElements));
         expect(container.querySelector('#availableForGeneration').textContent).toBe(JSON.stringify(generationData));
     })
