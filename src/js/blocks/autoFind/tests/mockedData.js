@@ -1,7 +1,8 @@
 export const perceptiontreshold = 0.9;
 export const perceptiontresholdLow = 0.5;
 
-export const mockResponseData = [{
+export const mockResponseData = [
+  {
     element_id: "9481017821757679104572477080",
     height: 154,
     predicted_label: "iframe",
@@ -10,8 +11,8 @@ export const mockResponseData = [{
     width: 304,
     x: 240,
     y: 339
-},
-{
+  },
+  {
     element_id: "7332991229757679103311671466",
     height: 154,
     predicted_label: "iframe",
@@ -20,8 +21,8 @@ export const mockResponseData = [{
     width: 304,
     x: 546.8021240234,
     y: 497
-},
-{
+  },
+  {
     element_id: "1840971479757679101719895076",
     height: 60,
     predicted_label: "link",
@@ -30,8 +31,8 @@ export const mockResponseData = [{
     width: 121.8541717529,
     x: 287.4479370117,
     y: 0,
-},
-{
+  },
+  {
     element_id: "4830645298816310234842357051",
     height: 34,
     predicted_label: "button",
@@ -40,8 +41,8 @@ export const mockResponseData = [{
     width: 99.6666717529,
     x: 457.3333435059,
     y: 1003.3333740234
-},
-{
+  },
+  {
     element_id: "9211668003816310239615632819",
     height: 12.6666669846,
     predicted_label: "checkbox",
@@ -50,11 +51,12 @@ export const mockResponseData = [{
     width: 12.6666669846,
     x: 240,
     y: 831.6666870117,
-}
+  }
 ];
 
 // jdi_class_name
-export const updatedElements = [{
+export const updatedElements = [
+  {
     element_id: "9481017821757679104572477080",
     height: 154,
     predicted_label: "iframe",
@@ -64,8 +66,8 @@ export const updatedElements = [{
     x: 240,
     y: 339,
     jdi_class_name: 'UIElement (iframe)'
-},
-{
+  },
+  {
     element_id: "7332991229757679103311671466",
     height: 154,
     predicted_label: "iframe",
@@ -75,8 +77,8 @@ export const updatedElements = [{
     x: 546.8021240234,
     y: 497,
     jdi_class_name: 'UIElement (iframe)'
-},
-{
+  },
+  {
     element_id: "1840971479757679101719895076",
     height: 60,
     predicted_label: "link",
@@ -86,8 +88,8 @@ export const updatedElements = [{
     x: 287.4479370117,
     y: 0,
     jdi_class_name: 'Link'
-},
-{
+  },
+  {
     element_id: "4830645298816310234842357051",
     height: 34,
     predicted_label: "button",
@@ -97,8 +99,8 @@ export const updatedElements = [{
     x: 457.3333435059,
     y: 1003.3333740234,
     jdi_class_name: 'Button'
-},
-{
+  },
+  {
     element_id: "9211668003816310239615632819",
     height: 12.6666669846,
     predicted_label: "checkbox",
@@ -108,17 +110,17 @@ export const updatedElements = [{
     x: 240,
     y: 831.6666870117,
     jdi_class_name: 'Checkbox'
-}];
+  }];
 
 export const predictedAfterInteraction = updatedElements.map((el, index) => {
-    if (index === 1) return { ...el, hidden: true };
-    if (index === 3) return { ...el, skipGeneration: true };
-    if (index === 4) return { ...el, skipGeneration: false };
-    return el;
-})
+  if (index === 1) return { ...el, hidden: true };
+  if (index === 3) return { ...el, skipGeneration: true };
+  if (index === 4) return { ...el, skipGeneration: false };
+  return el;
+});
 
 export const generationData = [
-    {
+  {
     element_id: "9481017821757679104572477080",
     height: 154,
     predicted_label: "iframe",
@@ -132,8 +134,8 @@ export const generationData = [
     attrId: "frame",
     predictedAttrId: "frame",
     tagName: "iframe"
-},
-{
+  },
+  {
     element_id: "7332991229757679103311671466",
     height: 154,
     predicted_label: "iframe",
@@ -147,8 +149,8 @@ export const generationData = [
     attrId: "second_frame",
     predictedAttrId: "secondFrame",
     tagName: "iframe"
-},
-{
+  },
+  {
     element_id: "1840971479757679101719895076",
     height: 60,
     predicted_label: "link",
@@ -162,8 +164,8 @@ export const generationData = [
     attrId: "",
     predictedAttrId: "",
     tagName: "a"
-},
-{
+  },
+  {
     element_id: "4830645298816310234842357051",
     height: 34,
     predicted_label: "button",
@@ -177,8 +179,8 @@ export const generationData = [
     attrId: "",
     predictedAttrId: "",
     tagName: "button"
-},
-{
+  },
+  {
     element_id: "9211668003816310239615632819",
     height: 12.6666669846,
     predicted_label: "checkbox",
@@ -192,7 +194,8 @@ export const generationData = [
     attrId: "accept-conditions",
     predictedAttrId: "acceptConditions",
     tagName: "input"
-}];
+  }
+];
 
 export const interactedGenerationData = [generationData[0], generationData[2], generationData[4]];
 
