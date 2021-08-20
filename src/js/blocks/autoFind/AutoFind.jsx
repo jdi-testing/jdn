@@ -5,7 +5,6 @@ import {
   useAutoFind,
   xpathGenerationStatus,
 } from "./autoFindProvider/AutoFindProvider";
-import { connector } from "./autoFindProvider/connector";
 
 import "./slider.less";
 import Layout, { Content, Footer } from "antd/lib/layout/layout";

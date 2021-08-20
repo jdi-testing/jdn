@@ -24,6 +24,9 @@
     "camelcase": 0,
     "max-len": [1, { "code": 120 }],
     "object-curly-spacing": 0,
-    "comma-dangle": 0
+    "comma-dangle": 0,
+    "react/prop-types": [
+      0
+    ]
   }
 }
