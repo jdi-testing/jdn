@@ -2,7 +2,7 @@ class Connector {
   constructor() {
     this.tab = null;
     this.port = null;
-    this.getPageId();
+    this.getTab();
 
     this.onerror = null;
   }
@@ -12,7 +12,7 @@ class Connector {
     else throw error;
   }
 
-  getPageId() {
+  getTab() {
     chrome.tabs.query({ active: true, currentWindow: true }, (res) => {
       if (res && res[0]) this.tab = res[0];
       else this.handleError("Connector: active page id is not available.");
@@ -43,6 +43,7 @@ class Connector {
         changeinfo.status === "complete" &&
         this.tab.id === tabId
       ) {
+        this.getTab();
         if (this.port) {
           this.port.disconnect();
           this.port = null;
