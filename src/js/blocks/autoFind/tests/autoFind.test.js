@@ -53,7 +53,7 @@ describe("AutoFind Identify functionality", () => {
     );
 
     jest.clearAllMocks();
-    jest.spyOn(connector, "getPageId").mockReturnValue(
+    jest.spyOn(connector, "getTab").mockReturnValue(
         (() => {
           connector.tab = { id: "42" };
         })()
