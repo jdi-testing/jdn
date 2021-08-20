@@ -1,6 +1,6 @@
 {
   "name": "jdi-react-extension",
-  "version": "3.0.40",
+  "version": "3.0.41",
   "description": "jdi react extension",
   "scripts": {
     "start": "npm run webpack",
@@ -9,7 +9,8 @@
     "build": "webpack",
     "server": "node server.js",
     "prettier": "prettier",
-    "patch": "npx mversion patch"
+    "patch": "npx mversion patch",
+    "test": "jest"
   },
   "main": "src/js/main.js",
   "repository": {
@@ -67,6 +68,7 @@
     "@babel/preset-react": "^7.12.13",
     "@babel/runtime": "^7.13.10",
     "@svgr/webpack": "^5.5.0",
+    "@testing-library/react": "^12.0.0",
     "babel-jest": "^26.6.3",
     "babel-loader": "^8.2.2",
     "babel-plugin-transform-class-properties": "^6.24.1",
@@ -87,6 +89,7 @@
     "file-saver": "^2.0.5",
     "html-webpack-plugin": "^5.3.1",
     "jest": "^26.6.3",
+    "jest-chrome": "^0.7.2",
     "json-loader": "^0.5.7",
     "less": "^4.1.1",
     "less-loader": "^8.0.0",
