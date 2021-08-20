@@ -30,7 +30,7 @@ describe("AutoFind Identify functionality", () => {
 
     return (
       <React.Fragment>
-        <button id="idetify" onClick={identifyElements}></button>
+        <button id="identify" onClick={identifyElements}></button>
         <button id="perception" onClick={() => onChangePerception(perceptiontreshold)}></button>
         <button id="perceptionLow" onClick={() => onChangePerception(perceptiontresholdLow)}></button>
         <div id="status">{status}</div>
@@ -75,13 +75,13 @@ describe("AutoFind Identify functionality", () => {
   });
 
   test("changes status to Loading", () => {
-    const button = container.querySelector("#idetify");
+    const button = container.querySelector("#identify");
     button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(container.querySelector("#status").textContent).toBe(autoFindStatus.loading);
   });
 
   test("predicted elements are received, updated properly and passed to component", async () => {
-    const button = container.querySelector("#idetify");
+    const button = container.querySelector("#identify");
     await act(async () => {
       button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
@@ -94,7 +94,7 @@ describe("AutoFind Identify functionality", () => {
   test("elements under perception treshold are unavailable at first call", async () => {
     const perception = container.querySelector("#perception");
     perception.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    const identify = container.querySelector("#idetify");
+    const identify = container.querySelector("#identify");
     await act(async () => {
       identify.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
@@ -103,7 +103,7 @@ describe("AutoFind Identify functionality", () => {
   });
 
   test("elements under perception treshold are unavailable after change", async () => {
-    const identify = container.querySelector("#idetify");
+    const identify = container.querySelector("#identify");
     await act(async () => {
       identify.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
@@ -120,7 +120,7 @@ describe("AutoFind Identify functionality", () => {
     act(() => {
       perception.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
-    const identify = container.querySelector("#idetify");
+    const identify = container.querySelector("#identify");
     await act(async () => {
       identify.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
@@ -138,7 +138,7 @@ describe("AutoFind Identify functionality", () => {
     jest
         .spyOn(pageDataHandlers, "getElements")
         .mockImplementation((callback) => callback([predictedAfterInteraction, 234]));
-    const button = container.querySelector("#idetify");
+    const button = container.querySelector("#identify");
     await act(async () => {
       button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
