@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import injectSheet from "react-jss";
 import { Slider, Row, Alert } from "antd";
-import {
-  useAutoFind,
-  xpathGenerationStatus,
-} from "./autoFindProvider/AutoFindProvider";
+import { useAutoFind, xpathGenerationStatus } from "./autoFindProvider/AutoFindProvider";
 
 import "./slider.less";
 import Layout, { Content, Footer } from "antd/lib/layout/layout";
 import { styles } from "./styles";
+import { XPathSettings } from "./xPathSettings/XPathSettings";
 
 let sliderTimer;
 const AutoFind = ({ classes }) => {
@@ -27,13 +25,7 @@ const AutoFind = ({ classes }) => {
       xpathStatus,
       unactualPrediction,
     },
-    {
-      identifyElements,
-      removeHighlighs,
-      generateAndDownload,
-      onChangePerception,
-      reportProblem
-    },
+    { identifyElements, removeHighlighs, generateAndDownload, onChangePerception, reportProblem },
   ] = useAutoFind();
 
   useEffect(() => {
@@ -69,9 +61,7 @@ const AutoFind = ({ classes }) => {
   };
 
   const getPredictedElements = () => {
-    return predictedElements && allowRemoveElements
-      ? predictedElements.length
-      : 0;
+    return predictedElements && allowRemoveElements ? predictedElements.length : 0;
   };
 
   const handleReportProblem = () => {
@@ -89,9 +79,7 @@ const AutoFind = ({ classes }) => {
           >
             Identify
           </button>
-          <button
-            className="jdn__button jdn__button--reset"
-            hidden={!allowRemoveElements} onClick={handleRemove}>
+          <button className="jdn__button jdn__button--reset" hidden={!allowRemoveElements} onClick={handleRemove}>
             Reset
           </button>
           <button
@@ -102,6 +90,7 @@ const AutoFind = ({ classes }) => {
             Generate And Download
           </button>
         </Row>
+        <XPathSettings />
         <div className="jdn__perception-treshold">
           <label className="jdn__perception-title">Perception treshold: {perception}</label>
           <div className="jdn__slider">
@@ -117,7 +106,6 @@ const AutoFind = ({ classes }) => {
             <label className="jdn__perception-max">1.0</label>
           </div>
         </div>
-        
         <div hidden={!status} className="jdn__result">
           <div className="jdn__result-status">{status}</div>
           <div className="jdn__result-indicators">
@@ -126,7 +114,7 @@ const AutoFind = ({ classes }) => {
               found on page
             </div>
             <div className="jdn__result-indicator">
-              <span className="jdn__result-count">{getPredictedElements()}</span> 
+              <span className="jdn__result-count">{getPredictedElements()}</span>
               predicted
             </div>
             <div className="jdn__result-indicator">
@@ -135,31 +123,28 @@ const AutoFind = ({ classes }) => {
             </div>
             <div className="jdn__result-indicator">
               <span className="jdn__result-count">-</span>
-              {xpathStatus} {unreachableNodes && unreachableNodes.length ? (
+              {xpathStatus}{" "}
+              {unreachableNodes && unreachableNodes.length ? (
                 <Alert
                   type="warning"
                   showIcon
                   description={`${unreachableNodes.length} controls are unreachable due to DOM updates.`}
                 />
               ) : null}
-              {unactualPrediction ?
-                (<Alert
+              {unactualPrediction ? (
+                <Alert
                   type="warning"
                   showIcon
                   description={`Prediction is not actual anymore. Please, remove highlight and re-run identification.`}
-                />)
-                : null
-              }
+                />
+              ) : null}
             </div>
           </div>
         </div>
-
       </Content>
       <Footer className={classes.footer}>
         <div>
-          <a
-            hidden={!allowRemoveElements}
-            onClick={handleReportProblem}>
+          <a hidden={!allowRemoveElements} onClick={handleReportProblem}>
             Report Problem
           </a>
         </div>
