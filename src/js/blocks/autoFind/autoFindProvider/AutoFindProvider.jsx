@@ -14,7 +14,7 @@ import { reportProblemPopup } from "./contentScripts/reportProblemPopup/reportPr
 import { JDIclasses, getJdiClassName } from "./generationClassesMap";
 import { connector, sendMessage } from "./connector";
 
-/*global chrome*/
+/* global chrome */
 
 export const autoFindStatus = {
   noStatus: "",
@@ -47,6 +47,12 @@ const AutoFindProvider = inject("mainModel")(
       xpathGenerationStatus.noStatus
     );
     const [unactualPrediction, setUnactualPrediction] = useState(false);
+    const [xpathConfig, setXpathConfig] = useState({
+      "maximum_generation_time": 10,
+      "allow_indexes_at_the_beginning": false,
+      "allow_indexes_in_the_middle": false,
+      "allow_indexes_at_the_end": true
+    });
 
     connector.onerror = () => {
       setStatus(autoFindStatus.error);
@@ -104,7 +110,7 @@ const AutoFindProvider = inject("mainModel")(
       });
     };
 
-    const changeElementName = ({id, name}) => {
+    const changeElementName = ({ id, name }) => {
       setPredictedElements((previousValue) => {
         const renamed = previousValue.map((el) => {
           if (el.element_id === id) {
@@ -182,7 +188,7 @@ const AutoFindProvider = inject("mainModel")(
           setStatus(autoFindStatus.success);
           setAvailableForGeneration(
             _.chain(predictedElements)
-              .map(predicted => {
+              .map((predicted) => {
                 const el = _.find(availableForGeneration, { element_id: predicted.element_id });
                 return { ...el, ...predicted };
               })
@@ -194,14 +200,13 @@ const AutoFindProvider = inject("mainModel")(
                   !unreachableNodes.includes(e.element_id)
               ).value()
           );
-        }
+        };
 
         highlightElements(
           predictedElements,
           onHighlighted,
           perception
         );
-
       }
     }, [predictedElements, perception]);
 
@@ -218,7 +223,7 @@ const AutoFindProvider = inject("mainModel")(
       );
       if (!noXpath.length) return;
       setXpathStatus(xpathGenerationStatus.started);
-      requestGenerationData(noXpath, ({ generationData, unreachableNodes }) => {
+      requestGenerationData(noXpath, xpathConfig, ({ generationData, unreachableNodes }) => {
         setAvailableForGeneration(
           _.chain(availableForGeneration)
             .map((el) => _.chain(generationData).find({ element_id: el.element_id }).merge(el).value())
@@ -228,7 +233,6 @@ const AutoFindProvider = inject("mainModel")(
         setUnreachableNodes(unreachableNodes);
         setXpathStatus(xpathGenerationStatus.complete);
       });
-
     }, [availableForGeneration]);
 
     useEffect(() => {
@@ -248,6 +252,7 @@ const AutoFindProvider = inject("mainModel")(
         availableForGeneration,
         xpathStatus,
         unactualPrediction,
+        xpathConfig,
       },
       {
         identifyElements,
@@ -255,6 +260,7 @@ const AutoFindProvider = inject("mainModel")(
         generateAndDownload,
         onChangePerception,
         reportProblem,
+        setXpathConfig,
       },
     ];
 

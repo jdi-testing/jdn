@@ -64,7 +64,7 @@ describe("AutoFind Identify functionality", () => {
         .mockImplementation((arg1, successCallback, arg3) => successCallback());
     jest
         .spyOn(pageDataHandlers, "requestGenerationData")
-        .mockImplementation((elements, callback) => callback({ generationData, unreachableNodes: [] }));
+        .mockImplementation((elements, {}, callback) => callback({ generationData, unreachableNodes: [] }));
   });
 
   afterEach(() => {

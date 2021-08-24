@@ -67,11 +67,11 @@ export const getElements = (callback, setStatus) => {
   });
 
   return connector.attachContentScript(getPageData)
-    .then(uploadElements)
-    .then((data) => {
-      removeOverlay();
-      callback(data);
-    });
+      .then(uploadElements)
+      .then((data) => {
+        removeOverlay();
+        callback(data);
+      });
 };
 
 export const highlightElements = (elements, successCallback, perception) => {
@@ -119,44 +119,45 @@ export const runDocumentListeners = (actions) => {
   }
 };
 
-export const requestXpathes = async (elements) => {
+export const requestXpathes = async (elements, config) => {
   const documentResult = await connector.attachContentScript(
-    (() => JSON.stringify(document.documentElement.innerHTML))
+      (() => JSON.stringify(document.documentElement.innerHTML))
   );
 
   const document = await documentResult[0].result;
-  const ids = elements.map(el => el.element_id);
+  const ids = elements.map((el) => el.element_id);
 
   const xPathResponse = await fetch("http:localhost:5000/generate_xpath", {
     method: "POST",
     body: JSON.stringify({
       ids,
       document,
+      config
     }),
   });
 
   if (xPathResponse.ok) {
     const xPathes = await xPathResponse.json();
-    const r = elements.map(el => ({ ...el, xpath: xPathes[el.element_id] }));
-    const unreachableNodes = r.filter(el => !el.xpath);
-    return { xpathes: r.filter(el => !!el.xpath), unreachableNodes };
+    const r = elements.map((el) => ({ ...el, xpath: xPathes[el.element_id] }));
+    const unreachableNodes = r.filter((el) => !el.xpath);
+    return { xpathes: r.filter((el) => !!el.xpath), unreachableNodes };
   } else {
     throw new Error(xPathResponse);
   }
 };
 
-export const requestGenerationData = async (elements, callback) => {
-  const { xpathes, unreachableNodes } = await (await requestXpathes(elements));
+export const requestGenerationData = async (elements, xpathConfig, callback) => {
+  const { xpathes, unreachableNodes } = await (await requestXpathes(elements, xpathConfig));
   const generationAttributes = await requestGenerationAttributes(elements);
-  const generationData = xpathes.map(el => {
-    const attr = generationAttributes.find(g => g.element_id === el.element_id);
+  const generationData = xpathes.map((el) => {
+    const attr = generationAttributes.find((g) => g.element_id === el.element_id);
     return {
       ...el,
       ...attr,
-    }
+    };
   });
   callback({ generationData, unreachableNodes });
-}
+};
 
 export const generatePageObject = (elements, mainModel) => {
   const elToConvert = predictedToConvert(elements);
