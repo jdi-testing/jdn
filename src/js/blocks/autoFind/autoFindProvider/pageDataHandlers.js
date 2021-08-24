@@ -132,7 +132,7 @@ export const requestXpathes = async (elements, config) => {
     body: JSON.stringify({
       ids,
       document,
-      config,
+      config
     }),
   });
 
