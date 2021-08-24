@@ -1,6 +1,7 @@
 import { camelCase } from "../../../models/GenerateBlockModel";
 import { getJDILabel } from "./generationClassesMap";
 import { connector } from "./connector";
+import { startsWith } from "lodash";
 
 const getPackage = (url) => {
   const urlObject = new URL(url);
@@ -25,18 +26,19 @@ export const predictedToConvert = (elements) => {
 
   return f.map((e, i) => {
     let elementName = getElementName(e);
-    let elementTagId = e.predictedAttrId;
-    let customElementName = e.jdi_custom_class_name;
+    let elementTagId = e.predictedAttrId.replaceAll(" ", "");
+    elementTagId = startsWith(elementTagId, '^[0-9].+$') ? `name${elementTagId}` : elementTagId;
+    const customElementName = e.jdi_custom_class_name;
 
     if (uniqueNames.indexOf(elementName) >= 0) elementName += i;
     if (elementTagId && uniqueNames.indexOf(elementTagId) >= 0) elementTagId += i;
     uniqueNames.push(elementTagId, elementName);
 
-    const name = customElementName
-      ? customElementName
-      : elementTagId
-        ? elementTagId
-        : elementName;
+    const name = customElementName ?
+      customElementName :
+      elementTagId ?
+        elementTagId :
+        elementName;
 
     return {
       ...e,
