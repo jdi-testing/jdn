@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import injectSheet from "react-jss";
 import { Slider, Row, Alert } from "antd";
-import {
-  useAutoFind,
-  xpathGenerationStatus,
-} from "./autoFindProvider/AutoFindProvider";
+import { useAutoFind, xpathGenerationStatus } from "./autoFindProvider/AutoFindProvider";
 
 import "./slider.less";
 import Layout, { Content, Footer } from "antd/lib/layout/layout";
 import { styles } from "./styles";
+import { XPathSettings } from "./xPathSettings/XPathSettings";
 
 let sliderTimer;
 const AutoFind = ({ classes }) => {
@@ -27,13 +25,7 @@ const AutoFind = ({ classes }) => {
       xpathStatus,
       unactualPrediction,
     },
-    {
-      identifyElements,
-      removeHighlighs,
-      generateAndDownload,
-      onChangePerception,
-      reportProblem
-    },
+    { identifyElements, removeHighlighs, generateAndDownload, onChangePerception, reportProblem },
   ] = useAutoFind();
 
   useEffect(() => {
@@ -69,9 +61,7 @@ const AutoFind = ({ classes }) => {
   };
 
   const getPredictedElements = () => {
-    return predictedElements && allowRemoveElements
-      ? predictedElements.length
-      : 0;
+    return predictedElements && allowRemoveElements ? predictedElements.length : 0;
   };
 
   const handleReportProblem = () => {
@@ -88,14 +78,12 @@ const AutoFind = ({ classes }) => {
           <button disabled={!allowRemoveElements} onClick={handleRemove}>
             Remove
           </button>
-          <button
-            disabled={xpathStatus !== xpathGenerationStatus.complete}
-            onClick={handleGenerate}
-          >
+          <button disabled={xpathStatus !== xpathGenerationStatus.complete} onClick={handleGenerate}>
             Generate And Download
           </button>
         </Row>
         <label>Perception treshold: {perception}</label>
+        <XPathSettings />
         <Row>
           <label>0.0</label>
           <Slider
@@ -111,9 +99,7 @@ const AutoFind = ({ classes }) => {
         <div>{status}</div>
         <div>{pageElements || 0} found on page.</div>
         <div>{getPredictedElements()} predicted.</div>
-        <div>
-          {availableForGeneration.length} available for generation.
-        </div>
+        <div>{availableForGeneration.length} available for generation.</div>
         <div>{xpathStatus}</div>
         {unreachableNodes && unreachableNodes.length ? (
           <Alert
@@ -122,20 +108,17 @@ const AutoFind = ({ classes }) => {
             description={`${unreachableNodes.length} controls are unreachable due to DOM updates.`}
           />
         ) : null}
-        {unactualPrediction ?
-          (<Alert
+        {unactualPrediction ? (
+          <Alert
             type="warning"
             showIcon
             description={`Prediction is not actual anymore. Please, remove highlight and re-run identification.`}
-          />)
-          : null
-        }
+          />
+        ) : null}
       </Content>
       <Footer className={classes.footer}>
         <div>
-          <a
-            hidden={!allowRemoveElements}
-            onClick={handleReportProblem}>
+          <a hidden={!allowRemoveElements} onClick={handleReportProblem}>
             Report Problem
           </a>
         </div>
