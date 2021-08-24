@@ -67,68 +67,80 @@ class App extends React.Component {
   render() {
     const { classes } = this.props;
     return (
-      <Provider mainModel={this.mainModel}>
+      <Provider
+        mainModel={this.mainModel}
+      >
+        <header className="jdn__header">
+          <div className="jdn__header-title">
+            <h1 className="jdn__header-text">JDN</h1>
+            <div className="jdn__header-version">version</div>
+          </div>
+          <a className="jdn__header-link" href="#">Report a problem</a>
+          <a className="jdn__header-link" href="#">Readme</a>
+          <a className="jdn__header-link" href="#">Upgrade</a>
+        </header>
         <AutoFindProvider>
-        <div className={classes.commonContainer}>
-          <Menu
-            onClick={this.handleClick}
-            selectedKeys={[this.tab]}
-            mode="horizontal"
-          >
-            <Menu.Item key="auto_find">Auto Find Objects</Menu.Item>
-            <Menu.Item key="settings">Settings</Menu.Item>
-            <Menu.Item key="urls">URLs</Menu.Item>
-            <Menu.Item key="results">Results</Menu.Item>
-            <Menu.Item disabled={true}>
-              <Button
-                onClick={() => {
-                  this.handleGenerate(this.mainModel);
-                }}
-                size={"small"}
-                type="primary"
-              >
-                GENERATE
-              </Button>
-            </Menu.Item>
-            <Menu.Item key="warnings">Warnings</Menu.Item>
-          </Menu>
-
-          {this.tab === "settings" && (
-            <div key="settings">
-              <Row>
-                <Col span={8}>
-                  <GeneralSettings></GeneralSettings>
-                </Col>
-                <Col
-                  span={16}
-                  style={{
-                    padding: "10px",
-                    minHeight: "100vh",
-                    borderLeft: "2px solid #d8d8d8",
+          <div className={classes.commonContainer}>
+            <Menu
+              onClick={this.handleClick}
+              selectedKeys={[this.tab]}
+              mode="horizontal"
+              className="jdn__hidden"
+            >
+              <Menu.Item key="auto_find">Auto Find Objects</Menu.Item>
+              <Menu.Item key="settings">Settings</Menu.Item>
+              <Menu.Item key="urls">URLs</Menu.Item>
+              <Menu.Item key="results">Results</Menu.Item>
+              <Menu.Item disabled={true}>
+                <Button
+                  onClick={() => {
+                    this.handleGenerate(this.mainModel);
                   }}
+                  size={"small"}
+                  type="primary"
                 >
-                  <RulesBlock></RulesBlock>
-                </Col>
-              </Row>
-            </div>
-          )}
+                  GENERATE
+                </Button>
+              </Menu.Item>
+              <Menu.Item key="warnings">Warnings</Menu.Item>
+            </Menu>
 
-          {this.tab === "urls" && (
-            <GenerateBlock key="urls"></GenerateBlock>
-          )}
+            {this.tab === "settings" && (
+              <div key="settings">
+                <Row>
+                  <Col span={8}>
+                    <GeneralSettings></GeneralSettings>
+                  </Col>
+                  <Col
+                    span={16}
+                    style={{
+                      padding: "10px",
+                      minHeight: "100vh",
+                      borderLeft: "2px solid #d8d8d8",
+                    }}
+                  >
+                    <RulesBlock></RulesBlock>
+                  </Col>
+                </Row>
+              </div>
+            )}
 
-          {this.tab === "results" && (
-            <GenerateResults key={this.mainModel.generationId}></GenerateResults>
-          )}
+            {this.tab === "urls" && (
+              <GenerateBlock key="urls"></GenerateBlock>
+            )}
 
-          {this.tab === "warnings" && (
-            <LogComponentWrapper key={this.mainModel.showLog} />
-          )}
+            {this.tab === "results" && (
+              <GenerateResults key={this.mainModel.generationId}></GenerateResults>
+            )}
 
-          {this.tab === "auto_find" && (
-            <AutoFind key="auto_find" />
-          )}
-        </div>
+            {this.tab === "warnings" && (
+              <LogComponentWrapper key={this.mainModel.showLog} />
+            )}
+
+            {this.tab === "auto_find" && (
+              <AutoFind key="auto_find" />
+            )}
+          </div>
         </AutoFindProvider>
       </Provider>
     );

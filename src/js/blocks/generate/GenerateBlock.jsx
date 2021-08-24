@@ -117,7 +117,7 @@ export default class GenerateBlock extends React.Component {
               Export URLs
             </Button>
           </div>
-          <ul className="urls-list">
+          <ul className="jdn__urls-list">
           {urlsList.map((url) => 
             <li key={url}>
               <Checkbox

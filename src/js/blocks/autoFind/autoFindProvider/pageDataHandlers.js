@@ -61,7 +61,6 @@ export const getElements = (callback, setStatus) => {
   connector.updateMessageListener((payload) => {
     if (payload.message === "START_COLLECT_DATA") {
       clearTimeout(pageAccessTimeout);
-      setStatus(autoFindStatus.loading);
       overlayID = payload.param.overlayID;
     }
   });

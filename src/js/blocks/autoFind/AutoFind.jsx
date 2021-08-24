@@ -80,56 +80,80 @@ const AutoFind = ({ classes }) => {
 
   return (
     <Layout>
-      <Content className={classes.content}>
+      <Content>
         <Row>
-          <button disabled={!allowIdentifyElements} onClick={handleGetElements}>
+          <button
+            className="jdn__button jdn__button--identify"
+            disabled={!allowIdentifyElements}
+            onClick={handleGetElements}
+          >
             Identify
           </button>
-          <button disabled={!allowRemoveElements} onClick={handleRemove}>
-            Remove
+          <button
+            className="jdn__button jdn__button--reset"
+            hidden={!allowRemoveElements} onClick={handleRemove}>
+            Reset
           </button>
           <button
-            disabled={xpathStatus !== xpathGenerationStatus.complete}
+            className="jdn__button jdn__button--generate"
+            hidden={xpathStatus !== xpathGenerationStatus.complete}
             onClick={handleGenerate}
           >
             Generate And Download
           </button>
         </Row>
-        <label>Perception treshold: {perception}</label>
-        <Row>
-          <label>0.0</label>
-          <Slider
-            style={{ width: "80%" }}
-            min={0.0}
-            max={1}
-            step={0.01}
-            onChange={handlePerceptionChange}
-            value={perceptionOutput}
-          />
-          <label>1</label>
-        </Row>
-        <div>{status}</div>
-        <div>{pageElements || 0} found on page.</div>
-        <div>{getPredictedElements()} predicted.</div>
-        <div>
-          {availableForGeneration.length} available for generation.
+        <div className="jdn__perception-treshold">
+          <label className="jdn__perception-title">Perception treshold: {perception}</label>
+          <div className="jdn__slider">
+            <label className="jdn__perception-min">0.0</label>
+            <Slider
+              style={{ width: "100%" }}
+              min={0.0}
+              max={1}
+              step={0.01}
+              onChange={handlePerceptionChange}
+              value={perceptionOutput}
+            />
+            <label className="jdn__perception-max">1.0</label>
+          </div>
         </div>
-        <div>{xpathStatus}</div>
-        {unreachableNodes && unreachableNodes.length ? (
-          <Alert
-            type="warning"
-            showIcon
-            description={`${unreachableNodes.length} controls are unreachable due to DOM updates.`}
-          />
-        ) : null}
-        {unactualPrediction ?
-          (<Alert
-            type="warning"
-            showIcon
-            description={`Prediction is not actual anymore. Please, remove highlight and re-run identification.`}
-          />)
-          : null
-        }
+        
+        <div hidden={!status} className="jdn__result">
+          <div className="jdn__result-status">{status}</div>
+          <div className="jdn__result-indicators">
+            <div className="jdn__result-indicator">
+              <span className="jdn__result-count">{pageElements || 0}</span>
+              found on page
+            </div>
+            <div className="jdn__result-indicator">
+              <span className="jdn__result-count">{getPredictedElements()}</span> 
+              predicted
+            </div>
+            <div className="jdn__result-indicator">
+              <span className="jdn__result-count">{availableForGeneration.length}</span>
+              available for generation
+            </div>
+            <div className="jdn__result-indicator">
+              <span className="jdn__result-count">-</span>
+              {xpathStatus} {unreachableNodes && unreachableNodes.length ? (
+                <Alert
+                  type="warning"
+                  showIcon
+                  description={`${unreachableNodes.length} controls are unreachable due to DOM updates.`}
+                />
+              ) : null}
+              {unactualPrediction ?
+                (<Alert
+                  type="warning"
+                  showIcon
+                  description={`Prediction is not actual anymore. Please, remove highlight and re-run identification.`}
+                />)
+                : null
+              }
+            </div>
+          </div>
+        </div>
+
       </Content>
       <Footer className={classes.footer}>
         <div>

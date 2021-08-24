@@ -74,12 +74,6 @@ describe("AutoFind Identify functionality", () => {
     container = null;
   });
 
-  test("changes status to Loading", () => {
-    const button = container.querySelector("#identify");
-    button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    expect(container.querySelector("#status").textContent).toBe(autoFindStatus.loading);
-  });
-
   test("predicted elements are received, updated properly and passed to component", async () => {
     const button = container.querySelector("#identify");
     await act(async () => {

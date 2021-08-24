@@ -18,9 +18,7 @@ import { connector, sendMessage } from "./connector";
 
 export const autoFindStatus = {
   noStatus: "",
-  loading: "Loading...",
   success: "Successful!",
-  removed: "Removed",
   error: "An error occured",
   blocked: "Script is blocked. Close all popups"
 };
@@ -137,14 +135,12 @@ const AutoFindProvider = inject("mainModel")(
 
     const identifyElements = () => {
       setAllowIdentifyElements(!allowIdentifyElements);
-      setStatus(autoFindStatus.loading);
       getElements(updateElements, setStatus);
     };
 
     const removeHighlighs = () => {
       const callback = () => {
         clearElementsState();
-        setStatus(autoFindStatus.removed);
       };
 
       sendMessage.killHighlight(null, callback);
