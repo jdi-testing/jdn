@@ -19,7 +19,7 @@ import "antd/lib/style/themes/default.less";
 import "antd/dist/antd.less";
 import "../css/main.less";
 import LogComponentWrapper from "./blocks/log/LogComponent";
-import AutoFind from "./blocks/autoFind/AutoFind";
+import AutoFind from "./blocks/autoFind/components/autoFind/AutoFind";
 import { AutoFindProvider } from "./blocks/autoFind/autoFindProvider/AutoFindProvider";
 
 const styles = {

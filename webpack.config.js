@@ -131,7 +131,7 @@ const indexConfig = {
 
 const highlightCssConfig = {
   entry:
-    "./src/js/blocks/autoFind/autoFindProvider/contentScripts/highlight.css",
+    "./src/js/blocks/autoFind/contentScripts/highlight.css",
   mode: "production",
   plugins: [new MiniCssExtractPlugin({ filename: "highlight.css" })],
   module: {
@@ -154,7 +154,7 @@ const highlightCssConfig = {
 
 const reportProblemPopupCssConfig = {
   entry:
-    "./src/js/blocks/autoFind/autoFindProvider/contentScripts/reportProblemPopup/reportProblemPopup.css",
+    "./src/js/blocks/autoFind/contentScripts/reportProblemPopup/reportProblemPopup.css",
   mode: "production",
   plugins: [new MiniCssExtractPlugin({ filename: "reportproblempopup.css" })],
   module: {

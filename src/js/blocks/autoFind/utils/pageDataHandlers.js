@@ -6,7 +6,7 @@ import { getPageData } from "./contentScripts/pageData";
 import { urlListener } from "./contentScripts/urlListener";
 import { getPage, predictedToConvert } from "./pageObject";
 import { autoFindStatus } from "./AutoFindProvider";
-import { highlightOrder } from "./contentScripts/highlightOrder";
+import { highlightOrder } from "./../contentScripts/highlightOrder";
 /* global chrome*/
 
 let documentListenersStarted;

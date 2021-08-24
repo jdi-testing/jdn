@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import injectSheet from "react-jss";
 import { Slider, Row, Alert } from "antd";
-import { useAutoFind, xpathGenerationStatus } from "./autoFindProvider/AutoFindProvider";
+import { useAutoFind, xpathGenerationStatus } from "../../autoFindProvider/AutoFindProvider";
+import { XPathSettings } from "../xPathSettings/XPathSettings";
 
 import "./slider.less";
 import Layout, { Content, Footer } from "antd/lib/layout/layout";
 import { styles } from "./styles";
-import { XPathSettings } from "./xPathSettings/XPathSettings";
 
 let sliderTimer;
 const AutoFind = ({ classes }) => {

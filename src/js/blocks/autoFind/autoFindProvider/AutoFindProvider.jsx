@@ -9,10 +9,10 @@ import {
   runDocumentListeners,
   generatePageObject,
   requestGenerationData,
-} from "./pageDataHandlers";
+} from "./../utils/pageDataHandlers";
 import { reportProblemPopup } from "./contentScripts/reportProblemPopup/reportProblemPopup";
-import { JDIclasses, getJdiClassName } from "./generationClassesMap";
-import { connector, sendMessage } from "./connector";
+import { JDIclasses, getJdiClassName } from "./../utils/generationClassesMap";
+import { connector, sendMessage } from "../utils/connector";
 
 /* global chrome */
 
