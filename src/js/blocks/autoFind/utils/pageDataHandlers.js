@@ -1,12 +1,13 @@
 import { connector, sendMessage } from "./connector";
-import { runContextMenu } from "./contentScripts/contextMenu/contextmenu";
-import { getGenerationAttributes } from "./contentScripts/generationData";
-import { highlightOnPage } from "./contentScripts/highlight";
-import { getPageData } from "./contentScripts/pageData";
-import { urlListener } from "./contentScripts/urlListener";
+import { runContextMenu } from "./../contentScripts/contextMenu/contextmenu";
+import { getGenerationAttributes } from "./../contentScripts/generationData";
+import { highlightOnPage } from "./../contentScripts/highlight";
+import { getPageData } from "./../contentScripts/pageData";
+import { urlListener } from "./../contentScripts/urlListener";
 import { getPage, predictedToConvert } from "./pageObject";
-import { autoFindStatus } from "./AutoFindProvider";
+import { autoFindStatus } from "./../autoFindProvider/AutoFindProvider";
 import { highlightOrder } from "./../contentScripts/highlightOrder";
+import { reportProblemPopup } from "../contentScripts/reportProblemPopup/reportProblemPopup";
 /* global chrome*/
 
 let documentListenersStarted;
@@ -164,4 +165,8 @@ export const generatePageObject = (elements, mainModel) => {
     mainModel.conversionModel.genPageCode(page, mainModel, true);
     mainModel.conversionModel.downloadPageCode(page, ".java");
   });
+};
+
+export const reportProblem = (predictedElements) => {
+  chrome.storage.sync.set({ predictedElements }, connector.attachContentScript(reportProblemPopup));
 };

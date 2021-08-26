@@ -10,17 +10,16 @@ import {
   generatePageObject,
   requestGenerationData,
 } from "./../utils/pageDataHandlers";
-import { reportProblemPopup } from "./contentScripts/reportProblemPopup/reportProblemPopup";
 import { JDIclasses, getJdiClassName } from "./../utils/generationClassesMap";
 import { connector, sendMessage } from "../utils/connector";
 
-/* global chrome */
-
 export const autoFindStatus = {
   noStatus: "",
+  loading: "Loading...",
   success: "Successful!",
+  removed: "Removed",
   error: "An error occured",
-  blocked: "Script is blocked. Close all popups"
+  blocked: "Script is blocked. Close all popups",
 };
 
 export const xpathGenerationStatus = {
@@ -41,15 +40,13 @@ const AutoFindProvider = inject("mainModel")(
     const [perception, setPerception] = useState(0.5);
     const [unreachableNodes, setUnreachableNodes] = useState([]);
     const [availableForGeneration, setAvailableForGeneration] = useState([]);
-    const [xpathStatus, setXpathStatus] = useState(
-      xpathGenerationStatus.noStatus
-    );
+    const [xpathStatus, setXpathStatus] = useState(xpathGenerationStatus.noStatus);
     const [unactualPrediction, setUnactualPrediction] = useState(false);
     const [xpathConfig, setXpathConfig] = useState({
-      "maximum_generation_time": 10,
-      "allow_indexes_at_the_beginning": false,
-      "allow_indexes_in_the_middle": false,
-      "allow_indexes_at_the_end": true
+      maximum_generation_time: 10,
+      allow_indexes_at_the_beginning: false,
+      allow_indexes_in_the_middle: false,
+      allow_indexes_at_the_end: true,
     });
 
     connector.onerror = () => {
@@ -121,13 +118,6 @@ const AutoFindProvider = inject("mainModel")(
       });
     };
 
-    const reportProblem = (predictedElements) => {
-      chrome.storage.sync.set(
-        { predictedElements },
-        connector.attachContentScript(reportProblemPopup)
-      );
-    };
-
     const updateElements = ([predicted, page]) => {
       const rounded = predicted.map((el) => ({
         ...el,
@@ -141,12 +131,14 @@ const AutoFindProvider = inject("mainModel")(
 
     const identifyElements = () => {
       setAllowIdentifyElements(!allowIdentifyElements);
+      setStatus(autoFindStatus.loading);
       getElements(updateElements, setStatus);
     };
 
     const removeHighlighs = () => {
       const callback = () => {
         clearElementsState();
+        setStatus(autoFindStatus.removed);
       };
 
       sendMessage.killHighlight(null, callback);
@@ -194,15 +186,12 @@ const AutoFindProvider = inject("mainModel")(
                   !e.skipGeneration &&
                   !e.hidden &&
                   !unreachableNodes.includes(e.element_id)
-              ).value()
+              )
+              .value()
           );
         };
 
-        highlightElements(
-          predictedElements,
-          onHighlighted,
-          perception
-        );
+        highlightElements(predictedElements, onHighlighted, perception);
       }
     }, [predictedElements, perception]);
 
@@ -214,16 +203,14 @@ const AutoFindProvider = inject("mainModel")(
 
     useEffect(() => {
       if (!availableForGeneration) return;
-      const noXpath = availableForGeneration.filter(
-        (element) => !element.xpath
-      );
+      const noXpath = availableForGeneration.filter((element) => !element.xpath);
       if (!noXpath.length) return;
       setXpathStatus(xpathGenerationStatus.started);
       requestGenerationData(noXpath, xpathConfig, ({ generationData, unreachableNodes }) => {
         setAvailableForGeneration(
           _.chain(availableForGeneration)
             .map((el) => _.chain(generationData).find({ element_id: el.element_id }).merge(el).value())
-            .differenceBy(unreachableNodes, 'element_id')
+            .differenceBy(unreachableNodes, "element_id")
             .value()
         );
         setUnreachableNodes(unreachableNodes);
@@ -255,16 +242,11 @@ const AutoFindProvider = inject("mainModel")(
         removeHighlighs,
         generateAndDownload,
         onChangePerception,
-        reportProblem,
         setXpathConfig,
       },
     ];
 
-    return (
-      <AutoFindContext.Provider value={data}>
-        {children}
-      </AutoFindContext.Provider>
-    );
+    return <AutoFindContext.Provider value={data}>{children}</AutoFindContext.Provider>;
   })
 );
 

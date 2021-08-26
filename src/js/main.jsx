@@ -25,7 +25,6 @@ import { AutoFindProvider } from "./blocks/autoFind/autoFindProvider/AutoFindPro
 const styles = {
   commonContainer: {
     position: "relative",
-    overflowX: "hidden",
   },
   contentContainerDesktopTablet: {
     display: "flex",
@@ -49,13 +48,13 @@ class App extends React.Component {
 
   handleClick = (e) => {
     this.mainModel.setTab(e.key);
-    this.setState({tab: e.key});
+    this.setState({ tab: e.key });
   };
 
   @action
   handleGenerate = (mainModel) => {
     mainModel.generateBlockModel.generate(mainModel, () => {
-      this.handleClick({key: 'results'});
+      this.handleClick({ key: "results" });
       this.mainModel.generationId++;
     });
   };
@@ -67,27 +66,14 @@ class App extends React.Component {
   render() {
     const { classes } = this.props;
     return (
-      <Provider
-        mainModel={this.mainModel}
-      >
-        <header className="jdn__header">
-          <div className="jdn__header-title">
-            <h1 className="jdn__header-text">JDN</h1>
-            <div className="jdn__header-version">version</div>
-          </div>
-          <a className="jdn__header-link" href="#">Report a problem</a>
-          <a className="jdn__header-link" href="#">Readme</a>
-          <a className="jdn__header-link" href="#">Upgrade</a>
-        </header>
+      <Provider mainModel={this.mainModel}>
         <AutoFindProvider>
           <div className={classes.commonContainer}>
-            <Menu
-              onClick={this.handleClick}
-              selectedKeys={[this.tab]}
-              mode="horizontal"
-              className="jdn__hidden"
-            >
+            {/* UNCOMMENT THIS PART 
+              TO MAKE THE REST FUNCTIONALITY AVAILABLE */}
+            {/* <Menu onClick={this.handleClick} selectedKeys={[this.tab]} mode="horizontal" className="jdn__hidden">
               <Menu.Item key="auto_find">Auto Find Objects</Menu.Item>
+
               <Menu.Item key="settings">Settings</Menu.Item>
               <Menu.Item key="urls">URLs</Menu.Item>
               <Menu.Item key="results">Results</Menu.Item>
@@ -103,7 +89,7 @@ class App extends React.Component {
                 </Button>
               </Menu.Item>
               <Menu.Item key="warnings">Warnings</Menu.Item>
-            </Menu>
+            </Menu> */}
 
             {this.tab === "settings" && (
               <div key="settings">
@@ -125,21 +111,13 @@ class App extends React.Component {
               </div>
             )}
 
-            {this.tab === "urls" && (
-              <GenerateBlock key="urls"></GenerateBlock>
-            )}
+            {this.tab === "urls" && <GenerateBlock key="urls"></GenerateBlock>}
 
-            {this.tab === "results" && (
-              <GenerateResults key={this.mainModel.generationId}></GenerateResults>
-            )}
+            {this.tab === "results" && <GenerateResults key={this.mainModel.generationId}></GenerateResults>}
 
-            {this.tab === "warnings" && (
-              <LogComponentWrapper key={this.mainModel.showLog} />
-            )}
+            {this.tab === "warnings" && <LogComponentWrapper key={this.mainModel.showLog} />}
 
-            {this.tab === "auto_find" && (
-              <AutoFind key="auto_find" />
-            )}
+            {this.tab === "auto_find" && <AutoFind key="auto_find" />}
           </div>
         </AutoFindProvider>
       </Provider>

@@ -67,7 +67,10 @@ const mainConfig = {
                 // important extra layer for less-loader^6.0.0
                 javascriptEnabled: true,
                 modifyVars: {
-                  "primary-color": "#008ace",
+                  "primary-color": "#1582d8",
+                  "normal-color": "#b2b5C2",
+                  "btn-default-color": "#1582d8",
+                  "btn-default-border": "#1582d8",
                   "menu-horizontal-line-height": "26px",
                   "menu-bg": "#f3f3f2",
                   "border-radius-base": "3px",

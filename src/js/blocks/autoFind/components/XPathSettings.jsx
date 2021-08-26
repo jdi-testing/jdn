@@ -4,7 +4,7 @@ import { Collapse, InputNumber } from "antd";
 import CollapsePanel from "antd/lib/collapse/CollapsePanel";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 
-import { useAutoFind } from "../../autoFindProvider/AutoFindProvider";
+import { useAutoFind } from "../autoFindProvider/AutoFindProvider";
 
 export const XPathSettings = () => {
   const [{ xpathConfig }, { setXpathConfig }] = useAutoFind();

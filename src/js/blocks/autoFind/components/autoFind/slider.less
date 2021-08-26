@@ -1,3 +1,5 @@
+@import "../autoFind.less";
+
 .ant-slider-track {
   height: 2px;
   background-color: #C4C4C4;
@@ -5,7 +7,7 @@
 
 .ant-slider-rail {
   height: 2px;
-  background-color: #1582D8;
+  background-color: @primary-color;
 }
 
 .ant-slider {
@@ -17,16 +19,19 @@
     background-color: #C4C4C4;
   }
   .ant-slider-rail {
-    background-color: #1582D8;
+    background-color: @primary-active-color;
   }
 }
 
-.ant-slider-handle,
-.ant-slider-handle:focus {
+.ant-slider-handle {
   width: 15px;
   height: 15px;
   margin: -6px 0 0;
   border: none;
-  background-color: #1582D8;
+  background-color: @primary-color;
   box-shadow: none;
+}
+
+.ant-slider-handle:focus {
+  background-color: @primary-active-color;
 }
