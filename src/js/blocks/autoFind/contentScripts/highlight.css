@@ -33,7 +33,7 @@
 
 .cm_container li {
   padding: 10px 17px;
-  padding-right: 1.7em;
+  padding-right: 3em;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -43,25 +43,28 @@
   color: #1582D8;
 }
 
-.cm_container li:last-child {
+.cm_container li .cm_container_warning-option {
   color: #D82C15;
 }
 
 .cm_container li .cm_icon_span {
-  width: 1.5em;
-  height: 1.2em;
-  vertical-align: bottom;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 6px;
+  position: absolute;
   display: inline-block;
-  border-right: 1px solid #aaa;
-  margin-right: 5px;
-  padding-right: 5px;
-  text-align: center;
 }
 
 .cm_container li .cm_text_icon {
   display: inline-block;
   margin: 0 0 0 10px;
   transform: scale(-1, 1);
+}
+
+.cm_container li .cm_text .cm_text_edit_icon {
+  position: absolute;
+  right: -2.8em;
 }
 
 .cm_container li .cm_sub_span {
@@ -81,6 +84,23 @@
   opacity: 0;
   transition: opacity 0.2s;
   visibility: hidden;
+  max-height: 190px;
+  overflow-y: auto;
+}
+
+.cm_container li > ul::-webkit-scrollbar {
+  width: 4px;
+}
+.cm_container li > ul::-webkit-scrollbar-thumb {
+  background-color: rgba(102, 104, 118, 1);
+  border-radius: 10px;
+}
+.cm_container li > ul::-webkit-scrollbar-thumb:active {
+  background-color: rgb(157, 157, 163);
+  border-radius: 10px;
+}
+.cm_container li > ul::-webkit-scrollbar-track {
+  background-color: #000;
 }
 
 .cm_container li:hover > ul {

@@ -67,7 +67,10 @@ const mainConfig = {
                 // important extra layer for less-loader^6.0.0
                 javascriptEnabled: true,
                 modifyVars: {
-                  "primary-color": "#008ace",
+                  "primary-color": "#1582d8",
+                  "normal-color": "#b2b5C2",
+                  "btn-default-color": "#1582d8",
+                  "btn-default-border": "#1582d8",
                   "menu-horizontal-line-height": "26px",
                   "menu-bg": "#f3f3f2",
                   "border-radius-base": "3px",
@@ -131,7 +134,7 @@ const indexConfig = {
 
 const highlightCssConfig = {
   entry:
-    "./src/js/blocks/autoFind/autoFindProvider/contentScripts/highlight.css",
+    "./src/js/blocks/autoFind/contentScripts/highlight.css",
   mode: "production",
   plugins: [new MiniCssExtractPlugin({ filename: "highlight.css" })],
   module: {
@@ -154,7 +157,7 @@ const highlightCssConfig = {
 
 const reportProblemPopupCssConfig = {
   entry:
-    "./src/js/blocks/autoFind/autoFindProvider/contentScripts/reportProblemPopup/reportProblemPopup.css",
+    "./src/js/blocks/autoFind/contentScripts/reportProblemPopup/reportProblemPopup.css",
   mode: "production",
   plugins: [new MiniCssExtractPlugin({ filename: "reportproblempopup.css" })],
   module: {

@@ -1,9 +1,10 @@
 import React from "react";
 import { AutoFindProvider, autoFindStatus, useAutoFind } from "../autoFindProvider/AutoFindProvider";
-import { connector } from "../autoFindProvider/connector";
+
 import { act } from "react-dom/test-utils";
 import { render, unmountComponentAtNode } from "react-dom";
-import * as pageDataHandlers from "../autoFindProvider/pageDataHandlers";
+import * as pageDataHandlers from "../utils/pageDataHandlers";
+import { connector } from "../utils/connector";
 import {
   abovePerception,
   generationData,
@@ -72,12 +73,6 @@ describe("AutoFind Identify functionality", () => {
     unmountComponentAtNode(container);
     container.remove();
     container = null;
-  });
-
-  test("changes status to Loading", () => {
-    const button = container.querySelector("#identify");
-    button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    expect(container.querySelector("#status").textContent).toBe(autoFindStatus.loading);
   });
 
   test("predicted elements are received, updated properly and passed to component", async () => {
