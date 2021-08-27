@@ -46,7 +46,7 @@ export const ControlBar = () => {
         <a className="jdn__header-link" href="#" hidden={!allowRemoveElements} onClick={handleReportProblem}>
           Report a problem
         </a>
-        <a className="jdn__header-link" href="https://github.com/jdi-testing/jdn">
+        <a className="jdn__header-link" href="https://github.com/jdi-testing/jdn" target="_blank" rel="noreferrer">
           Readme
         </a>
         <a className="jdn__header-link" href="#">

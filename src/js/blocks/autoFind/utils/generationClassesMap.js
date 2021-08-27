@@ -17,7 +17,7 @@ export const JDIclasses = {
   progressbar: defaultClass,
   datetimeselector: defaultClass,
   numberselector: defaultClass,
-  dropdownselector: "Dropdown",
+  dropdownselector: "Dropdown selector",
   checklist: "CheckList",
   radiobutton: "RadioButtons",
   table: "Table",

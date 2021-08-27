@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-import _ from "lodash";
+import _, { sortBy } from "lodash";
 import React, { useState, useEffect } from "react";
 import { inject, observer } from "mobx-react";
 import { useContext } from "react";
@@ -156,7 +156,12 @@ const AutoFindProvider = inject("mainModel")(
       const element = predictedElements.find((e) => e.element_id === id);
       sendMessage.elementData({
         element,
-        types: Object.keys(JDIclasses).map(getJdiClassName),
+        types: sortBy(
+          Object.keys(JDIclasses).map((label) => {
+            return { label, jdi: getJdiClassName(label) };
+          }),
+          ["jdi"]
+        ),
       });
     };
 
