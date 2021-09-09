@@ -30,14 +30,14 @@ export const ControlBar = () => {
   return (
     <React.Fragment>
       <div className="jdn__header-title">
-        <h1 className="jdn__header-text">JDN</h1>
+        {/*<h1 className="jdn__header-text">JDN</h1>*/}
         <div className="jdn__header-version">
           <Space
             size={0}
             direction="horizontal"
             split={<Divider type="vertical" style={{ backgroundColor: "#fff" }} />}
           >
-            <span>version {pluginVer}</span>
+            <span>JDN version {pluginVer}</span>
             <span>backend {backendVer}</span>
           </Space>
         </div>
