@@ -4,6 +4,8 @@ export const runContextMenu = () => {
   ----->
 */
 
+  const MODAL_CLOSE_TIMEOUT = 2000;
+
   function ContextMenu(menu, options) {
     const self = this;
     const num = ContextMenu.count++;
@@ -341,6 +343,9 @@ export const runContextMenu = () => {
       modal.classList.add('jdn-change-element-name-modal--success');
       modalTitle.innerText = "Name Changed";
       modalTitle.classList.add("jdn-change-element-name-modal__title--success");
+      setTimeout(() => {
+        modal.remove();
+      }, MODAL_CLOSE_TIMEOUT);
     };
 
     // ACTION: CLOSE MODAL
