@@ -123,7 +123,7 @@ export const requestXpathes = async (elements, config) => {
   const document = await documentResult[0].result;
   const ids = elements.map((el) => el.element_id);
 
-  const xPathResponse = await request.post(
+  const xPathes = await request.post(
       GENERATE_XPATH,
       JSON.stringify({
         ids,
@@ -132,15 +132,9 @@ export const requestXpathes = async (elements, config) => {
       })
   );
 
-  // TODO: remove this check with ISSUE 296
-  if (xPathResponse.ok) {
-    const xPathes = await xPathResponse.json();
-    const r = elements.map((el) => ({ ...el, xpath: xPathes[el.element_id] }));
-    const unreachableNodes = r.filter((el) => !el.xpath);
-    return { xpathes: r.filter((el) => !!el.xpath), unreachableNodes };
-  } else {
-    throw new Error(xPathResponse);
-  }
+  const r = elements.map((el) => ({ ...el, xpath: xPathes[el.element_id] }));
+  const unreachableNodes = r.filter((el) => !el.xpath);
+  return { xpathes: r.filter((el) => !!el.xpath), unreachableNodes };
 };
 
 export const requestGenerationData = async (elements, xpathConfig, callback) => {
