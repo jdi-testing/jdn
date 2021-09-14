@@ -1,6 +1,7 @@
 import { Divider, Space } from "antd";
 import React, { useState, useEffect } from "react";
 import { useAutoFind } from "../autoFindProvider/AutoFindProvider";
+import { BUILD, request } from "../utils/backend";
 import { reportProblem } from "../utils/pageDataHandlers";
 
 export const ControlBar = () => {
@@ -10,11 +11,8 @@ export const ControlBar = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const result = await fetch("http:localhost:5000/build", {
-        method: "GET",
-      });
-      const r = await result.json();
-      setBackendVer(r);
+      const result = await request.get(BUILD);
+      setBackendVer(result);
     };
 
     fetchData();
@@ -30,7 +28,7 @@ export const ControlBar = () => {
   return (
     <React.Fragment>
       <div className="jdn__header-title">
-        {/*<h1 className="jdn__header-text">JDN</h1>*/}
+        {/* <h1 className="jdn__header-text">JDN</h1>*/}
         <div className="jdn__header-version">
           <Space
             size={0}
