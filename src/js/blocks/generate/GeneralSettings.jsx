@@ -1,13 +1,21 @@
 import React from "react";
-import injectSheet from "react-jss";
 import { inject, observer } from "mobx-react";
 import { Rules, Languages, Frameworks } from "../../json/settings";
-import { Select, Radio, Checkbox, Button } from "antd";
-const { Option } = Select;
+import { Select, Checkbox, Button, Input } from "antd";
 
 @inject("mainModel")
 @observer
 export default class GeneralSettings extends React.Component {
+  constructor(props) {
+    super(props);
+    const template = props.mainModel.settingsModel?.template;
+    this.state = {
+      package: template?.package || 'com.backbase',
+      libraryPackage: template?.libraryPackage || 'com.backbase.elements.common'
+    };
+    props.mainModel.settingsModel.changePackage(this.state.package, this.state.libraryPackage);
+  }
+
   handleCheckboxChange = (e) => {
     const { mainModel } = this.props;
 
@@ -37,6 +45,21 @@ export default class GeneralSettings extends React.Component {
     mainModel.generateBlockModel.clearGeneration();
   };
 
+  handleChangePackage = (e) => {
+    const value = e?.target?.value || '';
+    this.setState({ package: value } )
+  }
+
+  handleLibraryPackage = (e) => {
+    const value = e?.target?.value || '';
+    this.setState({ libraryPackage: value } )
+  }
+
+  handleSaveToStorage = () => {
+    const { mainModel } = this.props;
+    mainModel.settingsModel.changePackage(this.state.package, this.state.libraryPackage);
+  }
+
   render() {
     const { classes, mainModel } = this.props;
     const defaultRule = Rules.find(
@@ -62,7 +85,7 @@ export default class GeneralSettings extends React.Component {
             onChange={this.handleChangeRule}
             style={{ width: "100%" }}
             options={Rules}
-          ></Select>
+          />
         </div>
         <div className={"select-wrapper"}>
           <span style={{ margin: "0 10px 0 0" }}>Language:</span>
@@ -73,7 +96,7 @@ export default class GeneralSettings extends React.Component {
             onChange={this.handleChangeLanguage}
             style={{ width: "100%" }}
             options={Languages}
-          ></Select>
+          />
         </div>
         <div className={"select-wrapper"}>
           <span style={{ margin: "0 10px 0 0" }}>Frameworks:</span>
@@ -84,7 +107,24 @@ export default class GeneralSettings extends React.Component {
             onChange={this.handleChangeFramework}
             style={{ width: "100%" }}
             options={Frameworks}
-          ></Select>
+          />
+        </div>
+        <div className={"select-wrapper"}>
+          <span style={{ margin: "0 10px 0 0" }}>Package:</span>
+          <Input
+            defaultValue={ this.state.package }
+            onChange={this.handleChangePackage}
+          />
+        </div>
+        <div className={"select-wrapper"}>
+          <span style={{ margin: "0 10px 0 0" }}>Elements Library Package:</span>
+          <Input
+            defaultValue={ this.state.libraryPackage }
+            onChange={this.handleLibraryPackage}
+          />
+        </div>
+        <div className={"select-wrapper"}>
+          <Button shape="round" onClick={this.handleSaveToStorage}>Save</Button>
         </div>
         <div className={"checkbox-wrapper"}>
           <Checkbox

@@ -10,6 +10,7 @@ const Rules = [
 ];
 
 const Frameworks = [
+  { value: "jdiNova", label: "JDI Nova" },
   { value: "jdiLight", label: "JDI Light" },
   { value: "jdiUI", label: "JDI UI" },
   { value: "selenium", label: "Selenium" },

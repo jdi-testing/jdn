@@ -9,7 +9,7 @@ export default class MainModel {
   @observable conversionModel;
   @observable settingsModel;
   @observable ruleBlockModel;
-  @observable tab = "auto_find";
+  @observable tab = "settings";
   @observable currentPageId;
   @observable generationId = 0;
   @observable applicationLog = [];

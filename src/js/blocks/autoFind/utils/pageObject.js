@@ -3,8 +3,7 @@ import { getJDILabel } from "./generationClassesMap";
 import { connector } from "./connector";
 
 const getPackage = (url) => {
-  const urlObject = new URL(url);
-  return urlObject.hostname
+  return new URL(url).hostname
       .split(".")
       .reverse()
       .map((e) => e.replace(/[^a-zA-Z0-9]+/g, ""))
@@ -32,15 +31,17 @@ export const predictedToConvert = (elements) => {
 
     const customElementName = e.jdi_custom_class_name;
 
-    if (uniqueNames.indexOf(elementName) >= 0) elementName += i;
-    if (elementTagId && uniqueNames.indexOf(elementTagId) >= 0) elementTagId += i;
+    if (uniqueNames.indexOf(elementName) >= 0) {
+      elementName += i;
+    }
+    if (elementTagId && uniqueNames.indexOf(elementTagId) >= 0) {
+      elementTagId += i;
+    }
     uniqueNames.push(elementTagId, elementName);
 
     const name = customElementName ?
       customElementName :
-      elementTagId ?
-        elementTagId :
-        elementName;
+      elementTagId ? elementTagId : elementName;
 
     return {
       ...e,

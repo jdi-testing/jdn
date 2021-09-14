@@ -9,8 +9,8 @@ import {
   runDocumentListeners,
   generatePageObject,
   requestGenerationData,
-} from "./../utils/pageDataHandlers";
-import { JDIclasses, getJdiClassName } from "./../utils/generationClassesMap";
+} from "../utils/pageDataHandlers";
+import { JDIClasses, getJdiClassName } from "../utils/generationClassesMap";
 import { connector, sendMessage } from "../utils/connector";
 
 export const autoFindStatus = {
@@ -157,7 +157,7 @@ const AutoFindProvider = inject("mainModel")(
       sendMessage.elementData({
         element,
         types: sortBy(
-          Object.keys(JDIclasses).map((label) => {
+          Object.keys(JDIClasses).map((label) => {
             return { label, jdi: getJdiClassName(label) };
           }),
           ["jdi"]

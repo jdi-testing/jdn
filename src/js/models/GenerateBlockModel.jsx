@@ -73,17 +73,26 @@ function searchByWithoutValue({ log }, dom, locator, uniqueness) {
   return getElements({ log }, dom, locatorType);
 }
 
-export function camelCase(n) {
+export function camelCaseTillLast(text, symbol) {
+  return PascalCase(text.substring(0, text.lastIndexOf(symbol)));
+}
+
+export function PascalCase(text) {
+  if (!text) return "";
+
   let name = "";
-  if (n) {
-    let arrayName = n.split(/[^a-zA-Zа-яёА-ЯЁ0-9]/);
-    for (let j = 0; j < arrayName.length; j++) {
-      if (arrayName[j]) {
-        name += arrayName[j][0].toUpperCase() + arrayName[j].slice(1);
-      }
+  let arrayName = text.split(/[^a-zA-Zа-яёА-ЯЁ0-9]/);
+  for (let j = 0; j < arrayName.length; j++) {
+    if (arrayName[j]) {
+      name += arrayName[j][0].toUpperCase() + arrayName[j].slice(1);
     }
   }
   return name;
+}
+
+export function camelCase(text) {
+  let name = PascalCase(text);
+  return name[0].toLowerCase() + name.slice(1);
 }
 
 function nameElement(locator, uniqueness, value, content) {
@@ -314,7 +323,7 @@ function getValue(content, uniqueness) {
 const showEmptyLocator = (mainModel, uniq) => {
   const { settingsModel, ruleBlockModel } = mainModel;
 
-  if (settingsModel.framework === "jdiLight") {
+  if (settingsModel.framework === "jdiLight" || settingsModel.framework === "jdiNova") {
     const ListOfSearchAttributes =
       ruleBlockModel.rules.ListOfSearchAttributes || [];
     if (ListOfSearchAttributes.includes(uniq)) {
@@ -531,29 +540,9 @@ function getSimple({ mainModel, results }, parent, t) {
   });
 }
 
-export const getTitleCallBack = ({ mainModel }, r, err) => {
-  const { generateBlockModel } = mainModel;
-
-  if (err) {
-    generateBlockModel.log.addToLog({
-      message: `Error, getting title from active page! ${err}`,
-      type: "error",
-    });
-    // objCopy.warningLog = [...objCopy.warningLog, getLog()];
-    // document.querySelector('#refresh').click();
-  }
-
-  if (r) {
-    generateBlockModel.page.title = r;
-    generateBlockModel.page.name = camelCase(r);
-  }
-};
-
 export const generationCallBack = ({ mainModel }, r, err, generateSeveralPages) => {
   const parser = new DOMParser();
   const rDom = parser.parseFromString(r, "text/html");
-
-  getTitleCallBack({ mainModel }, rDom.title);
 
   const observedDOM = rDom.body;
   // document.evaluate(".//*[@ui='label' and contains(.,'Bootstrap')]", observedDOM, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
@@ -682,54 +671,39 @@ export const generationCallBack = ({ mainModel }, r, err, generateSeveralPages) 
   }
 };
 
-export const getLocationCallBack = ({ mainModel }, r, err) => {
-  const { generateBlockModel } = mainModel;
-
+export const getLocationCallBack = ({ mainModel }, location, title, err) => {
+  const {generateBlockModel} = mainModel;
   if (err) {
     generateBlockModel.log.addToLog({
       message: `Error, getting location from active page! ${err}`,
       type: "error",
     });
   }
-
-  if (r) {
-    generateBlockModel.page.url = r.pathname;
-    generateBlockModel.page.id = hashCode(r.pathname);
-    generateBlockModel.siteInfo.hostName = r.hostname;
-    let sitePackage = r.host
-      ? r.host
-          .split(".")
-          .reverse()
-          .map((e) => e.replace(/[^a-zA-Z0-9]+/g, ""))
-          .join(".")
-      : "";
+  if (location) {
+    generateBlockModel.page.url = location.pathname;
+    const hashId = hashCode(location.pathname + title ?? '');
+    generateBlockModel.page.id = hashId;
+    generateBlockModel.siteInfo.hostName = location.hostname;
+    let sitePackage = getSitePackage(location.host);
     generateBlockModel.page.package = sitePackage;
-    generateBlockModel.siteInfo.siteTitle = camelCase(
-      r.hostname.substring(0, r.hostname.lastIndexOf("."))
-    );
-    generateBlockModel.siteInfo.origin = r.origin;
-    generateBlockModel.currentPageId = hashCode(r.pathname);
-    generateBlockModel.siteInfo.domainName = r.host;
+    generateBlockModel.page.libraryPackage = sitePackage + ".elements";
+    generateBlockModel.siteInfo.siteTitle = camelCaseTillLast(location.hostname, ".");
+    generateBlockModel.siteInfo.origin = location.origin;
+    generateBlockModel.currentPageId = hashId;
+    generateBlockModel.siteInfo.domainName = location.host;
     generateBlockModel.siteInfo.pack = sitePackage;
+  }
+
+  if (title) {
+    generateBlockModel.page.title = title;
+    generateBlockModel.page.name = PascalCase(title);
   }
 };
 
-export const getDomainCallBack = ({ mainModel }, r, err) => {
-  const { generateBlockModel } = mainModel;
-
-  if (err) {
-    generateBlockModel.log.addToLog({
-      message: `Error, getting domain from active page! ${err}`,
-      type: "error",
-    });
-    // objCopy.warningLog = [...objCopy.warningLog, getLog()];
-    // document.querySelector('#refresh').click();
-  }
-
-  if (r) {
-    generateBlockModel.siteInfo.domainName = r;
-    generateBlockModel.siteInfo.pack = r.split(".").reverse().join(".");
-  }
+export const getSitePackage = (host) => {
+  return host
+    ? host.split(".").reverse() .map((e) => e.replace(/[^a-zA-Z0-9]+/g, "")).join(".")
+    : ""
 };
 
 export default class GenerateBlockModel {
@@ -791,27 +765,7 @@ export default class GenerateBlockModel {
     };
 
     this.log.clearLog();
-
-    let pageComplete = 0;
-
-    chrome.devtools.inspectedWindow.eval("document.location", (r, err) => {
-      getLocationCallBack({ mainModel }, r, err);
-      pageComplete++;
-      if (pageComplete === 2) {
-        callback();
-      }
-    });
-
-    chrome.devtools.inspectedWindow.eval(
-      "document.lastChild.outerHTML",
-      (r, err) => {
-        generationCallBack({ mainModel }, r, err);
-        pageComplete++;
-        if (pageComplete === 2) {
-          callback();
-        }
-      }
-    );
+    this.processDomCallback(mainModel, callback);
   }
 
   @action
@@ -921,32 +875,25 @@ export default class GenerateBlockModel {
         elements: [],
       };
 
-      const domReady = () => {
-        chrome.devtools.inspectedWindow.eval("document.location", (r, err) => {
-          getLocationCallBack({ mainModel }, r, err);
-        });
+      const callback = function() {
+        index++;
+        if (index < urlList.length) {
+          getDOMByUrl(mainModel, urlList[index], index);
+        } else {
+          mainModel.conversionModel.zipAllCode(mainModel);
+        }
         chrome.devtools.inspectedWindow.eval(
-          "document.lastChild.outerHTML",
-          (r, err) => {
-            generationCallBack({ mainModel }, r, err, true);
-            index++;
-            if (index < urlList.length) {
-              getDOMByUrl(mainModel, urlList[index], index);
-            } else {
-              mainModel.conversionModel.zipAllCode(mainModel);
-            }
+          `window.location='${url}'`,
+          (result, err) => {
+            setTimeout(() => {
+              domReady();
+            }, 1000);
           }
         );
+      }
+      const domReady = () => {
+        this.processDomCallback(mainModel, callback);
       };
-
-      chrome.devtools.inspectedWindow.eval(
-        `window.location='${url}'`,
-        (result, err) => {
-          setTimeout(() => {
-            domReady();
-          }, 2500);
-        }
-      );
 
       // const u = new URL(url);
       //
@@ -964,5 +911,19 @@ export default class GenerateBlockModel {
     getDOMByUrl(mainModel, urlList[0], 0);
 
     // await getDOMByUrl(mainModel, urlList[0], 0);
+  }
+
+  processDomCallback(mainModel, callback) {
+    chrome.devtools.inspectedWindow.eval(
+      "(function () { return { " +
+      "'location': document.location, " +
+      "'title': document.title, " +
+      "'html': document.lastChild.outerHTML," +
+      "}})()",
+      (r, err) => {
+        getLocationCallBack({ mainModel }, r.location, r.title, err);
+        generationCallBack({ mainModel }, r.html, err);
+        callback();
+      });
   }
 }

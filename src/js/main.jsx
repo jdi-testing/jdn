@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import injectSheet from "react-jss";
-import { inject, observer, Provider } from "mobx-react";
+import { observer, Provider } from "mobx-react";
 import { action, computed, observable } from "mobx";
 
 import GenerateResults from "./blocks/generate/GenerateResults";
@@ -69,14 +69,11 @@ class App extends React.Component {
       <Provider mainModel={this.mainModel}>
         <AutoFindProvider>
           <div className={classes.commonContainer}>
-            {/* UNCOMMENT THIS PART 
-              TO MAKE THE REST FUNCTIONALITY AVAILABLE */}
-            {/* <Menu onClick={this.handleClick} selectedKeys={[this.tab]} mode="horizontal" className="jdn__hidden">
-              <Menu.Item key="auto_find">Auto Find Objects</Menu.Item>
-
+            { <Menu onClick={this.handleClick} selectedKeys={[this.tab]} mode="horizontal" className="jdn__hidden">
               <Menu.Item key="settings">Settings</Menu.Item>
               <Menu.Item key="urls">URLs</Menu.Item>
               <Menu.Item key="results">Results</Menu.Item>
+              <Menu.Item key="auto_find">Auto Find Objects</Menu.Item>
               <Menu.Item disabled={true}>
                 <Button
                   onClick={() => {
@@ -89,13 +86,13 @@ class App extends React.Component {
                 </Button>
               </Menu.Item>
               <Menu.Item key="warnings">Warnings</Menu.Item>
-            </Menu> */}
+            </Menu> }
 
             {this.tab === "settings" && (
               <div key="settings">
                 <Row>
                   <Col span={8}>
-                    <GeneralSettings></GeneralSettings>
+                    <GeneralSettings />
                   </Col>
                   <Col
                     span={16}
@@ -105,15 +102,15 @@ class App extends React.Component {
                       borderLeft: "2px solid #d8d8d8",
                     }}
                   >
-                    <RulesBlock></RulesBlock>
+                    <RulesBlock/>
                   </Col>
                 </Row>
               </div>
             )}
 
-            {this.tab === "urls" && <GenerateBlock key="urls"></GenerateBlock>}
+            {this.tab === "urls" && <GenerateBlock key="urls"/>}
 
-            {this.tab === "results" && <GenerateResults key={this.mainModel.generationId}></GenerateResults>}
+            {this.tab === "results" && <GenerateResults key={this.mainModel.generationId}/>}
 
             {this.tab === "warnings" && <LogComponentWrapper key={this.mainModel.showLog} />}
 
