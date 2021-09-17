@@ -152,6 +152,22 @@ const AutoFindProvider = inject("mainModel")(
       setPerception(value);
     };
 
+    const updateLocator = (id, locator) => {
+      const newState = availableForGeneration.map((element) => {
+        if (element.id !== id) return element;
+        return {
+          ...element,
+          locator,
+        };
+      });
+      setAvailableForGeneration(newState);
+    };
+
+    const scheduleLocatorGeneration = (elementId) => {
+      // some start task code
+      updateLocator(elementId, {});
+    };
+
     const getPredictedElement = (id) => {
       const element = predictedElements.find((e) => e.element_id === id);
       sendMessage.elementData({
@@ -208,16 +224,11 @@ const AutoFindProvider = inject("mainModel")(
 
     useEffect(() => {
       if (!availableForGeneration) return;
-      const noXpath = availableForGeneration.filter((element) => !element.xpath);
+      const noXpath = availableForGeneration.filter((element) => !element.locator);
       if (!noXpath.length) return;
       setXpathStatus(xpathGenerationStatus.started);
       requestGenerationData(noXpath, xpathConfig, ({ generationData, unreachableNodes }) => {
-        setAvailableForGeneration(
-          _.chain(availableForGeneration)
-            .map((el) => _.chain(generationData).find({ element_id: el.element_id }).merge(el).value())
-            .differenceBy(unreachableNodes, "element_id")
-            .value()
-        );
+        setAvailableForGeneration(generationData);
         setUnreachableNodes(unreachableNodes);
         setXpathStatus(xpathGenerationStatus.complete);
       });

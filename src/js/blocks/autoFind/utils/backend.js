@@ -17,7 +17,7 @@ class Request {
   async errorHandler(response) {
     if (response.ok) {
       const r = await response.json();
-      return [r, length];
+      return r;
     } else {
       throw new Error(response);
     }

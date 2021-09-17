@@ -11,8 +11,15 @@ const getPackage = (url) => {
       .join(".");
 };
 
+const getLocator = ({fullXpath, robulaXpath}) => {
+  return robulaXpath || fullXpath || '';
+};
 
-export const predictedToConvert = (elements) => {
+export const getPageElementCode = (type, name, locator) => {
+  return `@UI(${getLocator(locator)}) public ${type} ${name};`;
+};
+
+export const createLocatorNames = (elements) => {
   const f = elements.filter((el) => el && !el.skipGeneration && !el.hidden);
   const uniqueNames = [];
 
@@ -42,11 +49,24 @@ export const predictedToConvert = (elements) => {
         elementTagId :
         elementName;
 
+    const type = getJDILabel(e.predicted_label);
+
     return {
       ...e,
-      Locator: e.xpath,
-      Name: name,
-      Type: getJDILabel(e.predicted_label),
+      name,
+      type,
+      elementCode: getPageElementCode(type, name, e.locator),
+    };
+  });
+};
+
+export const predictedToConvert = (elements) => {
+  return elements.map((e, i) => {
+    return {
+      ...e,
+      Locator: e.locator.robulaXpath || e.locator.fullXpath,
+      Name: e.name,
+      Type: e.type,
       parent: null,
       parentId: null,
       elId: e.element_id,

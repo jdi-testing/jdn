@@ -10,6 +10,7 @@ import { Result } from "../Result";
 import { Divider, Space } from "antd";
 import { ControlBar } from "../ControlBar";
 import { XPathSettings } from "../XPathSettings";
+import { LocatorsList } from "../locatorsList/LocatorsList";
 
 const AutoFind = () => {
   return (
@@ -25,8 +26,9 @@ const AutoFind = () => {
       >
         <GenerationButtons />
         <PerceptionTreshold />
-        <XPathSettings />
-        <Result />
+        {/* <XPathSettings />
+        <Result /> */}
+        <LocatorsList />
       </Space>
     </Layout>
   );

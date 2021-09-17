@@ -4,7 +4,7 @@ import { getGenerationAttributes } from "./../contentScripts/generationData";
 import { highlightOnPage } from "./../contentScripts/highlight";
 import { getPageData } from "./../contentScripts/pageData";
 import { urlListener } from "./../contentScripts/urlListener";
-import { getPage, predictedToConvert } from "./pageObject";
+import { createLocatorNames, getPage, predictedToConvert } from "./pageObject";
 import { autoFindStatus } from "./../autoFindProvider/AutoFindProvider";
 import { highlightOrder } from "./../contentScripts/highlightOrder";
 import { reportProblemPopup } from "../contentScripts/reportProblemPopup/reportProblemPopup";
@@ -123,7 +123,7 @@ export const requestXpathes = async (elements, config) => {
   const document = await documentResult[0].result;
   const ids = elements.map((el) => el.element_id);
 
-  const xPathResponse = await request.post(
+  const xPathes = await request.post(
       GENERATE_XPATH,
       JSON.stringify({
         ids,
@@ -132,28 +132,23 @@ export const requestXpathes = async (elements, config) => {
       })
   );
 
-  // TODO: remove this check with ISSUE 296
-  if (xPathResponse.ok) {
-    const xPathes = await xPathResponse.json();
-    const r = elements.map((el) => ({ ...el, xpath: xPathes[el.element_id] }));
-    const unreachableNodes = r.filter((el) => !el.xpath);
-    return { xpathes: r.filter((el) => !!el.xpath), unreachableNodes };
-  } else {
-    throw new Error(xPathResponse);
-  }
+  const r = elements.map((el) => ({ ...el, xpath: xPathes[el.element_id] }));
+  const unreachableNodes = r.filter((el) => !el.xpath);
+  return { xpathes: r.filter((el) => !!el.xpath), unreachableNodes };
 };
 
 export const requestGenerationData = async (elements, xpathConfig, callback) => {
-  const { xpathes, unreachableNodes } = await (await requestXpathes(elements, xpathConfig));
-  const generationAttributes = await requestGenerationAttributes(elements);
-  const generationData = xpathes.map((el) => {
-    const attr = generationAttributes.find((g) => g.element_id === el.element_id);
-    return {
-      ...el,
-      ...attr,
-    };
-  });
-  callback({ generationData, unreachableNodes });
+  const generationTags = await requestGenerationAttributes(elements);
+  const generationData = createLocatorNames(generationTags);
+  // const { xpathes, unreachableNodes } = await (await requestXpathes(elements, xpathConfig));
+  // const generationData = xpathes.map((el) => {
+  //   const attr = generationAttributes.find((g) => g.element_id === el.element_id);
+  //   return {
+  //     ...el,
+  //     ...attr,
+  //   };
+  // });
+  callback({ generationData, unreachableNodes: [] });
 };
 
 export const generatePageObject = (elements, mainModel) => {
