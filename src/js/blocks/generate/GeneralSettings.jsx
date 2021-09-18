@@ -10,10 +10,11 @@ export default class GeneralSettings extends React.Component {
     super(props);
     const template = props.mainModel.settingsModel?.template;
     this.state = {
-      package: template?.package || 'com.backbase',
-      libraryPackage: template?.libraryPackage || 'com.backbase.elements.common'
+      appName: template?.appName || 'Awesome test project',
+      package: template?.package || 'com.jdiai',
+      libraryPackage: template?.libraryPackage || 'com.jdiai.elements'
     };
-    props.mainModel.settingsModel.changePackage(this.state.package, this.state.libraryPackage);
+    props.mainModel.settingsModel.changePackage(this.state.appName, this.state.package, this.state.libraryPackage);
   }
 
   handleCheckboxChange = (e) => {
@@ -45,6 +46,11 @@ export default class GeneralSettings extends React.Component {
     mainModel.generateBlockModel.clearGeneration();
   };
 
+  handleAppName = (e) => {
+    const value = e?.target?.value || '';
+    this.setState({ appName: value } )
+  }
+
   handleChangePackage = (e) => {
     const value = e?.target?.value || '';
     this.setState({ package: value } )
@@ -57,7 +63,7 @@ export default class GeneralSettings extends React.Component {
 
   handleSaveToStorage = () => {
     const { mainModel } = this.props;
-    mainModel.settingsModel.changePackage(this.state.package, this.state.libraryPackage);
+    mainModel.settingsModel.changePackage(this.state.appName, this.state.package, this.state.libraryPackage);
   }
 
   render() {
@@ -107,6 +113,13 @@ export default class GeneralSettings extends React.Component {
             onChange={this.handleChangeFramework}
             style={{ width: "100%" }}
             options={Frameworks}
+          />
+        </div>
+        <div className={"select-wrapper"}>
+          <span style={{ margin: "0 10px 0 0" }}>Application name:</span>
+          <Input
+            defaultValue={ this.state.appName }
+            onChange={this.handleAppName}
           />
         </div>
         <div className={"select-wrapper"}>

@@ -1,9 +1,8 @@
 import React from "react";
 import injectSheet from "react-jss";
 import ReactFileReader from "react-file-reader";
-import PropTypes from "prop-types";
 import { inject, observer } from "mobx-react";
-import { exportIcon, importIcon, back } from "../../../icons";
+import { exportIcon, importIcon} from "../../../icons";
 import { Button } from "antd";
 
 const styles = {

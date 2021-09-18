@@ -1,13 +1,9 @@
 import React from "react";
 import ReactFileReader from "react-file-reader";
-import injectSheet from "react-jss";
 import { inject, observer } from "mobx-react";
-import { observable, action, toJS } from "mobx";
-import PropTypes from "prop-types";
-import { Button, Col } from "antd";
-import { exportIcon, importIcon } from "../../../icons";
-import { headerStyle } from "../BlockStyles";
-import { CaretRightOutlined, Icon } from "@ant-design/icons";
+import { observable, action } from "mobx";
+import { Button } from "antd";
+import { CaretRightOutlined } from "@ant-design/icons";
 import { RuleForElement } from "./RuleForElement";
 
 @observer
@@ -74,7 +70,7 @@ export class RulesBlock extends React.Component {
   };
 
   render() {
-    const { classes, mainModel } = this.props;
+    const {mainModel } = this.props;
     const simpleRules =
       Object.keys(mainModel.ruleBlockModel.rules.SimpleRules) || [];
     const complexRules =

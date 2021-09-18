@@ -29,10 +29,6 @@ export default class GenerateBlock extends React.Component {
     mainModel.generateBlockModel.generateSeveralPages(mainModel);
   };
 
-  handleOpenSettings = () => {
-    const { mainModel } = this.props;
-  };
-
   handleImportUrlsListJSON = (file) => {
     const { mainModel } = this.props;
 
@@ -55,7 +51,7 @@ export default class GenerateBlock extends React.Component {
   };
 
   render() {
-    const { classes, mainModel } = this.props;
+    const {mainModel } = this.props;
     const urlsList = mainModel.generateBlockModel.urlsList;
     const exportUrlsList = mainModel.generateBlockModel.exportUrlsList;
     const isEnabled = (exportUrlsList || []).length;
@@ -70,8 +66,7 @@ export default class GenerateBlock extends React.Component {
               size={"small"}
               disabled={!isEnabled}
               onClick={this.handleGenerateSeveral}
-            >
-              Generate Several Pages
+            > Generate Several Pages
             </Button>
             <div className={`inlineBtn`}>
               <ReactFileReader
@@ -99,8 +94,8 @@ export default class GenerateBlock extends React.Component {
             </div>
             <Button
               disabled={!isEnabled}
-              className={`inlineBtn`} 
-              size={"small"} 
+              className={`inlineBtn`}
+              size={"small"}
               onClick={this.handleExportUrlsListJSON}
             >
               <svg
@@ -118,7 +113,7 @@ export default class GenerateBlock extends React.Component {
             </Button>
           </div>
           <ul className="jdn__urls-list">
-          {urlsList.map((url) => 
+          {urlsList.map((url) =>
             <li key={url}>
               <Checkbox
                 onChange={(e) => {

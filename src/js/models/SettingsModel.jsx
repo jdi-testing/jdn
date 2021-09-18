@@ -15,6 +15,7 @@ export default class SettingsModel {
   @observable framework = "";
   @observable template = {};
   @observable log = {};
+  @observable appName = "";
 
   constructor() {
     const settingsStorage = window.localStorage;
@@ -76,7 +77,8 @@ export default class SettingsModel {
   }
 
   @action
-  changePackage(newPackage, libraryPackage) {
+  changePackage(appName, newPackage, libraryPackage) {
+    this.appName = appName;
     this.template.package = newPackage;
     this.template.libraryPackage = libraryPackage;
   }

@@ -20,7 +20,7 @@ export const GenerationButtons = () => {
         <Button
           icon={<SearchOutlined />}
           type="primary"
-          loading={status == autoFindStatus.loading}
+          loading={status === autoFindStatus.loading}
           disabled={!allowIdentifyElements}
           onClick={identifyElements}
         >

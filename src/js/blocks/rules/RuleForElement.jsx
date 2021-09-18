@@ -1,14 +1,10 @@
 import React from "react";
-import injectSheet from "react-jss";
 import { inject, observer } from "mobx-react";
-import { observable, action, toJS } from "mobx";
-import { headerStyle, internalDivStyle } from "../BlockStyles";
-import { add, close } from "../../../icons";
+import { observable, action} from "mobx";
 import { Button, Input } from "antd";
 import {
   CaretRightOutlined,
-  DeleteOutlined,
-  UserOutlined,
+  DeleteOutlined
 } from "@ant-design/icons";
 
 @inject("mainModel")

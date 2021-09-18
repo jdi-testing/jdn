@@ -55,20 +55,20 @@ function complexCode(type, locator, name, mainModel) {
   return ct + "\n";
 }
 
-export function simpleCode(locatorType, locator, elType, name, mainModel) {
+export function simpleCode(locatorType, locator, elType, name, mainModel, isList) {
   const template = mainModel.settingsModel.template;
   let path = isEmptyLocator(locator)
     ? `    public ${elType} ${varName(name)};`
-    : locatorPath(template, locator, locatorType, elType, name);
+    : locatorPath(template, locator, locatorType, elType, name, isList);
   return path + "\n";
 }
 
-function locatorPath(template, locator, locatorType, elType, name) {
+function locatorPath(template, locator, locatorType, elType, name, isList) {
   let path = locatorType === "Css"
     ? template.pageElementCss
     : template.pageElementXPath;
   path = path.replace(/({{locator}})/, locator);
-  path = path.replace(/({{type}})/, elType);
+  path = path.replace(/({{type}})/, isList ? `List<${elType}>` : elType);
   path = path.replace(/({{name}})/, varName(name));
   return path;
 }
@@ -175,37 +175,24 @@ function genCodeOfElements(parentId, arrOfElements, mainModel, isAutoFind) {
 
     if (el.parentId === parentId && (el.Locator || el.Root)) {
       if (composites[el.Type] && !isAutoFind) {
-        result += simpleCode(
-          locatorType(el.Locator),
-          el.Locator,
-          getClassName(el.Name),
-          el.Name,
-          mainModel
-        );
+        const codeRow = simpleCode(locatorType(el.Locator), el.Locator, getClassName(el.Name),
+          el.Name, mainModel, el.isList);
+        if (!result.includes(codeRow)) {
+          result += codeRow;
+        }
       } else if (complex[el.Type] && !isAutoFind) {
         let fields = getFields(ruleBlockModel.elementFields[el.Type]);
-        result += isSimple(el, fields)
-          ? simpleCode(
-              locatorType(el.Root),
-              el.Root,
-              el.Type,
-              el.Name,
-              mainModel
-            )
-          : complexCode(
-              el.Type,
-              complexLocators(el, fields, mainModel),
-              el.Name,
-              mainModel
-            );
+        const codeRow = isSimple(el, fields)
+          ? simpleCode( locatorType(el.Root), el.Root, el.Type, el.Name, mainModel, el.isList)
+          : complexCode(el.Type, complexLocators(el, fields, mainModel), el.Name, mainModel);
+        if (!result.includes(codeRow)) {
+          result += codeRow;
+        }
       } else if (simple[el.Type] || isAutoFind) {
-        result += simpleCode(
-          locatorType(el.Locator),
-          el.Locator,
-          el.Type,
-          el.Name,
-          mainModel
-        );
+        const codeRow = simpleCode(locatorType(el.Locator), el.Locator, el.Type, el.Name, mainModel, el.isList);
+        if (!result.includes(codeRow)) {
+          result += codeRow;
+        }
       }
     }
   }
@@ -293,7 +280,6 @@ export function pageCode(page, mainModel, isAutoFind) {
     template,
     page.package,
     pageName,
-    undefined,
     genCodeOfElements(null, page.elements, mainModel, isAutoFind));
 }
 

@@ -57,11 +57,10 @@ function getCorrectLocator(dom, locator, uniqueness) {
       uniqueness.value === "text",
     locator: "",
   };
-  results.locator = generateLocator(results.xpath, locator);
-  results.locator =
-    results.locator.indexOf("//") === 0
-      ? "." + results.locator
-      : results.locator;
+  const genLocator = generateLocator(results.xpath, locator);
+  results.locator = genLocator.indexOf("//") === 0
+      ? "." + genLocator
+      : genLocator;
   if (uniqueness.locator) {
     results.locator += generateLocator(results.xpath, uniqueness.locator);
   }
@@ -73,7 +72,7 @@ function searchByWithoutValue({ log }, dom, locator, uniqueness) {
   return getElements({ log }, dom, locatorType);
 }
 
-export function camelCaseTillLast(text, symbol) {
+export function PascalCaseTillLast(text, symbol) {
   return PascalCase(text.substring(0, text.lastIndexOf(symbol)));
 }
 
@@ -97,21 +96,18 @@ export function camelCase(text) {
 
 function nameElement(locator, uniqueness, value, content) {
   if (uniqueness === "text" || uniqueness.includes("#text")) {
-    return camelCase(
-      value || (content.innerText || content.textContent).trim()
-    );
+    return value || (content.innerText || content.textContent).trim();
   }
   if (uniqueness.includes("tag")) {
-    return camelCase(content.tagName.toLowerCase());
+    return content.tagName.toLowerCase();
   }
   if (uniqueness.indexOf("[") === 0) {
-    return camelCase(locator.replace(/[\.\/\*\[\]@]/g, ""));
+    return locator.replace(/[\.\/\*\[\]@]/g, "");
   }
   if (uniqueness === "class") {
-    let className = content.classList.value.split(" ");
-    return camelCase(className[0]);
+    return content.classList.value.split(" ")[0];
   }
-  return camelCase(content.getAttribute(uniqueness));
+  return content.getAttribute(uniqueness);
 }
 
 function createCorrectXpath(originalLocator, uniqueness, value, locator) {
@@ -183,13 +179,10 @@ const checkIfItIsUnique = ({ sections }, element) => {
 };
 
 function hashCode(str) {
-  let hash = 0,
-    i,
-    chr;
-
   if (str === 0) {
-    return hash;
+    return 0;
   }
+  let hash = 0, i, chr;
 
   for (i = 0; i < str.length; i++) {
     chr = str.charCodeAt(i);
@@ -240,6 +233,7 @@ const applyFoundResult = ({ mainModel }, e, parent, ruleId) => {
     parent: e.parent || null,
     parentId: e.parentId,
     elId: e.elId,
+    isList: e.isList
   };
   if (simple.indexOf(e.Type) > -1) {
     element.Locator = e.Locator;
@@ -288,11 +282,11 @@ const applyFoundResult = ({ mainModel }, e, parent, ruleId) => {
   }
 };
 
-function fillEl({ results, mainModel }, element, type, parent, ruleId) {
+function fillEl({ results, mainModel }, element, type, parent, ruleId, isList = false) {
   const { ruleBlockModel, generateBlockModel } = mainModel;
   const rulesObj = ruleBlockModel.rules;
   const composites = Object.keys(rulesObj.CompositeRules);
-  let result = { ...element, Type: type };
+  let result = { ...element, Type: type, isList };
   if (composites.includes(type)) {
     result.parent = null;
     result.parentId = null;
@@ -341,53 +335,21 @@ const isSimpleRule = (type, uniq, mainModel) => {
 };
 
 const defineElements = (
-  { results, mainModel },
-  dom,
-  Locator,
-  uniq,
-  t,
-  ruleId,
-  parent
-) => {
-  const { generateBlockModel } = mainModel;
-  let splituniqueness = uniq.split("#");
-  let uniqueness = {
-    locator: splituniqueness.length === 2 ? splituniqueness[0] : "",
-    value: splituniqueness.length === 2 ? splituniqueness[1] : uniq,
-  };
-  let firstSearch = searchByWithoutValue(
-    { log: generateBlockModel.log },
-    dom,
-    Locator,
-    uniqueness
-  );
-  let xpath = firstSearch.locatorType.xpath;
-  let elements = firstSearch.elements;
-  if (elements.length === 0) {
-    return;
-  }
-  if (elements.length === 1) {
-    let e = {
-      Locator: isSimpleRule(t, uniq, mainModel)
-        ? `EMPTY_LOCATOR_${firstSearch.locatorType.locator}`
-        : firstSearch.locatorType.locator,
-      // Locator: firstSearch.locatorType.locator,
-      content: elements[0],
-      Name: nameElement(
-        firstSearch.locatorType.locator,
-        uniq,
-        "",
-        elements[0]
-      ).slice(0, 20),
-    };
-    fillEl({ results, mainModel }, e, t, parent, ruleId);
-    return;
-  }
-  generateBlockModel.log.addToLog({
-    message: `Warning! Too much elements found(${elements.length} for ${uniqueness.value}. Locator (${firstSearch.locatorType.locator}))`,
-    type: "warning",
-  });
-  if (elements.length > 1) {
+  { results, mainModel }, dom, Locator, uniq, t, ruleId, parent) => {
+  try {
+    const {generateBlockModel} = mainModel;
+    let uniqueness = getUniqueness(uniq);
+    let firstSearch = searchByWithoutValue( {log: generateBlockModel.log}, dom, Locator, uniqueness);
+    let isXpath = firstSearch.locatorType.xpath;
+    let elements = firstSearch.elements;
+    if (elements.length === 0) {
+      return;
+    }
+    // if (elements.length === 1) {
+    //   let e = getOneElement(t, uniq, mainModel, firstSearch.locatorType.locator, elements[0], "");
+    //   fillEl({results, mainModel}, e, t, parent, ruleId);
+    //   return;
+    // }
     if (uniqueness.value === "tag" || uniqueness.value === "[") {
       generateBlockModel.log.addToLog({
         message: `Warning! Too much elements found by locator ${firstSearch.locatorType.locator}; uniqueness ${uniqueness.value}; ${elements.length} elements`,
@@ -397,14 +359,26 @@ const defineElements = (
     }
     for (let i = 0; i < elements.length; i++) {
       let val = getValue(elements[i], uniqueness, Locator);
-      let finalLocator = xpath
-        ? valueToXpath(firstSearch.locatorType.locator, uniqueness, val)
-        : firstSearch.locatorType.locator + valueToCss(uniqueness, val);
-      let s2 = getElements({ log: generateBlockModel.log }, dom, {
+      if (!val) continue;
+      let finalLocator = getComplexLocator(isXpath, firstSearch.locatorType.locator, uniqueness, val);
+      let s2 = getElements({log: generateBlockModel.log}, dom, {
         locator: finalLocator,
-        xpath,
+        xpath: isXpath,
       });
       if (s2.elements.length === 1) {
+        let e = getOneElement(t, uniq, mainModel, finalLocator, s2.elements[0], val);
+        if (!showEmptyLocator(mainModel, uniq)) {
+          let smallFinalLocator = getComplexLocator(isXpath, "", uniqueness, val);
+          let s3 = getElements({log: generateBlockModel.log}, dom, {
+            locator: smallFinalLocator,
+            xpath: isXpath,
+          });
+          if (s3.elements.length === 1) {
+            e.Locator = smallFinalLocator;
+          }
+        }
+        fillEl({results, mainModel}, e, t, parent, ruleId);
+      } else {
         let e = {
           Locator: isSimpleRule(t, uniq, mainModel)
             ? `EMPTY_LOCATOR_${finalLocator}`
@@ -416,29 +390,36 @@ const defineElements = (
             20
           ),
         };
-        if (!showEmptyLocator(mainModel, uniq)) {
-          let smallFinalLocator = xpath
-            ? valueToXpath("", uniqueness, val)
-            : "" + valueToCss(uniqueness, val);
-          let s3 = getElements({ log: generateBlockModel.log }, dom, {
-            locator: smallFinalLocator,
-            xpath,
-          });
-          if (s3.elements.length === 1) {
-            e.Locator = smallFinalLocator;
-          }
-        }
-        fillEl({ results, mainModel }, e, t, parent, ruleId);
-      } else {
-        generateBlockModel.log.addToLog({
-          message: `Warning! Too much elements found by locator ${finalLocator}; ${s2.elements.length} elements`,
-          type: "warning",
-        });
-        // document.querySelector('#refresh').click();
+        fillEl({results, mainModel}, e, t, parent, ruleId, true);
       }
     }
-  }
+  } catch (e) { }
 };
+
+function getComplexLocator(isXpath, locator, uniqueness, val) {
+  return isXpath
+    ? valueToXpath(locator, uniqueness, val)
+    : locator + valueToCss(uniqueness, val)
+}
+
+function getUniqueness(uniq) {
+  let split = uniq.split("#");
+  return {
+    locator: split.length === 2 ? split[0] : "",
+    value: split.length === 2 ? split[1] : uniq,
+  };
+}
+
+function getOneElement(t, uniq, mainModel, locator, element, val) {
+  return {
+    Locator: isSimpleRule(t, uniq, mainModel)
+      ? `EMPTY_LOCATOR_${locator}`
+      : locator,
+    // Locator: firstSearch.locatorType.locator,
+    content: element,
+    Name: camelCase(nameElement(locator, uniq, val, element).slice(0, 30))
+  }
+}
 
 function getComposite({ mainModel, results }, dom, t) {
   const { ruleBlockModel } = mainModel;
@@ -672,7 +653,7 @@ export const generationCallBack = ({ mainModel }, r, err, generateSeveralPages) 
 };
 
 export const getLocationCallBack = ({ mainModel }, location, title, err) => {
-  const {generateBlockModel} = mainModel;
+  const {generateBlockModel, settingsModel } = mainModel;
   if (err) {
     generateBlockModel.log.addToLog({
       message: `Error, getting location from active page! ${err}`,
@@ -687,7 +668,9 @@ export const getLocationCallBack = ({ mainModel }, location, title, err) => {
     let sitePackage = getSitePackage(location.host);
     generateBlockModel.page.package = sitePackage;
     generateBlockModel.page.libraryPackage = sitePackage + ".elements";
-    generateBlockModel.siteInfo.siteTitle = camelCaseTillLast(location.hostname, ".");
+    generateBlockModel.siteInfo.siteTitle = settingsModel.appName
+      ? settingsModel.appName
+      : PascalCaseTillLast(location.hostname, ".");
     generateBlockModel.siteInfo.origin = location.origin;
     generateBlockModel.currentPageId = hashId;
     generateBlockModel.siteInfo.domainName = location.host;
