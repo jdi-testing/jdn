@@ -2,6 +2,7 @@ import { Divider, Space } from "antd";
 import React, { useState, useEffect } from "react";
 import { useAutoFind } from "../autoFindProvider/AutoFindProvider";
 import { reportProblem } from "../utils/pageDataHandlers";
+import kebab_menu from "../../../../icons/keb_menu.png";
 
 export const ControlBar = () => {
   const [backendVer, setBackendVer] = useState("");
@@ -29,20 +30,18 @@ export const ControlBar = () => {
 
   return (
     <React.Fragment>
-      <div className="jdn__header-title">
-        {/*<h1 className="jdn__header-text">JDN</h1>*/}
-        <div className="jdn__header-version">
-          <Space
-            size={0}
-            direction="horizontal"
-            split={<Divider type="vertical" style={{ backgroundColor: "#fff" }} />}
-          >
-            <span>JDN version {pluginVer}</span>
-            <span>backend {backendVer}</span>
-          </Space>
-        </div>
+      <div className="jdn__header-version">
+        <Space
+          size={0}
+          direction="horizontal"
+          split={<Divider type="vertical" style={{ backgroundColor: "#fff" }} />}
+        >
+          <span className="jdn__header-text"><span className="jdn__header-title">JDN</span> v {pluginVer}</span>
+          <span className="jdn__header-text">Back-end v {backendVer}</span>
+        </Space>
       </div>
-      <Space size={[18, 0]}>
+      {/*<Space size={[18, 0]}>*/}
+      <Space>
         <a className="jdn__header-link" href="#" hidden={!allowRemoveElements} onClick={handleReportProblem}>
           Report a problem
         </a>
@@ -51,6 +50,9 @@ export const ControlBar = () => {
         </a>
         <a className="jdn__header-link" href="#">
           Upgrade
+        </a>
+        <a className="jdn__header-kebab">
+          <img src={kebab_menu}/>
         </a>
       </Space>
     </React.Fragment>

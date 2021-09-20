@@ -20,7 +20,7 @@ const AutoFind = () => {
       <Space
         size={0}
         direction="vertical"
-        split={<Divider type="horizontal" className="jdn__divider" />}
+        // split={<Divider type="horizontal" className="jdn__divider" />}
         className="jdn__content"
       >
         <GenerationButtons />
