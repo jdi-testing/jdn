@@ -40,8 +40,7 @@ export const ControlBar = () => {
           <span className="jdn__header-text">Back-end v {backendVer}</span>
         </Space>
       </div>
-      {/*<Space size={[18, 0]}>*/}
-      <Space>
+      <Space size={[30, 0]}>
         <a className="jdn__header-link" href="#" hidden={!allowRemoveElements} onClick={handleReportProblem}>
           Report a problem
         </a>
