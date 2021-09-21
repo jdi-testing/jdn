@@ -2,7 +2,8 @@ import { Divider, Space } from "antd";
 import React, { useState, useEffect } from "react";
 import { useAutoFind } from "../autoFindProvider/AutoFindProvider";
 import { reportProblem } from "../utils/pageDataHandlers";
-import kebab_menu from "../../../../icons/keb_menu.png";
+import kebab_menu from "../../../../icons/Kebab_menu.svg";
+import Icon from "@ant-design/icons";
 
 export const ControlBar = () => {
   const [backendVer, setBackendVer] = useState("");
@@ -51,7 +52,7 @@ export const ControlBar = () => {
           Upgrade
         </a>
         <a className="jdn__header-kebab">
-          <img src={kebab_menu}/>
+          <Icon component={kebab_menu}/>
         </a>
       </Space>
     </React.Fragment>
