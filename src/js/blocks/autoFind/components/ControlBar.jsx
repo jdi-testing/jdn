@@ -4,6 +4,7 @@ import { useAutoFind } from "../autoFindProvider/AutoFindProvider";
 import { reportProblem } from "../utils/pageDataHandlers";
 import kebab_menu from "../../../../icons/Kebab_menu.svg";
 import Icon from "@ant-design/icons";
+import { Menu, Dropdown } from 'antd';
 
 export const ControlBar = () => {
   const [backendVer, setBackendVer] = useState("");
@@ -29,6 +30,19 @@ export const ControlBar = () => {
     reportProblem(predictedElements);
   };
 
+  const kebabMenu = (
+    <Menu style={{backgroundColor: "#000000"}}>
+      <Menu.Item key="0" hidden={!allowRemoveElements} onClick={handleReportProblem} style={{ fontSize: "12px", lineHeight: "16px", color: "#FFFFFF"}}>
+        Report a problem
+      </Menu.Item>
+      <Menu.Item key="1" style={{fontSize: "12px", lineHeight: "16px", color: "#FFFFFF"}} >
+        <a href="https://github.com/jdi-testing/jdn" target="_blank" rel="noreferrer">Readme</a>
+      </Menu.Item>
+      <Menu.Item key="3" style={{fontSize: "12px", lineHeight: "16px", color: "#FFFFFF"}} >Upgrade</Menu.Item>
+    </Menu>
+  );
+
+
   return (
     <React.Fragment>
       <div className="jdn__header-version">
@@ -51,8 +65,10 @@ export const ControlBar = () => {
         <a className="jdn__header-link" href="#">
           Upgrade
         </a>
-        <a className="jdn__header-kebab">
-          <Icon component={kebab_menu}/>
+        <a className="jdn__header-kebab" >
+          <Dropdown overlay={kebabMenu} trigger={['click']}>
+            <Icon component={kebab_menu} onClick={e => e.preventDefault()}/>
+          </Dropdown>
         </a>
       </Space>
     </React.Fragment>
