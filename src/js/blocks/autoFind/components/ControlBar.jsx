@@ -1,10 +1,9 @@
-import { Divider, Space } from "antd";
+import { Divider, Space, Menu, Dropdown } from "antd";
 import React, { useState, useEffect } from "react";
 import { useAutoFind } from "../autoFindProvider/AutoFindProvider";
 import { reportProblem } from "../utils/pageDataHandlers";
 import kebab_menu from "../../../../icons/Kebab_menu.svg";
 import Icon from "@ant-design/icons";
-import { Menu, Dropdown } from 'antd';
 
 export const ControlBar = () => {
   const [backendVer, setBackendVer] = useState("");
@@ -31,14 +30,14 @@ export const ControlBar = () => {
   };
 
   const kebabMenu = (
-    <Menu style={{backgroundColor: "#000000"}}>
-      <Menu.Item key="0" hidden={!allowRemoveElements} onClick={handleReportProblem} style={{ fontSize: "12px", lineHeight: "16px", color: "#FFFFFF"}}>
+    <Menu className="jdn__header-kebab">
+      <Menu.Item key="0" hidden={!allowRemoveElements} onClick={handleReportProblem} className="jdn__header-kebab-links" >
         Report a problem
       </Menu.Item>
-      <Menu.Item key="1" style={{fontSize: "12px", lineHeight: "16px", color: "#FFFFFF"}} >
-        <a href="https://github.com/jdi-testing/jdn" target="_blank" rel="noreferrer">Readme</a>
+      <Menu.Item key="1" className="jdn__header-kebab-links" >
+        <a href="https://github.com/jdi-testing/jdn" target="_blank" rel="noreferrer" >Readme</a>
       </Menu.Item>
-      <Menu.Item key="3" style={{fontSize: "12px", lineHeight: "16px", color: "#FFFFFF"}} >Upgrade</Menu.Item>
+      <Menu.Item key="3" className="jdn__header-kebab-links" >Upgrade</Menu.Item>
     </Menu>
   );
 
