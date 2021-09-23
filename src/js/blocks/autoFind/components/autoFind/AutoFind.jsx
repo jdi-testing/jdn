@@ -7,7 +7,7 @@ import Layout, { Header } from "antd/lib/layout/layout";
 import { GenerationButtons } from "../GenerationButtons";
 import { PerceptionTreshold } from "../PerceptionTreshold";
 import { Result } from "../Result";
-import { Divider, Space } from "antd";
+import { Space } from "antd";
 import { ControlBar } from "../ControlBar";
 import { XPathSettings } from "../XPathSettings";
 
