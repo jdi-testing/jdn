@@ -111,7 +111,6 @@ export const getGenerationAttributes = () => {
       predictedElement.locator = {
         fullXpath: getElementTreeXPath(element),
       };
-      console.log(predictedElement);
 
       return {
         ...predictedElement,

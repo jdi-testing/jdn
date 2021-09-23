@@ -8,7 +8,8 @@ import { createLocatorNames, getPage, predictedToConvert } from "./pageObject";
 import { autoFindStatus } from "./../autoFindProvider/AutoFindProvider";
 import { highlightOrder } from "./../contentScripts/highlightOrder";
 import { reportProblemPopup } from "../contentScripts/reportProblemPopup/reportProblemPopup";
-import { GENERATE_XPATH, MUI_PREDICT, request } from "./backend";
+import { MUI_PREDICT, request } from "./backend";
+import { locatorGenerationController } from "./locatorGenerationController";
 /* global chrome*/
 
 let documentListenersStarted;
@@ -115,39 +116,9 @@ export const runDocumentListeners = (actions) => {
   }
 };
 
-export const requestXpathes = async (elements, config) => {
-  const documentResult = await connector.attachContentScript(
-      (() => JSON.stringify(document.documentElement.innerHTML))
-  );
-
-  const document = await documentResult[0].result;
-  const ids = elements.map((el) => el.element_id);
-
-  const xPathes = await request.post(
-      GENERATE_XPATH,
-      JSON.stringify({
-        ids,
-        document,
-        config
-      })
-  );
-
-  const r = elements.map((el) => ({ ...el, xpath: xPathes[el.element_id] }));
-  const unreachableNodes = r.filter((el) => !el.xpath);
-  return { xpathes: r.filter((el) => !!el.xpath), unreachableNodes };
-};
-
 export const requestGenerationData = async (elements, xpathConfig, callback) => {
   const generationTags = await requestGenerationAttributes(elements);
   const generationData = createLocatorNames(generationTags);
-  // const { xpathes, unreachableNodes } = await (await requestXpathes(elements, xpathConfig));
-  // const generationData = xpathes.map((el) => {
-  //   const attr = generationAttributes.find((g) => g.element_id === el.element_id);
-  //   return {
-  //     ...el,
-  //     ...attr,
-  //   };
-  // });
   callback({ generationData, unreachableNodes: [] });
 };
 
@@ -161,4 +132,18 @@ export const generatePageObject = (elements, mainModel) => {
 
 export const reportProblem = (predictedElements) => {
   chrome.storage.sync.set({ predictedElements }, connector.attachContentScript(reportProblemPopup));
+};
+
+export const runXpathGeneration = async (elements, settings, elementCallback) => {
+  const documentResult = await connector.attachContentScript(
+      (() => JSON.stringify(document.documentElement.innerHTML))
+  );
+  const document = await documentResult[0].result;
+
+  elements.forEach((element) => {
+    const callback = (elementId, locator) => {
+      elementCallback({...element, locator: { ...element.locator, ...locator}});
+    };
+    locatorGenerationController.scheduleTask(element.element_id, settings, document, callback);
+  });
 };

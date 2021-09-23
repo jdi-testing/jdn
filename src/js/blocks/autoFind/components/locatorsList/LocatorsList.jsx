@@ -1,24 +1,19 @@
 import React from "react";
-import { Tabs } from "antd";
+import { Collapse } from "antd";
 import { WaitingTab } from "./WaitingTab";
-
-const { TabPane } = Tabs;
+import { GeneralTab } from "./GeneralTab";
 
 export const LocatorsList = () => {
-  const callback = (key) => {
-    console.log(key);
-  };
-
   return (
     <React.Fragment>
-      <Tabs type="card" onChange={callback}>
-        <TabPane tab="All" key="1">
-          All list
-        </TabPane>
-        <TabPane tab="Waiting" key="2">
+      <Collapse>
+        <Collapse.Panel header="Generated">
+          <GeneralTab />
+        </Collapse.Panel>
+        <Collapse.Panel header="Waiting for generation">
           <WaitingTab />
-        </TabPane>
-      </Tabs>
+        </Collapse.Panel>
+      </Collapse>
     </React.Fragment>
   );
 };

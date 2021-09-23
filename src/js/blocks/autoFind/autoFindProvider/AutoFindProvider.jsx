@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-import _, { sortBy } from "lodash";
+import { findIndex, sortBy } from "lodash";
 import React, { useState, useEffect } from "react";
 import { inject, observer } from "mobx-react";
 import { useContext } from "react";
@@ -9,6 +9,7 @@ import {
   runDocumentListeners,
   generatePageObject,
   requestGenerationData,
+  runXpathGeneration,
 } from "./../utils/pageDataHandlers";
 import { JDIclasses, getJdiClassName } from "./../utils/generationClassesMap";
 import { connector, sendMessage } from "../utils/connector";
@@ -39,7 +40,7 @@ const AutoFindProvider = inject("mainModel")(
     const [allowRemoveElements, setAllowRemoveElements] = useState(false);
     const [perception, setPerception] = useState(0.5);
     const [unreachableNodes, setUnreachableNodes] = useState([]);
-    const [availableForGeneration, setAvailableForGeneration] = useState([]);
+    const [locators, setLocators] = useState([]);
     const [xpathStatus, setXpathStatus] = useState(xpathGenerationStatus.noStatus);
     const [unactualPrediction, setUnactualPrediction] = useState(false);
     const [xpathConfig, setXpathConfig] = useState({
@@ -60,7 +61,7 @@ const AutoFindProvider = inject("mainModel")(
       setAllowIdentifyElements(true);
       setAllowRemoveElements(false);
       setUnreachableNodes([]);
-      setAvailableForGeneration([]);
+      setLocators([]);
       setXpathStatus(xpathGenerationStatus.noStatus);
       setUnactualPrediction(false);
     };
@@ -145,27 +146,28 @@ const AutoFindProvider = inject("mainModel")(
     };
 
     const generateAndDownload = () => {
-      generatePageObject(availableForGeneration, mainModel);
+      generatePageObject(locators, mainModel);
     };
 
     const onChangePerception = (value) => {
       setPerception(value);
     };
 
-    const updateLocator = (id, locator) => {
-      const newState = availableForGeneration.map((element) => {
-        if (element.id !== id) return element;
-        return {
-          ...element,
-          locator,
-        };
+    const updateLocator = (element) => {
+      setLocators((prevState) => {
+        const index = findIndex(prevState, { element_id: element.element_id });
+        if (index === -1) {
+          return [...prevState, element];
+        } else {
+          const newState = [...prevState];
+          newState[index] = element;
+          return newState;
+        }
       });
-      setAvailableForGeneration(newState);
     };
 
-    const scheduleLocatorGeneration = (elementId) => {
-      // some start task code
-      updateLocator(elementId, {});
+    const generateXpath = (elements) => {
+      runXpathGeneration(elements, xpathConfig, updateLocator);
     };
 
     const getPredictedElement = (id) => {
@@ -181,35 +183,25 @@ const AutoFindProvider = inject("mainModel")(
       });
     };
 
-    const actions = {
-      GET_ELEMENT: getPredictedElement,
-      TOGGLE_ELEMENT: toggleElementGeneration,
-      HIGHLIGHT_OFF: clearElementsState,
-      REMOVE_ELEMENT: hideElement,
-      CHANGE_TYPE: changeType,
-      CHANGE_ELEMENT_NAME: changeElementName,
-      PREDICTION_IS_UNACTUAL: () => setUnactualPrediction(true),
+    const filterByProbability = (elements) => {
+      return elements.filter((e) => e.predicted_probability >= perception);
     };
 
     useEffect(() => {
       if (predictedElements) {
         const onHighlighted = () => {
           setStatus(autoFindStatus.success);
-          setAvailableForGeneration(
-            _.chain(predictedElements)
-              .map((predicted) => {
-                const el = _.find(availableForGeneration, { element_id: predicted.element_id });
-                return { ...el, ...predicted };
-              })
-              .filter(
-                (e) =>
-                  e.predicted_probability >= perception &&
-                  !e.skipGeneration &&
-                  !e.hidden &&
-                  !unreachableNodes.includes(e.element_id)
-              )
-              .value()
-          );
+          const availableForGeneration = filterByProbability(predictedElements);
+          if (availableForGeneration.length) {
+            const noLocator = availableForGeneration.filter(
+              (element) => locators.findIndex((loc) => loc.element_id === element.element_id) === -1
+            );
+            if (noLocator.length) {
+              requestGenerationData(noLocator, xpathConfig, ({ generationData }) => {
+                generateXpath(generationData);
+              });
+            }
+          }
         };
 
         highlightElements(predictedElements, onHighlighted, perception);
@@ -222,22 +214,20 @@ const AutoFindProvider = inject("mainModel")(
       }
     }, [status]);
 
-    useEffect(() => {
-      if (!availableForGeneration) return;
-      const noXpath = availableForGeneration.filter((element) => !element.locator);
-      if (!noXpath.length) return;
-      setXpathStatus(xpathGenerationStatus.started);
-      requestGenerationData(noXpath, xpathConfig, ({ generationData, unreachableNodes }) => {
-        setAvailableForGeneration(generationData);
-        setUnreachableNodes(unreachableNodes);
-        setXpathStatus(xpathGenerationStatus.complete);
-      });
-    }, [availableForGeneration]);
+    // useEffect(() => {
+    //   if (!unreachableNodes.length) return;
+    //   sendMessage.highlightUnreached(unreachableNodes);
+    // }, [unreachableNodes]);
 
-    useEffect(() => {
-      if (!unreachableNodes.length) return;
-      sendMessage.highlightUnreached(unreachableNodes);
-    }, [unreachableNodes]);
+    const actions = {
+      GET_ELEMENT: getPredictedElement,
+      TOGGLE_ELEMENT: toggleElementGeneration,
+      HIGHLIGHT_OFF: clearElementsState,
+      REMOVE_ELEMENT: hideElement,
+      CHANGE_TYPE: changeType,
+      CHANGE_ELEMENT_NAME: changeElementName,
+      PREDICTION_IS_UNACTUAL: () => setUnactualPrediction(true),
+    };
 
     const data = [
       {
@@ -248,7 +238,7 @@ const AutoFindProvider = inject("mainModel")(
         allowRemoveElements,
         perception,
         unreachableNodes,
-        availableForGeneration,
+        locators,
         xpathStatus,
         unactualPrediction,
         xpathConfig,
@@ -259,6 +249,7 @@ const AutoFindProvider = inject("mainModel")(
         generateAndDownload,
         onChangePerception,
         setXpathConfig,
+        filterByProbability,
       },
     ];
 
