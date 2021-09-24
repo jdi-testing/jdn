@@ -55,7 +55,6 @@ export const createLocatorNames = (elements) => {
       ...e,
       name,
       type,
-      elementCode: getPageElementCode(type, name, e.locator),
     };
   });
 };
