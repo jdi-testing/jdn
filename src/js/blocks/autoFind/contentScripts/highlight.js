@@ -22,12 +22,12 @@ export const highlightOnPage = () => {
 
   const toggleElement = (element) => {
     const div = document.getElementById(element.element_id);
-    div.className = `jdn-highlight ${element.skipGeneration ? 'jdn-secondary' : 'jdn-primary'}`;
+    div.className = `jdn-highlight ${element.generate ? 'jdn-primary' : 'jdn-secondary'}`;
   };
 
   const removeElement = (element) => {
     predictedElements.find((e) => {
-      if (e.element_id === element.element_id) e.hidden = element.hidden;
+      if (e.element_id === element.element_id) e.deleted = element.deleted;
     });
 
     const div = document.getElementById(element.element_id);
@@ -46,7 +46,7 @@ export const highlightOnPage = () => {
 
   const drawRectangle = (
     element,
-    { element_id, jdi_class_name, predicted_probability }
+    { element_id, jdi_class_name, predicted_probability, generate }
   ) => {
     const divDefaultStyle = (rect) => {
       const { top, left, height, width } = rect || {};
@@ -62,7 +62,7 @@ export const highlightOnPage = () => {
 
     const div = document.createElement("div");
     div.id = element_id;
-    div.className = "jdn-highlight jdn-primary"
+    div.className = `jdn-highlight ${generate ? 'jdn-primary' : 'jdn-secondary'}`;
     div.setAttribute("jdn-highlight", true);
     div.innerHTML = `<div><span class="jdn-label"><span class="jdn-class">${jdi_class_name}</span> ${predicted_probability}</span></div>`;
     Object.assign(div.style, divDefaultStyle(element.getBoundingClientRect()));
@@ -82,7 +82,7 @@ export const highlightOnPage = () => {
     nodes.forEach(node => {
       if (parent.contains(node)) {
         const id = node.getAttribute('jdn-hash');
-        predictedElements.find(elem => elem.element_id === id).hidden = true;
+        predictedElements.find(elem => elem.element_id === id).deleted = true;
         chrome.runtime.sendMessage({
           message: "REMOVE_ELEMENT",
           param: id,
@@ -103,8 +103,8 @@ export const highlightOnPage = () => {
       perception = param.perception;
     }
     let query = "";
-    predictedElements.forEach(({ element_id, hidden }) => {
-      if (hidden) return;
+    predictedElements.forEach(({ element_id, deleted }) => {
+      if (deleted) return;
       query += `${!!query.length ? ", " : ""}[jdn-hash='${element_id}']`;
     });
     nodes = document.querySelectorAll(query);

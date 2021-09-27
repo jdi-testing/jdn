@@ -20,7 +20,7 @@ export const getPageElementCode = (type, name, locator) => {
 };
 
 export const createLocatorNames = (elements) => {
-  const f = elements.filter((el) => el && !el.skipGeneration && !el.hidden);
+  const f = elements.filter((el) => el && !el.deleted);
   const uniqueNames = [];
 
   const getElementName = (element) => {

@@ -4,35 +4,35 @@ import { WaitingList } from "./WaitingList";
 import { GeneratedList } from "./GeneratedList";
 import { useAutoFind } from "../../autoFindProvider/AutoFindProvider";
 import { locatorProgressStatus, locatorTaskStatus } from "../../utils/locatorGenerationController";
-import { chain } from "lodash";
+import { DeletedList } from "./DeletedList";
 
 export const LocatorsList = () => {
-  const [{ locators }, { filterByProbability }] = useAutoFind();
+  const [{ locators }, { filterByProbability, toggleElementGeneration }] = useAutoFind();
   const [waiting, setWaiting] = useState([]);
   const [generated, setGenerated] = useState([]);
+  const [deleted, setDeleted] = useState([]);
 
   useEffect(() => {
-    setWaiting(
-        chain(filterByProbability(locators))
-            .filter((el) => locatorProgressStatus.hasOwnProperty(el.locator.taskStatus))
-            .value()
-    );
+    const byProbability = filterByProbability(locators);
 
-    setGenerated(
-        chain(filterByProbability(locators))
-            .filter((el) => el.locator.taskStatus === locatorTaskStatus.SUCCESS)
-            .value()
-    );
+    setWaiting(byProbability.filter((el) => locatorProgressStatus.hasOwnProperty(el.locator.taskStatus)));
+
+    setGenerated(byProbability.filter((el) => el.locator.taskStatus === locatorTaskStatus.SUCCESS));
+
+    setDeleted(byProbability.filter((el) => el.deleted));
   }, [locators]);
 
   return (
     <React.Fragment>
-      <Collapse defaultActiveKey={['1', '2']}>
+      <Collapse defaultActiveKey={["1", "2"]}>
         <Collapse.Panel key="1" header="Generated">
-          <GeneratedList elements={generated} />
+          <GeneratedList elements={generated} {...{ toggleElementGeneration }} />
         </Collapse.Panel>
         <Collapse.Panel key="2" header="Waiting for generation">
-          <WaitingList elements={waiting} />
+          <WaitingList elements={waiting} {...{ toggleElementGeneration }} />
+        </Collapse.Panel>
+        <Collapse.Panel key="3" header="Deleted">
+          <DeletedList elements={deleted} />
         </Collapse.Panel>
       </Collapse>
     </React.Fragment>

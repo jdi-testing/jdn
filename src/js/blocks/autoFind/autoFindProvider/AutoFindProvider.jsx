@@ -67,10 +67,10 @@ const AutoFindProvider = inject("mainModel")(
     };
 
     const toggleElementGeneration = (id) => {
-      setPredictedElements((previousValue) => {
+      setLocators((previousValue) => {
         const toggled = previousValue.map((el) => {
           if (el.element_id === id) {
-            el.skipGeneration = !el.skipGeneration;
+            el.generate = !el.generate;
             sendMessage.toggle(el);
           }
           return el;
@@ -79,21 +79,21 @@ const AutoFindProvider = inject("mainModel")(
       });
     };
 
-    const hideElement = (id) => {
-      setPredictedElements((previousValue) => {
-        const hidden = previousValue.map((el) => {
+    const removeElement = (id) => {
+      setLocators((previousValue) => {
+        const deleted = previousValue.map((el) => {
           if (el.element_id === id) {
-            el.hidden = true;
+            el.deleted = true;
             sendMessage.hide(el);
           }
           return el;
         });
-        return hidden;
+        return deleted;
       });
     };
 
     const changeType = ({ id, newType }) => {
-      setPredictedElements((previousValue) => {
+      setLocators((previousValue) => {
         const changed = previousValue.map((el) => {
           if (el.element_id === id) {
             el.predicted_label = newType;
@@ -107,7 +107,7 @@ const AutoFindProvider = inject("mainModel")(
     };
 
     const changeElementName = ({ id, name }) => {
-      setPredictedElements((previousValue) => {
+      setLocators((previousValue) => {
         const renamed = previousValue.map((el) => {
           if (el.element_id === id) {
             el.jdi_custom_class_name = name;
@@ -171,15 +171,19 @@ const AutoFindProvider = inject("mainModel")(
     };
 
     const getPredictedElement = (id) => {
-      const element = predictedElements.find((e) => e.element_id === id);
-      sendMessage.elementData({
-        element,
-        types: sortBy(
-          Object.keys(JDIclasses).map((label) => {
-            return { label, jdi: getJdiClassName(label) };
-          }),
-          ["jdi"]
-        ),
+      setLocators((prevLocators) => {
+        // walkaround to get access to locators state
+        const element = prevLocators.find((e) => e.element_id === id);
+        sendMessage.elementData({
+          element,
+          types: sortBy(
+            Object.keys(JDIclasses).map((label) => {
+              return { label, jdi: getJdiClassName(label) };
+            }),
+            ["jdi"]
+          ),
+        });
+        return prevLocators;
       });
     };
 
@@ -223,7 +227,7 @@ const AutoFindProvider = inject("mainModel")(
       GET_ELEMENT: getPredictedElement,
       TOGGLE_ELEMENT: toggleElementGeneration,
       HIGHLIGHT_OFF: clearElementsState,
-      REMOVE_ELEMENT: hideElement,
+      REMOVE_ELEMENT: removeElement,
       CHANGE_TYPE: changeType,
       CHANGE_ELEMENT_NAME: changeElementName,
       PREDICTION_IS_UNACTUAL: () => setUnactualPrediction(true),
@@ -250,6 +254,7 @@ const AutoFindProvider = inject("mainModel")(
         onChangePerception,
         setXpathConfig,
         filterByProbability,
+        toggleElementGeneration,
       },
     ];
 

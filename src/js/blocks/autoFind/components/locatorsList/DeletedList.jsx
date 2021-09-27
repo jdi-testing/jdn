@@ -1,11 +1,11 @@
 import React from "react";
 import { Locator } from "./Locator";
 
-export const WaitingList = ({ elements, toggleElementGeneration }) => {
+export const DeletedList = ({elements}) => {
   const renderList = () => {
-    if (!elements) return null;
     return elements.map((element) => {
-      return <Locator key={element.element_id} onChange={toggleElementGeneration} {...{ element }} />;
+      const { element_id, type, name, locator } = element;
+      return <Locator key={element_id} type={type} name={name} locator={locator} />;
     });
   };
 
