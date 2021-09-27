@@ -1,6 +1,7 @@
 import { Divider, Space, Menu, Dropdown } from "antd";
 import React, { useState, useEffect } from "react";
 import { useAutoFind } from "../autoFindProvider/AutoFindProvider";
+import { BUILD, request } from "../utils/backend";
 import { reportProblem } from "../utils/pageDataHandlers";
 import kebab_menu from "../../../../icons/Kebab_menu.svg";
 import Icon from "@ant-design/icons";
@@ -12,11 +13,8 @@ export const ControlBar = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const result = await fetch("http:localhost:5000/build", {
-        method: "GET",
-      });
-      const r = await result.json();
-      setBackendVer(r);
+      const result = await request.get(BUILD);
+      setBackendVer(result);
     };
 
     fetchData();
