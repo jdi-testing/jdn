@@ -218,6 +218,12 @@ const AutoFindProvider = inject("mainModel")(
       }
     }, [status]);
 
+    useEffect(() => {
+      if (locators.length) {
+        setXpathStatus(xpathGenerationStatus.complete);
+      }
+    }, [locators]);
+
     // useEffect(() => {
     //   if (!unreachableNodes.length) return;
     //   sendMessage.highlightUnreached(unreachableNodes);
