@@ -22,7 +22,8 @@ export const PerceptionTreshold = () => {
   };
 
   return (
-    <Content className="jdn__perception-treshold">
+    <Content className="jdn__perception-treshold"
+      style={{marginTop: "24px" }} >
       <Text strong level={5}>
         Perception treshold: {perception}
       </Text>
