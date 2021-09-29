@@ -5,6 +5,7 @@ import { GeneratedList } from "./GeneratedList";
 import { useAutoFind } from "../../autoFindProvider/AutoFindProvider";
 import { locatorProgressStatus, locatorTaskStatus } from "../../utils/locatorGenerationController";
 import { DeletedList } from "./DeletedList";
+import { LocatorListHeader } from "./LocatorListHeader";
 
 export const LocatorsList = () => {
   const [{ locators }, { filterByProbability, toggleElementGeneration }] = useAutoFind();
@@ -23,7 +24,8 @@ export const LocatorsList = () => {
   }, [locators]);
 
   return (
-    <React.Fragment>
+    <div className="jdn__locatorsList">
+      <LocatorListHeader />
       <Collapse defaultActiveKey={["1", "2"]}>
         <Collapse.Panel key="1" header="Generated">
           <GeneratedList elements={generated} {...{ toggleElementGeneration }} />
@@ -35,6 +37,6 @@ export const LocatorsList = () => {
           <DeletedList elements={deleted} />
         </Collapse.Panel>
       </Collapse>
-    </React.Fragment>
+    </div>
   );
 };
