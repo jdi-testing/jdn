@@ -34,19 +34,24 @@ export const highlightOnPage = () => {
     if (div) div.remove();
   };
 
+  const createLabelText = (element) => {
+    const predictedProbabilityPercent = Math.round(element.predicted_probability * 100);
+    return `${predictedProbabilityPercent}%, ${element.jdi_class_name}`;
+  };
+
   const assignType = (element) => {
     const div = document.getElementById(element.element_id);
-    div.querySelector(".jdn-class").textContent = element.jdi_class_name;
+    div.querySelector(".jdn-class").textContent = createLabelText(element);
   };
 
   const changeElementName = (element) => {
     const div = document.getElementById(element.element_id);
-    div.querySelector(".jdn-class").textContent = element.jdi_class_name;
+    div.querySelector(".jdn-class").textContent = createLabelText(element);
   };
 
   const drawRectangle = (
     element,
-    { element_id, jdi_class_name, predicted_probability }
+    { element_id, jdi_class_name, predicted_probability, predicted_label }
   ) => {
     const divDefaultStyle = (rect) => {
       const { top, left, height, width } = rect || {};
@@ -59,14 +64,39 @@ export const highlightOnPage = () => {
         }
         : {};
     };
-
+    const tooltipDefaultStyle = (rect) => {
+      const {right, top, height, width} = rect;
+      return rect ? {
+        right: `calc(100% - ${right + window.pageXOffset - width/2}px)`,
+        top: `${top + window.pageYOffset + height}px`,
+      } : {};
+    };
+    const predictedProbabilityPercent = Math.round(predicted_probability * 100);
     const div = document.createElement("div");
     div.id = element_id;
-    div.className = "jdn-highlight jdn-primary"
+    div.className = "jdn-highlight jdn-primary";
     div.setAttribute("jdn-highlight", true);
-    div.innerHTML = `<div><span class="jdn-label"><span class="jdn-class">${jdi_class_name}</span> ${predicted_probability}</span></div>`;
-    Object.assign(div.style, divDefaultStyle(element.getBoundingClientRect()));
+    const tooltip = document.createElement('div');
+    tooltip.className = 'jdn-tooltip';
+    tooltip.innerHTML = `
+      <p><b>Name:</b> ${predicted_label}</p>
+      <p><b>Type:</b> ${jdi_class_name}</p>
+      <p><b>Prediction accuracy:</b> ${predictedProbabilityPercent}%</p>`;
+    const labelContainer = document.createElement('div');
+    const label = document.createElement('span');
+    label.className = 'jdn-label';
+    label.innerHTML = `<span class="jdn-class">${predictedProbabilityPercent}%, ${jdi_class_name}</span>`;
+    label.addEventListener('mouseover', () => {
+      Object.assign(tooltip.style, tooltipDefaultStyle(label.getBoundingClientRect()));
+      document.body.appendChild(tooltip);
+    });
+    label.addEventListener('mouseout', () => {
+      document.body.removeChild(tooltip);
+    });
 
+    Object.assign(div.style, divDefaultStyle(element.getBoundingClientRect()));
+    labelContainer.appendChild(label);
+    div.insertAdjacentElement('afterBegin', labelContainer);
     div.onclick = () => {
       chrome.runtime.sendMessage({
         message: "TOGGLE_ELEMENT",
