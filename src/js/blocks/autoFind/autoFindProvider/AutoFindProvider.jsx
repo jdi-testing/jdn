@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-import { findIndex, sortBy } from "lodash";
+import { filter, findIndex, sortBy } from "lodash";
 import React, { useState, useEffect } from "react";
 import { inject, observer } from "mobx-react";
 import { useContext } from "react";
@@ -79,12 +79,14 @@ const AutoFindProvider = inject("mainModel")(
       });
     };
 
-    const removeElement = (id) => {
+    const toggleDeleted = (id) => {
       setLocators((previousValue) => {
         const deleted = previousValue.map((el) => {
           if (el.element_id === id) {
-            el.deleted = true;
-            sendMessage.hide(el);
+            el.deleted = !el.deleted;
+            sendMessage.toggleDeleted(el);
+            // if (el.deleted) sendMessage.hide(el);
+            // else sendMessage.restore(el);
           }
           return el;
         });
@@ -146,7 +148,10 @@ const AutoFindProvider = inject("mainModel")(
     };
 
     const generateAndDownload = () => {
-      generatePageObject(locators, mainModel);
+      generatePageObject(
+        filter(locators, (loc) => loc.generate && !loc.deleted),
+        mainModel
+      );
     };
 
     const onChangePerception = (value) => {
@@ -233,7 +238,7 @@ const AutoFindProvider = inject("mainModel")(
       GET_ELEMENT: getPredictedElement,
       TOGGLE_ELEMENT: toggleElementGeneration,
       HIGHLIGHT_OFF: clearElementsState,
-      REMOVE_ELEMENT: removeElement,
+      REMOVE_ELEMENT: toggleDeleted,
       CHANGE_TYPE: changeType,
       CHANGE_ELEMENT_NAME: changeElementName,
       PREDICTION_IS_UNACTUAL: () => setUnactualPrediction(true),
@@ -261,6 +266,7 @@ const AutoFindProvider = inject("mainModel")(
         setXpathConfig,
         filterByProbability,
         toggleElementGeneration,
+        toggleDeleted,
       },
     ];
 

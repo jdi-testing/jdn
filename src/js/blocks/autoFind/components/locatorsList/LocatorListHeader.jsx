@@ -1,6 +1,6 @@
-import React from "react";
-
-import { Button, Space } from "antd";
+import React, { useEffect, useState } from "react";
+import { filter, size } from "lodash";
+import { Button } from "antd";
 import Icon from "@ant-design/icons";
 import { Content } from "antd/lib/layout/layout";
 
@@ -10,63 +10,68 @@ import PauseSVG from "../../../../../icons/pause.svg";
 import DownloadSvg from "../../../../../icons/download.svg";
 import PlaySvg from "../../../../../icons/play.svg";
 import RestoreSvg from "../../../../../icons/restore.svg";
-import CloseSVG from "../../../../../icons/close.svg";
 
-export const LocatorListHeader = () => {
+import { useAutoFind } from "../../autoFindProvider/AutoFindProvider";
+import { Chip } from "./Chip";
+
+export const LocatorListHeader = ({ generated, waiting, deleted, toggleLocatorsGroup, toggleDeletedGroup }) => {
+  const [{ locators }, { generateAndDownload }] = useAutoFind();
+  const [generatedSelected, setGeneratedSelected] = useState([]);
+  const [waitingSelected, setWaitingSelected] = useState([]);
+  const [deletedSelected, setDeletedSelected] = useState([]);
+  const [selected, setSelected] = useState([]);
+
+  useEffect(() => {
+    setSelected(() => filter(locators, "generate"));
+  }, [locators]);
+
+  useEffect(() => {
+    setGeneratedSelected(() => filter(generated, "generate"));
+  }, [generated]);
+
+  useEffect(() => {
+    setWaitingSelected(() => filter(waiting, "generate"));
+  }, [waiting]);
+
+  useEffect(() => {
+    setDeletedSelected(() => filter(deleted, "generate"));
+  }, [deleted]);
+
   return (
     <Content className="jdn__locatorsList-header">
       <span>Locators list</span>
-      <Space>
-        <div className="ant-select ant-select-multiple">
-          <div className="ant-select-selection-overflow-item" style={{ opacity: 1 }}>
-            <span className="ant-select-selection-item" title="c12">
-              <span className="ant-select-selection-item-content">
-                2 <span className="">selected</span>
-              </span>
-              <span
-                className="ant-select-selection-item-remove"
-                unselectable="on"
-                aria-hidden="true"
-                style={{ userSelect: "none" }}
-              >
-                <span role="img" aria-label="close" className="anticon anticon-close">
-                  <svg
-                    viewBox="64 64 896 896"
-                    focusable="false"
-                    data-icon="close"
-                    width="1em"
-                    height="1em"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <CloseSVG />
-                  </svg>
-                </span>
-              </span>
-            </span>
-          </div>
-        </div>
-        <Button className="jdn__buttons">
+      <span className="jdn__locatorsList-header-buttons">
+        <Chip
+          hidden={!size(selected)}
+          primaryLabel={size(selected)}
+          secondaryLabel={"selected"}
+          onDelete={() => toggleLocatorsGroup(selected)}
+        />
+        <Button hidden={!size(deletedSelected)} className="jdn__buttons" onClick={() => toggleDeletedGroup(selected)}>
           <Icon component={RestoreSvg} />
           Restore
         </Button>
-        <Button>
+        {/* <Button>
           <Icon component={PlaySvg} />
-        </Button>
-        <Button danger>
+        </Button> */}
+        {/* <Button danger>
           <Icon component={PauseSVG} />
-        </Button>
-        <Button danger>
+        </Button> */}
+        <Button
+          hidden={!(size(generatedSelected) + size(waitingSelected))}
+          danger
+          onClick={() => toggleDeletedGroup(selected)}
+        >
           <Icon fill="#D82C15" component={TrashBinSVG} />
         </Button>
-        <Button>
+        {/* <Button>
           <Icon component={SettingsSVG} />
-        </Button>
-        <Button type="primary" className="jdn__buttons">
+        </Button> */}
+        <Button hidden={!size(generatedSelected)} type="primary" className="jdn__buttons" onClick={generateAndDownload}>
           <Icon component={DownloadSvg} fill="#c15f0f" className="jdn__buttons-icons" />
           Download
         </Button>
-      </Space>
+      </span>
     </Content>
   );
 };
