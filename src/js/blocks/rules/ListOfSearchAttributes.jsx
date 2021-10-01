@@ -1,11 +1,11 @@
 import React from "react";
 import injectSheet from "react-jss";
-import { inject, observer } from "mobx-react";
-import { headerStyle, internalDivStyle } from "../BlockStyles";
-import { DeleteOutlined } from "@ant-design/icons";
+import {inject, observer} from "mobx-react";
+import {headerStyle, internalDivStyle} from "../BlockStyles";
+import {DeleteOutlined} from "@ant-design/icons";
 
-import { Button, Input } from "antd";
-import { add } from "../../../icons";
+import {Button, Input} from "antd";
+import {add} from "../../../icons";
 
 const styles = {
   headerStyle,

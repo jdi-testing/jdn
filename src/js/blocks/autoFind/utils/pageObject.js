@@ -1,6 +1,6 @@
-import { camelCase } from "../../../models/GenerateBlockModel";
-import { getJDILabel } from "./generationClassesMap";
-import { connector } from "./connector";
+import {camelCase} from "../../../models/GenerateBlockModel";
+import {getJDILabel} from "./generationClassesMap";
+import {connector} from "./connector";
 
 const getPackage = (url) => {
   return new URL(url).hostname

@@ -1,10 +1,10 @@
 /*eslint-env browser*/
 
-import { genRand, cssToXPath } from "../utils/helpers";
-import { observable, action } from "mobx";
+import {cssToXPath, genRand} from "../utils/helpers";
+import {action, observable} from "mobx";
 import Log from "./Log";
-import { SiteUrls } from "../json/siteUrls";
-import { saveAs } from "file-saver";
+import {SiteUrls} from "../json/siteUrls";
+import {saveAs} from "file-saver";
 
 function isXpath(locator) {
   return locator[1] === "/";

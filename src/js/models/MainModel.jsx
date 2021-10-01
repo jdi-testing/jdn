@@ -1,4 +1,4 @@
-import { observable, action } from "mobx";
+import {action, observable} from "mobx";
 import GenerateBlockModel from "./GenerateBlockModel";
 import RulesBlockModel from "./RulesBlockModel";
 import ConversionToCodeModel from "./ConversionToCodeModel";

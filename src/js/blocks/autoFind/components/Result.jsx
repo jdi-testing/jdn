@@ -1,8 +1,8 @@
-import { Space } from "antd";
-import { Content } from "antd/lib/layout/layout";
+import {Space} from "antd";
+import {Content} from "antd/lib/layout/layout";
 import Text from "antd/lib/typography/Text";
 import React from "react";
-import { autoFindStatus, useAutoFind } from "../autoFindProvider/AutoFindProvider";
+import {autoFindStatus, useAutoFind} from "../autoFindProvider/AutoFindProvider";
 
 const hideStatus = [autoFindStatus.loading, autoFindStatus.removed];
 

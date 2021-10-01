@@ -1,7 +1,7 @@
-import { observable, action } from "mobx";
-import { JavaJDIUITemplate } from "../json/JavaJDIUITemplate";
-import { JavaJDILightTemplate } from "../json/JavaJDILightTemplate";
-import { saveAs } from "file-saver";
+import {action, observable} from "mobx";
+import {JavaJDIUITemplate} from "../json/JavaJDIUITemplate";
+import {JavaJDILightTemplate} from "../json/JavaJDILightTemplate";
+import {saveAs} from "file-saver";
 import Log from "./Log";
 import {JavaJDINovaTemplate} from "../json/JavaJDINovaTemplate";
 import {Frameworks, Languages} from "../json/settings";

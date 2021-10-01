@@ -1,5 +1,5 @@
-import { observable, action } from "mobx";
-import { saveAs } from "file-saver";
+import {action, observable} from "mobx";
+import {saveAs} from "file-saver";
 import Log from "./Log";
 import HtmlRules from "../json/HtmlRules";
 import RetailBankRules from "../json/RetailBankRules";

@@ -1,7 +1,7 @@
-import { Divider, Space } from "antd";
-import React, { useState, useEffect } from "react";
-import { useAutoFind } from "../autoFindProvider/AutoFindProvider";
-import { reportProblem } from "../utils/pageDataHandlers";
+import {Divider, Space} from "antd";
+import React, {useEffect, useState} from "react";
+import {useAutoFind} from "../autoFindProvider/AutoFindProvider";
+import {reportProblem} from "../utils/pageDataHandlers";
 
 export const ControlBar = () => {
   const [backendVer, setBackendVer] = useState("");

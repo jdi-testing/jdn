@@ -1,9 +1,6 @@
 import React from "react";
-import injectSheet from "react-jss";
-import { inject, observer } from "mobx-react";
-import { Button, Checkbox } from "antd";
-
-import { exportIcon, importIcon, settings } from "../../../icons";
+import {inject, observer} from "mobx-react";
+import {Button, Checkbox} from "antd";
 import ReactFileReader from "react-file-reader";
 
 @inject("mainModel")

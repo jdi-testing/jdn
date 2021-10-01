@@ -1,13 +1,13 @@
-import { connector, sendMessage } from "./connector";
-import { runContextMenu } from "./../contentScripts/contextMenu/contextmenu";
-import { getGenerationAttributes } from "./../contentScripts/generationData";
-import { highlightOnPage } from "./../contentScripts/highlight";
-import { getPageData } from "./../contentScripts/pageData";
-import { urlListener } from "./../contentScripts/urlListener";
-import { getPage, predictedToConvert } from "./pageObject";
-import { autoFindStatus } from "./../autoFindProvider/AutoFindProvider";
-import { highlightOrder } from "./../contentScripts/highlightOrder";
-import { reportProblemPopup } from "../contentScripts/reportProblemPopup/reportProblemPopup";
+import {connector, sendMessage} from "./connector";
+import {runContextMenu} from "./../contentScripts/contextMenu/contextmenu";
+import {getGenerationAttributes} from "./../contentScripts/generationData";
+import {highlightOnPage} from "./../contentScripts/highlight";
+import {getPageData} from "./../contentScripts/pageData";
+import {urlListener} from "./../contentScripts/urlListener";
+import {getPage, predictedToConvert} from "./pageObject";
+import {autoFindStatus} from "./../autoFindProvider/AutoFindProvider";
+import {highlightOrder} from "./../contentScripts/highlightOrder";
+import {reportProblemPopup} from "../contentScripts/reportProblemPopup/reportProblemPopup";
 /* global chrome*/
 
 let documentListenersStarted;

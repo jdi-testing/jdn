@@ -1,17 +1,16 @@
 /* eslint-disable indent */
-import _, { sortBy } from "lodash";
-import React, { useState, useEffect } from "react";
-import { inject, observer } from "mobx-react";
-import { useContext } from "react";
+import _, {sortBy} from "lodash";
+import React, {useContext, useEffect, useState} from "react";
+import {inject, observer} from "mobx-react";
 import {
+  generatePageObject,
   getElements,
   highlightElements,
-  runDocumentListeners,
-  generatePageObject,
   requestGenerationData,
+  runDocumentListeners,
 } from "../utils/pageDataHandlers";
-import { JDIClasses, getJdiClassName } from "../utils/generationClassesMap";
-import { connector, sendMessage } from "../utils/connector";
+import {getJdiClassName, JDIClasses} from "../utils/generationClassesMap";
+import {connector, sendMessage} from "../utils/connector";
 
 export const autoFindStatus = {
   noStatus: "",

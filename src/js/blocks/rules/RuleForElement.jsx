@@ -1,11 +1,8 @@
 import React from "react";
-import { inject, observer } from "mobx-react";
-import { observable, action} from "mobx";
-import { Button, Input } from "antd";
-import {
-  CaretRightOutlined,
-  DeleteOutlined
-} from "@ant-design/icons";
+import {inject, observer} from "mobx-react";
+import {action, observable} from "mobx";
+import {Button, Input} from "antd";
+import {CaretRightOutlined, DeleteOutlined} from "@ant-design/icons";
 
 @inject("mainModel")
 @observer

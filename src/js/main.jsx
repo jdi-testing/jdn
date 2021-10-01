@@ -1,24 +1,24 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import injectSheet from "react-jss";
-import { observer, Provider } from "mobx-react";
-import { action, computed, observable } from "mobx";
+import {observer, Provider} from "mobx-react";
+import {action, computed, observable} from "mobx";
 
 import GenerateResults from "./blocks/generate/GenerateResults";
 import GeneralSettings from "./blocks/generate/GeneralSettings";
-import { RulesBlock } from "./blocks/rules/RulesBlock";
+import {RulesBlock} from "./blocks/rules/RulesBlock";
 
 import GenerateBlock from "./blocks/generate/GenerateBlock";
 
 import MainModel from "./models/MainModel";
 
-import { Menu, Button, Row, Col } from "antd";
+import {Button, Col, Menu, Row} from "antd";
 import "antd/lib/style/themes/default.less";
 import "antd/dist/antd.less";
 import "../css/main.less";
 import LogComponentWrapper from "./blocks/log/LogComponent";
 import AutoFind from "./blocks/autoFind/components/autoFind/AutoFind";
-import { AutoFindProvider } from "./blocks/autoFind/autoFindProvider/AutoFindProvider";
+import {AutoFindProvider} from "./blocks/autoFind/autoFindProvider/AutoFindProvider";
 
 const styles = {
   commonContainer: {

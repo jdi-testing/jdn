@@ -1,10 +1,10 @@
 import React from "react";
 import ReactFileReader from "react-file-reader";
-import { inject, observer } from "mobx-react";
-import { observable, action } from "mobx";
-import { Button } from "antd";
-import { CaretRightOutlined } from "@ant-design/icons";
-import { RuleForElement } from "./RuleForElement";
+import {inject, observer} from "mobx-react";
+import {action, observable} from "mobx";
+import {Button} from "antd";
+import {CaretRightOutlined} from "@ant-design/icons";
+import {RuleForElement} from "./RuleForElement";
 
 @observer
 class ListOfHiddenItems extends React.Component {

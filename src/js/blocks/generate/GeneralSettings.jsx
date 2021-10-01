@@ -1,9 +1,9 @@
 import React from "react";
-import { inject, observer } from "mobx-react";
-import {Languages, Frameworks, PageNameRule} from "../../json/settings";
-import { Select, Checkbox, Button, Input } from "antd";
+import {inject, observer} from "mobx-react";
+import {Frameworks, Languages, PageNameRule} from "../../json/settings";
+import {Button, Checkbox, Input, Select} from "antd";
 import ReactFileReader from "react-file-reader";
-import { DownloadOutlined, UploadOutlined } from '@ant-design/icons';
+import {DownloadOutlined, UploadOutlined} from '@ant-design/icons';
 import HtmlRules from "../../json/HtmlRules";
 import RetailBankRules from "../../json/RetailBankRules";
 

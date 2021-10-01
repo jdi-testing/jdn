@@ -1,12 +1,12 @@
-import Icon, { SearchOutlined } from "@ant-design/icons";
-import { Button, Space } from "antd";
+import Icon, {SearchOutlined} from "@ant-design/icons";
+import {Button, Space} from "antd";
 import React from "react";
-import { autoFindStatus, useAutoFind, xpathGenerationStatus } from "../autoFindProvider/AutoFindProvider";
+import {autoFindStatus, useAutoFind, xpathGenerationStatus} from "../autoFindProvider/AutoFindProvider";
 
 // import "./GenerationButtons.less";
 import ClearAllSvg from "../../../../icons/clear-all.svg";
 import DownloadSvg from "../../../../icons/download.svg";
-import { Content } from "antd/lib/layout/layout";
+import {Content} from "antd/lib/layout/layout";
 
 export const GenerationButtons = () => {
   const [

@@ -1,7 +1,8 @@
-import { observable, action } from "mobx";
-import { saveAs } from "file-saver";
+import {action, observable} from "mobx";
+import {saveAs} from "file-saver";
 import JSZip from "jszip";
 import CyrillicToTranslit from "cyrillic-to-translit-js";
+
 // TODO: Export function
 
 function varName(name) {

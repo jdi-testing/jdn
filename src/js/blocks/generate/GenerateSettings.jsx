@@ -1,9 +1,9 @@
 import React from "react";
 import injectSheet from "react-jss";
 import ReactFileReader from "react-file-reader";
-import { inject, observer } from "mobx-react";
-import { exportIcon, importIcon} from "../../../icons";
-import { Button } from "antd";
+import {inject, observer} from "mobx-react";
+import {exportIcon, importIcon} from "../../../icons";
+import {Button} from "antd";
 
 const styles = {
   generateStyle: {
