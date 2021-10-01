@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-import { findIndex, sortBy } from "lodash";
+import { filter, findIndex, sortBy } from "lodash";
 import React, { useState, useEffect } from "react";
 import { inject, observer } from "mobx-react";
 import { useContext } from "react";
@@ -9,7 +9,8 @@ import {
   runDocumentListeners,
   generatePageObject,
   requestGenerationData,
-  runXpathGeneration,
+  stopGenerationHandler,
+  runGenerationHandler,
 } from "./../utils/pageDataHandlers";
 import { JDIclasses, getJdiClassName } from "./../utils/generationClassesMap";
 import { connector, sendMessage } from "../utils/connector";
@@ -79,12 +80,12 @@ const AutoFindProvider = inject("mainModel")(
       });
     };
 
-    const removeElement = (id) => {
+    const toggleDeleted = (id) => {
       setLocators((previousValue) => {
         const deleted = previousValue.map((el) => {
           if (el.element_id === id) {
-            el.deleted = true;
-            sendMessage.hide(el);
+            el.deleted = !el.deleted;
+            sendMessage.toggleDeleted(el);
           }
           return el;
         });
@@ -146,7 +147,10 @@ const AutoFindProvider = inject("mainModel")(
     };
 
     const generateAndDownload = () => {
-      generatePageObject(locators, mainModel);
+      generatePageObject(
+        filter(locators, (loc) => loc.generate && !loc.deleted),
+        mainModel
+      );
     };
 
     const onChangePerception = (value) => {
@@ -160,14 +164,27 @@ const AutoFindProvider = inject("mainModel")(
           return [...prevState, element];
         } else {
           const newState = [...prevState];
-          newState[index] = element;
+          newState[index].locator = element.locator;
           return newState;
         }
       });
     };
 
-    const generateXpath = (elements) => {
-      runXpathGeneration(elements, xpathConfig, updateLocator);
+    const runXpathGeneration = (elements) => {
+      runGenerationHandler(elements, xpathConfig, updateLocator);
+    };
+
+    const stopXpathGeneration = ({element_id, locator}) => {
+      setLocators((prevState) => {
+        const stopped = prevState.map((el) => {
+          if (el.element_id === element_id) {
+            el.locator.stopped = true;
+            stopGenerationHandler(el);
+          }
+          return el;
+        });
+        return stopped;
+      });
     };
 
     const getPredictedElement = (id) => {
@@ -202,7 +219,7 @@ const AutoFindProvider = inject("mainModel")(
             );
             if (noLocator.length) {
               requestGenerationData(noLocator, xpathConfig, ({ generationData }) => {
-                generateXpath(generationData);
+                runXpathGeneration(generationData);
               });
             }
           }
@@ -233,7 +250,7 @@ const AutoFindProvider = inject("mainModel")(
       GET_ELEMENT: getPredictedElement,
       TOGGLE_ELEMENT: toggleElementGeneration,
       HIGHLIGHT_OFF: clearElementsState,
-      REMOVE_ELEMENT: removeElement,
+      REMOVE_ELEMENT: toggleDeleted,
       CHANGE_TYPE: changeType,
       CHANGE_ELEMENT_NAME: changeElementName,
       PREDICTION_IS_UNACTUAL: () => setUnactualPrediction(true),
@@ -261,6 +278,9 @@ const AutoFindProvider = inject("mainModel")(
         setXpathConfig,
         filterByProbability,
         toggleElementGeneration,
+        toggleDeleted,
+        runXpathGeneration,
+        stopXpathGeneration,
       },
     ];
 
