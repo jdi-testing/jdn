@@ -13,8 +13,6 @@ import GenerateBlock from "./blocks/generate/GenerateBlock";
 import MainModel from "./models/MainModel";
 
 import { Menu, Button, Row, Col } from "antd";
-const { SubMenu } = Menu;
-
 import "antd/lib/style/themes/default.less";
 import "antd/dist/antd.less";
 import "../css/main.less";

@@ -17,4 +17,11 @@ const Frameworks = [
   { value: "selenide", label: "Selenide" },
 ];
 
-export { Languages, Rules, Frameworks };
+const PageNameRule = [
+  { value: "hash", label: "Hash>H1>Title" },
+  { value: "h1", label: "H1>Hash>Title" },
+  { value: "title", label: "Title>H1>Hash" },
+  { value: "uri", label: "Uri" },
+];
+
+export { Languages, Rules, Frameworks, PageNameRule };

@@ -9,6 +9,7 @@ export default class MainModel {
   @observable conversionModel;
   @observable settingsModel;
   @observable ruleBlockModel;
+  @observable rules;
   @observable tab = "settings";
   @observable currentPageId;
   @observable generationId = 0;

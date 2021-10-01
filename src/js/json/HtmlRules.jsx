@@ -1,4 +1,5 @@
-const rulesJson = {
+const HtmlRules = {
+  Name: "HtmlRules",
   ListOfSearchAttributes: ["id"],
   SimpleRules: {
     Button: [{ Locator: "button[type=submit]", uniqueness: "text", id: 0 }],
@@ -69,4 +70,4 @@ const rulesJson = {
   },
 };
 
-export default rulesJson;
+export default HtmlRules;

@@ -139,10 +139,10 @@ function isSimple(el, fields) {
 }
 
 function genEntities(parentId, arrOfElements, mainModel) {
-  const { ruleBlockModel, settingsModel } = mainModel;
+  const { settingsModel, ruleBlockModel } = mainModel;
+  const template = settingsModel.template;
   const complex = ruleBlockModel.rules.ComplexRules;
   const simple = ruleBlockModel.rules.SimpleRules;
-  const template = settingsModel.template;
   let entityTemplate = template.dataElement;
 
   return arrOfElements
@@ -286,7 +286,7 @@ export function pageCode(page, mainModel, isAutoFind) {
 function commonReplacement(fromTemplate, template, pack, pageName, elementsCode) {
   let result = fromTemplate;
   result = result.replace(/({{package}})/g, template.package || pack);
-  result = result.replace(/({{library_package}})/g, template.libraryPackage || pack);
+  result = result.replace(/({{library_package}})/g, template.libPackage || pack);
   result = result.replace(/{{type}}/g, pageName);
   result = result.replace(/{{elements}}/g, elementsCode ?? "");
   return result;

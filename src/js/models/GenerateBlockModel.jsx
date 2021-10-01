@@ -315,11 +315,11 @@ function getValue(content, uniqueness) {
 }
 
 const showEmptyLocator = (mainModel, uniq) => {
-  const { settingsModel, ruleBlockModel } = mainModel;
+  const { settingsModel } = mainModel;
 
   if (settingsModel.framework === "jdiLight" || settingsModel.framework === "jdiNova") {
     const ListOfSearchAttributes =
-      ruleBlockModel.rules.ListOfSearchAttributes || [];
+      settingsModel.template.ListOfSearchAttributes || [];
     if (ListOfSearchAttributes.includes(uniq)) {
       return true;
     }
@@ -652,7 +652,7 @@ export const generationCallBack = ({ mainModel }, r, err, generateSeveralPages) 
   }
 };
 
-export const getLocationCallBack = ({ mainModel }, location, title, err) => {
+export const getLocationCallBack = ({ mainModel }, location, title, h1, err) => {
   const {generateBlockModel, settingsModel } = mainModel;
   if (err) {
     generateBlockModel.log.addToLog({
@@ -660,26 +660,67 @@ export const getLocationCallBack = ({ mainModel }, location, title, err) => {
       type: "error",
     });
   }
-  if (location) {
-    generateBlockModel.page.url = location.pathname;
-    const hashId = hashCode(location.pathname + title ?? '');
-    generateBlockModel.page.id = hashId;
-    generateBlockModel.siteInfo.hostName = location.hostname;
-    let sitePackage = getSitePackage(location.host);
-    generateBlockModel.page.package = sitePackage;
-    generateBlockModel.page.libraryPackage = sitePackage + ".elements";
-    generateBlockModel.siteInfo.siteTitle = settingsModel.appName
-      ? settingsModel.appName
-      : PascalCaseTillLast(location.hostname, ".");
-    generateBlockModel.siteInfo.origin = location.origin;
-    generateBlockModel.currentPageId = hashId;
-    generateBlockModel.siteInfo.domainName = location.host;
-    generateBlockModel.siteInfo.pack = sitePackage;
-  }
+  const uri = location.pathname + location.hash ?? '';
+  generateBlockModel.page.url = uri;
+  const hashId = hashCode(uri + title ?? '');
+  generateBlockModel.page.id = hashId;
+  generateBlockModel.siteInfo.hostName = location.hostname;
+  let sitePackage = getSitePackage(location.host);
+  generateBlockModel.page.package = sitePackage;
+  generateBlockModel.page.libPackage = sitePackage + ".elements";
+  generateBlockModel.siteInfo.siteTitle = settingsModel.template.appName
+    ? settingsModel.template.appName
+    : PascalCaseTillLast(location.hostname, ".");
+  generateBlockModel.siteInfo.origin = location.origin;
+  generateBlockModel.currentPageId = hashId;
+  generateBlockModel.siteInfo.domainName = location.host;
+  generateBlockModel.siteInfo.pack = sitePackage;
 
   if (title) {
     generateBlockModel.page.title = title;
-    generateBlockModel.page.name = PascalCase(title);
+  }
+  if (settingsModel.pageName) {
+    switch (settingsModel.pageName) {
+      case "title":
+        if (title) {
+          generateBlockModel.page.name = PascalCase(title);
+        } else if (h1) {
+          generateBlockModel.page.name = PascalCase(h1);
+        } else if (location.hash) {
+          generateBlockModel.page.name = PascalCase(location.hash);
+        } else {
+          generateBlockModel.page.name = PascalCase(uri);
+        }
+        break;
+      case "h1":
+        if (h1) {
+          generateBlockModel.page.name = PascalCase(h1);
+        } else if (location.hash) {
+          generateBlockModel.page.name = PascalCase(location.hash);
+        } else if (title) {
+          generateBlockModel.page.name = PascalCase(title);
+        } else {
+          generateBlockModel.page.name = PascalCase(uri);
+        }
+        break;
+      case "hash":
+        if (location.hash) {
+          generateBlockModel.page.name = PascalCase(location.hash);
+        } else if (h1) {
+          generateBlockModel.page.name = PascalCase(h1);
+        } else if (title) {
+          generateBlockModel.page.name = PascalCase(title);
+        } else {
+          generateBlockModel.page.name = PascalCase(uri);
+        }
+        break;
+      case "uri":
+        generateBlockModel.page.name = PascalCase(uri);
+    }
+  } else {
+    if (title) {
+      generateBlockModel.page.name = PascalCase(title);
+    }
   }
 };
 
@@ -899,12 +940,13 @@ export default class GenerateBlockModel {
   processDomCallback(mainModel, callback) {
     chrome.devtools.inspectedWindow.eval(
       "(function () { return { " +
-      "'location': document.location, " +
-      "'title': document.title, " +
-      "'html': document.lastChild.outerHTML," +
+      "'location': document.location," +
+      "'title': document.title," +
+      "'h1': document.querySelector('h1')?.innerText," +
+      "'html': document.lastChild.outerHTML" +
       "}})()",
       (r, err) => {
-        getLocationCallBack({ mainModel }, r.location, r.title, err);
+        getLocationCallBack({ mainModel }, r.location, r.title, r.h1,  err);
         generationCallBack({ mainModel }, r.html, err);
         callback();
       });

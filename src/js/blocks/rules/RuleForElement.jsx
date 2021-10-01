@@ -54,7 +54,7 @@ export class RuleForElement extends React.Component {
   };
 
   render() {
-    const { classes, mainModel, ruleSet, title, index } = this.props;
+    const { mainModel, ruleSet, title, index } = this.props;
     const rules =
       (mainModel.ruleBlockModel.rules &&
         mainModel.ruleBlockModel.rules[ruleSet] &&

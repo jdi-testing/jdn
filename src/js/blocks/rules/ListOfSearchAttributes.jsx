@@ -44,7 +44,6 @@ class ListOfSearchAttributes extends React.Component {
   render() {
     const { classes, mainModel } = this.props;
     const list = mainModel.ruleBlockModel.rules.ListOfSearchAttributes || [];
-    console.log(list);
 
     return (
       <div>

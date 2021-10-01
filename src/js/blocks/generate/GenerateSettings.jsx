@@ -21,14 +21,10 @@ const styles = {
 @inject("mainModel")
 @observer
 class GenerateSettings extends React.Component {
-  handleSettings = () => {
-    const { mainModel } = this.props;
-  };
-
   handleExportTemplate = () => {
     const { mainModel } = this.props;
 
-    mainModel.settingsModel.downloadCurrentTemplate();
+    mainModel.settingsModel.downloadCurrentTemplate(mainModel.ruleBlockModel.rules.Name);
   };
 
   handleImportTemplate = (file) => {
@@ -37,17 +33,11 @@ class GenerateSettings extends React.Component {
     mainModel.generateBlockModel.clearGeneration();
     mainModel.settingsModel.importNewTemplate(file, mainModel);
   };
+
   render() {
     const { classes } = this.props;
     return (
       <div>
-        <div className={`${classes.generateStyle} BtnGroup`}>
-          <Button
-            className="BtnGroup-item"
-            label={"Settings"}
-            onclick={this.handleSettings}
-          />
-        </div>
         <div className={classes.buttonContainer}>
           <ReactFileReader
             handleFiles={(file) => {
@@ -77,5 +67,4 @@ class GenerateSettings extends React.Component {
 GenerateSettings.propTypes = {};
 
 const GenerateSettingsWrapper = injectSheet(styles)(GenerateSettings);
-
 export default GenerateSettingsWrapper;
