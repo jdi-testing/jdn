@@ -134,7 +134,7 @@ export const reportProblem = (predictedElements) => {
   chrome.storage.sync.set({ predictedElements }, connector.attachContentScript(reportProblemPopup));
 };
 
-export const runXpathGeneration = async (elements, settings, elementCallback) => {
+export const runGenerationHandler = async (elements, settings, elementCallback) => {
   const documentResult = await connector.attachContentScript(
       (() => JSON.stringify(document.documentElement.innerHTML))
   );
@@ -146,4 +146,8 @@ export const runXpathGeneration = async (elements, settings, elementCallback) =>
     };
     locatorGenerationController.scheduleTask(element.element_id, settings, document, callback);
   });
+};
+
+export const stopGenerationHandler = (element) => {
+  locatorGenerationController.revokeTask(element.element_id);
 };

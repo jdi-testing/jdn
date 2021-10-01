@@ -1,15 +1,15 @@
-import { pull } from "lodash";
-import { GET_TASK_RESULT, GET_TASK_STATUS, request, SHEDULE_XPATH_GENERATION } from "./backend";
+import { find, pull } from "lodash";
+import { GET_TASK_RESULT, GET_TASK_STATUS, request, REVOKE_TASK, SHEDULE_XPATH_GENERATION } from "./backend";
 
 export const locatorProgressStatus = {
   PENDING: "PENDING",
-  REVOKED: "REVOKED",
   STARTED: "STARTED",
 };
 
 export const locatorTaskStatus = {
   FAILURE: "FAILURE",
   RECEIVED: "RECEIVED",
+  REVOKED: "REVOKED",
   RETRY: "RETRY",
   SUCCESS: "SUCCESS",
   ...locatorProgressStatus,
@@ -70,6 +70,12 @@ export class LocatorGenerationScheduler {
       this.statusCallback(this.elementId, {taskStatus: this.taskStatus});
     }
   }
+
+  async revokeTask() {
+    await request.post(REVOKE_TASK, JSON.stringify({
+      id: this.taskId,
+    }));
+  }
 };
 
 class LocatorGenerationController {
@@ -77,15 +83,28 @@ class LocatorGenerationController {
     this.scheduledGenerations = [];
   }
 
-  scheduleTask(elementId, settings, document, callback) {
-    if (this.scheduledGenerations.includes(elementId)) return;
+  getTaskById(elementId) {
+    return find(this.scheduledGenerations, {elementId: elementId});
+  }
 
-    this.scheduledGenerations.push(elementId);
-    new LocatorGenerationScheduler(elementId, settings, document, callback);
+  scheduleTask(elementId, settings, document, callback) {
+    if (find(this.scheduledGenerations, {elementId: elementId})) return;
+
+    this.scheduledGenerations.push({
+      elementId,
+      scheduler: new LocatorGenerationScheduler(elementId, settings, document, callback)
+    });
   }
 
   unscheduleTask(elementId) {
-    pull(this.scheduledGenerations, elementId);
+    const task = this.getTaskById(elementId);
+    pull(this.scheduledGenerations, task);
+  }
+
+  revokeTask(elementId) {
+    const task = this.getTaskById(elementId);
+    this.unscheduleTask(elementId);
+    task.scheduler.revokeTask();
   }
 }
 

@@ -9,7 +9,8 @@ import {
   runDocumentListeners,
   generatePageObject,
   requestGenerationData,
-  runXpathGeneration,
+  stopGenerationHandler,
+  runGenerationHandler,
 } from "./../utils/pageDataHandlers";
 import { JDIclasses, getJdiClassName } from "./../utils/generationClassesMap";
 import { connector, sendMessage } from "../utils/connector";
@@ -85,8 +86,6 @@ const AutoFindProvider = inject("mainModel")(
           if (el.element_id === id) {
             el.deleted = !el.deleted;
             sendMessage.toggleDeleted(el);
-            // if (el.deleted) sendMessage.hide(el);
-            // else sendMessage.restore(el);
           }
           return el;
         });
@@ -165,14 +164,27 @@ const AutoFindProvider = inject("mainModel")(
           return [...prevState, element];
         } else {
           const newState = [...prevState];
-          newState[index] = element;
+          newState[index].locator = element.locator;
           return newState;
         }
       });
     };
 
-    const generateXpath = (elements) => {
-      runXpathGeneration(elements, xpathConfig, updateLocator);
+    const runXpathGeneration = (elements) => {
+      runGenerationHandler(elements, xpathConfig, updateLocator);
+    };
+
+    const stopXpathGeneration = ({element_id, locator}) => {
+      setLocators((prevState) => {
+        const stopped = prevState.map((el) => {
+          if (el.element_id === element_id) {
+            el.locator.stopped = true;
+            stopGenerationHandler(el);
+          }
+          return el;
+        });
+        return stopped;
+      });
     };
 
     const getPredictedElement = (id) => {
@@ -207,7 +219,7 @@ const AutoFindProvider = inject("mainModel")(
             );
             if (noLocator.length) {
               requestGenerationData(noLocator, xpathConfig, ({ generationData }) => {
-                generateXpath(generationData);
+                runXpathGeneration(generationData);
               });
             }
           }
@@ -267,6 +279,8 @@ const AutoFindProvider = inject("mainModel")(
         filterByProbability,
         toggleElementGeneration,
         toggleDeleted,
+        runXpathGeneration,
+        stopXpathGeneration,
       },
     ];
 

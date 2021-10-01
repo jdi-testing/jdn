@@ -4,7 +4,7 @@ import { Button } from "antd";
 import Icon from "@ant-design/icons";
 import { Content } from "antd/lib/layout/layout";
 
-import SettingsSVG from "../../../../../icons/settings.svg";
+// import SettingsSVG from "../../../../../icons/settings.svg";
 import TrashBinSVG from "../../../../../icons/trash-bin.svg";
 import PauseSVG from "../../../../../icons/pause.svg";
 import DownloadSvg from "../../../../../icons/download.svg";
@@ -14,11 +14,20 @@ import RestoreSvg from "../../../../../icons/restore.svg";
 import { useAutoFind } from "../../autoFindProvider/AutoFindProvider";
 import { Chip } from "./Chip";
 
-export const LocatorListHeader = ({ generated, waiting, deleted, toggleLocatorsGroup, toggleDeletedGroup }) => {
+export const LocatorListHeader = ({
+  generated,
+  waiting,
+  deleted,
+  toggleLocatorsGroup,
+  toggleDeletedGroup,
+  runXpathGeneration,
+  stopXpathGroupGeneration,
+}) => {
   const [{ locators }, { generateAndDownload }] = useAutoFind();
   const [generatedSelected, setGeneratedSelected] = useState([]);
   const [waitingSelected, setWaitingSelected] = useState([]);
   const [deletedSelected, setDeletedSelected] = useState([]);
+  const [stoppedSelected, setStoppedSelected] = useState([]);
   const [selected, setSelected] = useState([]);
 
   useEffect(() => {
@@ -30,7 +39,9 @@ export const LocatorListHeader = ({ generated, waiting, deleted, toggleLocatorsG
   }, [generated]);
 
   useEffect(() => {
-    setWaitingSelected(() => filter(waiting, "generate"));
+    const _waitingSelected = filter(waiting, "generate");
+    setWaitingSelected(() => _waitingSelected);
+    setStoppedSelected(() => filter(_waitingSelected, "stopped"));
   }, [waiting]);
 
   useEffect(() => {
@@ -51,12 +62,12 @@ export const LocatorListHeader = ({ generated, waiting, deleted, toggleLocatorsG
           <Icon component={RestoreSvg} />
           Restore
         </Button>
-        {/* <Button>
+        <Button hidden={!size(stoppedSelected)} onClick={() => runXpathGeneration(stoppedSelected)}>
           <Icon component={PlaySvg} />
-        </Button> */}
-        {/* <Button danger>
+        </Button>
+        <Button hidden={!size(waitingSelected)} danger onClick={() => stopXpathGroupGeneration(waitingSelected)}>
           <Icon component={PauseSVG} />
-        </Button> */}
+        </Button>
         <Button
           hidden={!(size(generatedSelected) + size(waitingSelected))}
           danger

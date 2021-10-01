@@ -8,7 +8,10 @@ import { DeletedList } from "./DeletedList";
 import { LocatorListHeader } from "./LocatorListHeader";
 
 export const LocatorsList = () => {
-  const [{ locators }, { filterByProbability, toggleElementGeneration, toggleDeleted }] = useAutoFind();
+  const [
+    { locators },
+    { filterByProbability, toggleElementGeneration, toggleDeleted, runXpathGeneration, stopXpathGeneration },
+  ] = useAutoFind();
   const [waiting, setWaiting] = useState([]);
   const [generated, setGenerated] = useState([]);
   const [deleted, setDeleted] = useState([]);
@@ -17,7 +20,12 @@ export const LocatorsList = () => {
     const byProbability = filterByProbability(locators);
 
     setWaiting(
-        byProbability.filter((el) => locatorProgressStatus.hasOwnProperty(el.locator.taskStatus) && !el.deleted)
+        byProbability.filter(
+            (el) =>
+              (locatorProgressStatus.hasOwnProperty(el.locator.taskStatus) ||
+            el.locator.taskStatus === locatorTaskStatus.REVOKED) &&
+          !el.deleted
+        )
     );
 
     setGenerated(byProbability.filter((el) => el.locator.taskStatus === locatorTaskStatus.SUCCESS && !el.deleted));
@@ -37,10 +45,24 @@ export const LocatorsList = () => {
     });
   };
 
+  const stopXpathGroupGeneration = (locatorsGroup) => {
+    locatorsGroup.forEach((locator) => {
+      stopXpathGeneration(locator);
+    });
+  };
+
   return (
     <div className="jdn__locatorsList">
       <LocatorListHeader
-        {...{ generated, waiting, deleted, toggleLocatorsGroup, toggleDeletedGroup }}
+        {...{
+          generated,
+          waiting,
+          deleted,
+          toggleLocatorsGroup,
+          toggleDeletedGroup,
+          runXpathGeneration,
+          stopXpathGroupGeneration,
+        }}
       />
       <Collapse defaultActiveKey={["1", "2", "3"]}>
         <Collapse.Panel key="1" header="Generated">
