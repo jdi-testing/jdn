@@ -5,7 +5,6 @@ import {Button, Checkbox, Input, Select} from "antd";
 import ReactFileReader from "react-file-reader";
 import {DownloadOutlined, UploadOutlined} from '@ant-design/icons';
 import HtmlRules from "../../json/HtmlRules";
-import RetailBankRules from "../../json/RetailBankRules";
 
 @inject("mainModel")
 @observer
@@ -91,7 +90,7 @@ export default class GeneralSettings extends React.Component {
     const defaultPageName = mainModel.settingsModel?.pageName || "hash";
 
     if (!mainModel.registeredRules) {
-      mainModel.registeredRules = [ HtmlRules, RetailBankRules ];
+      mainModel.registeredRules = [ HtmlRules ];
     }
     const ruleOptions = mainModel.registeredRules.map(rule => ({ value: rule.Name, label: rule.Name }));
     const defaultLanguage = Languages.find(
