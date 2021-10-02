@@ -19,7 +19,7 @@ export default class RulesBlockModel {
   };
 
   getRules() {
-    return this.registeredRules.find(r => r.Name.toLowerCase() === this.rules.Name.toLowerCase());
+    return this.registeredRules.find((r) => r.Name.toLowerCase() === this.rules.Name.toLowerCase());
   }
 
 

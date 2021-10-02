@@ -34,7 +34,7 @@ export const getGenerationAttributes = () => {
       return {
         ...predictedElement,
       };
-    })).filter(el => !!el);
+    })).filter((el) => !!el);
     return generationAttributes;
   };
 

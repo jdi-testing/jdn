@@ -114,8 +114,8 @@ export default class SettingsModel {
       JSON.stringify(template));
     return template;
   }
-  currenLanguage() { return Languages.find(l => l.value === this.extension).label; }
-  currentFramework() { return Frameworks.find(l => l.value === this.framework).label; }
+  currenLanguage() { return Languages.find((l) => l.value === this.extension).label; }
+  currentFramework() { return Frameworks.find((l) => l.value === this.framework).label; }
 
   fileName() {
     return this.template.appName ?? `${this.currentFramework()}(${this.language()})`; }
@@ -213,11 +213,11 @@ export default class SettingsModel {
     const settings = {
       "language": this.currenLanguage(),
       "framework": this.currentFramework(),
-      "rules": rules,
+      rules,
       "appName": this.template.appName,
       "package": this.template.package,
       "libPackage": this.template.libPackage,
-      "pageName": pageName,
+      pageName,
       "downloadAfterGeneration": this.downloadAfterGeneration,
     }
     let objToSave = {
@@ -262,7 +262,7 @@ export default class SettingsModel {
             }
             if (newSettings.rules) {
               let replaced = false;
-              mainModel.ruleBlockModel.registeredRules = mainModel.ruleBlockModel.registeredRules.map(rule => {
+              mainModel.ruleBlockModel.registeredRules = mainModel.ruleBlockModel.registeredRules.map((rule) => {
                 if (rule.Name === newSettings.rules.Name) {
                   replaced = true;
                   return newSettings.rules;

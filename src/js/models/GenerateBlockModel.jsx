@@ -388,7 +388,12 @@ const defineElements = ({ results, mainModel }, dom, Locator, uniq, t) => {
       }
     }
     return result;
-  } catch (e) { }
+  } catch (e) {
+    mainModel.generateBlockModel.log.addToLog({
+      message: "Failed to define element: " + e.message,
+      type: "warning",
+    });
+  }
 };
 
 function getComplexLocator(isXpath, locator, uniqueness, val) {
