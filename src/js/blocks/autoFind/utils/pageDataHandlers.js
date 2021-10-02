@@ -1,12 +1,12 @@
 import {connector, sendMessage} from "./connector";
-import {runContextMenu} from "./../contentScripts/contextMenu/contextmenu";
-import {getGenerationAttributes} from "./../contentScripts/generationData";
-import {highlightOnPage} from "./../contentScripts/highlight";
-import {getPageData} from "./../contentScripts/pageData";
-import {urlListener} from "./../contentScripts/urlListener";
+import {runContextMenu} from "../contentScripts/contextMenu/contextmenu";
+import {getGenerationAttributes} from "../contentScripts/generationData";
+import {highlightOnPage} from "../contentScripts/highlight";
+import {getPageData} from "../contentScripts/pageData";
+import {urlListener} from "../contentScripts/urlListener";
 import {getPage, predictedToConvert} from "./pageObject";
-import {autoFindStatus} from "./../autoFindProvider/AutoFindProvider";
-import {highlightOrder} from "./../contentScripts/highlightOrder";
+import {autoFindStatus} from "../autoFindProvider/AutoFindProvider";
+import {highlightOrder} from "../contentScripts/highlightOrder";
 import {reportProblemPopup} from "../contentScripts/reportProblemPopup/reportProblemPopup";
 /* global chrome*/
 
@@ -32,17 +32,12 @@ const clearState = () => {
 
 const uploadElements = async ([{ result }]) => {
   const [payload, length] = result;
-  const response = await fetch("http:localhost:5000/mui-predict", {
-    method: "POST",
-    body: payload,
-  });
+  const r = await request.post(
+      MUI_PREDICT,
+      payload
+  );
 
-  if (response.ok) {
-    const r = await response.json();
-    return [r, length];
-  } else {
-    throw new Error(response);
-  }
+  return [r, length];
 };
 
 const setUrlListener = (onHighlightOff) => {
@@ -127,23 +122,18 @@ export const requestXpathes = async (elements, config) => {
   const document = await documentResult[0].result;
   const ids = elements.map((el) => el.element_id);
 
-  const xPathResponse = await fetch("http:localhost:5000/generate_xpath", {
-    method: "POST",
-    body: JSON.stringify({
-      ids,
-      document,
-      config
-    }),
-  });
+  const xPathes = await request.post(
+      GENERATE_XPATH,
+      JSON.stringify({
+        ids,
+        document,
+        config
+      })
+  );
 
-  if (xPathResponse.ok) {
-    const xPathes = await xPathResponse.json();
-    const r = elements.map((el) => ({ ...el, xpath: xPathes[el.element_id] }));
-    const unreachableNodes = r.filter((el) => !el.xpath);
-    return { xpathes: r.filter((el) => !!el.xpath), unreachableNodes };
-  } else {
-    throw new Error(xPathResponse);
-  }
+  const r = elements.map((el) => ({ ...el, xpath: xPathes[el.element_id] }));
+  const unreachableNodes = r.filter((el) => !el.xpath);
+  return { xpathes: r.filter((el) => !!el.xpath), unreachableNodes };
 };
 
 export const requestGenerationData = async (elements, xpathConfig, callback) => {
