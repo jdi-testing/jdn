@@ -261,6 +261,18 @@ export default class SettingsModel {
               }
             }
             if (newSettings.rules) {
+              let replaced = false;
+              mainModel.ruleBlockModel.registeredRules = mainModel.ruleBlockModel.registeredRules.map(rule => {
+                if (rule.Name === newSettings.rules.Name) {
+                  replaced = true;
+                  return newSettings.rules;
+                } else {
+                  return rule;
+                }
+              });
+              if (!replaced) {
+                mainModel.ruleBlockModel.registeredRules.push(newSettings.rules);
+              }
               mainModel.ruleBlockModel.rules = newSettings.rules;
             }
             if (newSettings.appName) {

@@ -21,7 +21,7 @@ export default class GeneralSettings extends React.Component {
   handleChangeRule = (option) => {
     const { mainModel } = this.props;
 
-    mainModel.ruleBlockModel.rules = mainModel.registeredRules.find(rule => rule.Name.toLowerCase() === option.toLowerCase());
+    mainModel.ruleBlockModel.rules = mainModel.ruleBlockModel.registeredRules.find(rule => rule.Name.toLowerCase() === option.toLowerCase());
     mainModel.ruleBlockModel.updateRules();
   };
 
@@ -89,10 +89,10 @@ export default class GeneralSettings extends React.Component {
     const defaultLibPackage = template?.libPackage || "com.jdiai.elements";
     const defaultPageName = mainModel.settingsModel?.pageName || "hash";
 
-    if (!mainModel.registeredRules) {
-      mainModel.registeredRules = [ HtmlRules ];
+    if (!mainModel.ruleBlockModel.registeredRules) {
+      mainModel.ruleBlockModel.registeredRules = [ HtmlRules ];
     }
-    const ruleOptions = mainModel.registeredRules.map(rule => ({ value: rule.Name, label: rule.Name }));
+    const ruleOptions = mainModel.ruleBlockModel.registeredRules.map(rule => ({ value: rule.Name, label: rule.Name }));
     const defaultLanguage = Languages.find(
       (l) => l.value === mainModel.settingsModel.extension
     );
