@@ -1,17 +1,16 @@
 /* eslint-disable indent */
-import _, { sortBy } from "lodash";
-import React, { useState, useEffect } from "react";
-import { inject, observer } from "mobx-react";
-import { useContext } from "react";
+import _, {sortBy} from "lodash";
+import React, {useContext, useEffect, useState} from "react";
+import {inject, observer} from "mobx-react";
 import {
+  generatePageObject,
   getElements,
   highlightElements,
-  runDocumentListeners,
-  generatePageObject,
   requestGenerationData,
-} from "./../utils/pageDataHandlers";
-import { JDIclasses, getJdiClassName } from "./../utils/generationClassesMap";
-import { connector, sendMessage } from "../utils/connector";
+  runDocumentListeners,
+} from "../utils/pageDataHandlers";
+import {getJdiClassName, JDIClasses} from "../utils/generationClassesMap";
+import {connector, sendMessage} from "../utils/connector";
 
 export const autoFindStatus = {
   noStatus: "",
@@ -157,7 +156,7 @@ const AutoFindProvider = inject("mainModel")(
       sendMessage.elementData({
         element,
         types: sortBy(
-          Object.keys(JDIclasses).map((label) => {
+          Object.keys(JDIClasses).map((label) => {
             return { label, jdi: getJdiClassName(label) };
           }),
           ["jdi"]

@@ -1,13 +1,15 @@
 import React from "react";
-import injectSheet from "react-jss";
-import { inject, observer } from "mobx-react";
-import { Rules, Languages, Frameworks } from "../../json/settings";
-import { Select, Radio, Checkbox, Button } from "antd";
-const { Option } = Select;
+import {inject, observer} from "mobx-react";
+import {Frameworks, Languages, PageNameRule} from "../../json/settings";
+import {Button, Checkbox, Input, Select} from "antd";
+import ReactFileReader from "react-file-reader";
+import {DownloadOutlined, UploadOutlined} from '@ant-design/icons';
+import HtmlRules from "../../json/HtmlRules";
 
 @inject("mainModel")
 @observer
 export default class GeneralSettings extends React.Component {
+
   handleCheckboxChange = (e) => {
     const { mainModel } = this.props;
 
@@ -19,8 +21,8 @@ export default class GeneralSettings extends React.Component {
   handleChangeRule = (option) => {
     const { mainModel } = this.props;
 
-    mainModel.settingsModel.changeRule(option);
-    mainModel.generateBlockModel.clearGeneration();
+    mainModel.ruleBlockModel.rules = mainModel.ruleBlockModel.registeredRules.find((rule) => rule.Name.toLowerCase() === option.toLowerCase());
+    mainModel.ruleBlockModel.updateRules();
   };
 
   handleChangeLanguage = (option) => {
@@ -37,16 +39,65 @@ export default class GeneralSettings extends React.Component {
     mainModel.generateBlockModel.clearGeneration();
   };
 
+  handleAppName = (e) => {
+    const value = e?.target?.value || '';
+    const { mainModel } = this.props;
+
+    mainModel.settingsModel.appName = value;
+  }
+
+  handleChangePackage = (e) => {
+    const value = e?.target?.value || '';
+    const { mainModel } = this.props;
+
+    mainModel.settingsModel.package = value;
+  }
+
+  handleLibraryPackage = (e) => {
+    const value = e?.target?.value || '';
+    const { mainModel } = this.props;
+
+    mainModel.settingsModel.libPackage = value;
+  }
+
+  handlePageName = (e) => {
+    const value = e?.target?.value || '';
+    const { mainModel } = this.props;
+
+    mainModel.settingsModel.pageName = value;
+  }
+
+  handleExportSettings = () => {
+    const { mainModel } = this.props;
+
+    mainModel.settingsModel.downloadCurrentSettings(mainModel.ruleBlockModel.rules, mainModel.settingsModel.pageName);
+  };
+
+  handleImportSettings = (file) => {
+    const { mainModel } = this.props;
+
+    mainModel.generateBlockModel.clearGeneration();
+    mainModel.settingsModel.importSettings(file, mainModel);
+  };
+
   render() {
-    const { classes, mainModel } = this.props;
-    const defaultRule = Rules.find(
-      (lang) => lang.value === mainModel.settingsModel.rule
-    );
+    const { mainModel } = this.props;
+    const defaultRule = mainModel.ruleBlockModel?.rules?.Name || "HtmlRules";
+    const template = mainModel.settingsModel?.template;
+    const defaultAppName = template?.appName || "Awesome test project";
+    const defaultPackage = template?.package || "com.jdiai";
+    const defaultLibPackage = template?.libPackage || "com.jdiai.elements";
+    const defaultPageName = mainModel.settingsModel?.pageName || "hash";
+
+    if (!mainModel.ruleBlockModel.registeredRules) {
+      mainModel.ruleBlockModel.registeredRules = [ HtmlRules ];
+    }
+    const ruleOptions = mainModel.ruleBlockModel.registeredRules.map((rule) => ({ value: rule.Name, label: rule.Name }));
     const defaultLanguage = Languages.find(
-      (lang) => lang.value === mainModel.settingsModel.extension
+      (l) => l.value === mainModel.settingsModel.extension
     );
     const defaultFramework = Frameworks.find(
-      (frame) => frame.value === mainModel.settingsModel.framework
+      (f) => f.value === mainModel.settingsModel.framework
     );
 
     // TODO: Use for default value of Rule or delete that property
@@ -54,15 +105,16 @@ export default class GeneralSettings extends React.Component {
     return (
       <div className={'generate-style'}>
         <div className={'select-wrapper'}>
+
           <span style={{ margin: "0 10px 0 0" }}>Rules:</span>
           <Select
             size="small"
-            defaultValue={defaultRule && defaultRule.value}
+            defaultValue={defaultRule}
             placeholder="Please select"
             onChange={this.handleChangeRule}
             style={{ width: "100%" }}
-            options={Rules}
-          ></Select>
+            options={ruleOptions}
+          />
         </div>
         <div className={"select-wrapper"}>
           <span style={{ margin: "0 10px 0 0" }}>Language:</span>
@@ -73,7 +125,7 @@ export default class GeneralSettings extends React.Component {
             onChange={this.handleChangeLanguage}
             style={{ width: "100%" }}
             options={Languages}
-          ></Select>
+          />
         </div>
         <div className={"select-wrapper"}>
           <span style={{ margin: "0 10px 0 0" }}>Frameworks:</span>
@@ -84,8 +136,60 @@ export default class GeneralSettings extends React.Component {
             onChange={this.handleChangeFramework}
             style={{ width: "100%" }}
             options={Frameworks}
-          ></Select>
+          />
         </div>
+        <div className={"select-wrapper"}>
+          <span style={{ margin: "0 10px 0 0" }}>Application name:</span>
+          <Input
+            defaultValue={ defaultAppName }
+            onChange={this.handleAppName}
+          />
+        </div>
+        <div className={"select-wrapper"}>
+          <span style={{ margin: "0 10px 0 0" }}>Package:</span>
+          <Input
+            defaultValue={ defaultPackage }
+            onChange={this.handleChangePackage}
+          />
+        </div>
+        <div className={"select-wrapper"}>
+          <span style={{ margin: "0 10px 0 0" }}>Elements Library Package:</span>
+          <Input
+            defaultValue={ defaultLibPackage }
+            onChange={this.handleLibraryPackage}
+          />
+        </div>
+        <div className={"select-wrapper"}>
+          <span style={{ margin: "0 10px 0 0" }}>Generate page name from:</span>
+          <Select
+            size="small"
+            defaultValue={ defaultPageName }
+            placeholder="Please select"
+            onChange={this.handlePageName}
+            style={{ width: "100%" }}
+            options={PageNameRule}
+          />
+        </div>
+        <div className={"select-wrapper"}>
+          <ReactFileReader
+            handleFiles={(file) => {
+              this.handleImportSettings(file);
+            }}
+            fileTypes={[".json"]}
+            multipleFiles={false}
+          >
+            <Button
+              shape="round"
+              icon={<DownloadOutlined />}
+            >Import</Button>
+          </ReactFileReader>
+          <Button
+            shape="round"
+            onClick={this.handleExportSettings}
+            icon={<UploadOutlined />}
+          >Export</Button>
+        </div>
+
         <div className={"checkbox-wrapper"}>
           <Checkbox
             checked={mainModel.settingsModel.downloadAfterGeneration}

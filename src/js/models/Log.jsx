@@ -1,4 +1,4 @@
-import { observable, action } from "mobx";
+import {action, observable} from "mobx";
 
 export default class Log {
   @observable log;
@@ -16,7 +16,7 @@ export default class Log {
     const date = new Date();
     this.log.push({ message, type, time: date });
   }
- 
+
   @action
   clearLog() {
     this.log = [];

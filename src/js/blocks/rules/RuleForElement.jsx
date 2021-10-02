@@ -1,15 +1,8 @@
 import React from "react";
-import injectSheet from "react-jss";
-import { inject, observer } from "mobx-react";
-import { observable, action, toJS } from "mobx";
-import { headerStyle, internalDivStyle } from "../BlockStyles";
-import { add, close } from "../../../icons";
-import { Button, Input } from "antd";
-import {
-  CaretRightOutlined,
-  DeleteOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
+import {inject, observer} from "mobx-react";
+import {action, observable} from "mobx";
+import {Button, Input} from "antd";
+import {CaretRightOutlined, DeleteOutlined} from "@ant-design/icons";
 
 @inject("mainModel")
 @observer
@@ -58,7 +51,7 @@ export class RuleForElement extends React.Component {
   };
 
   render() {
-    const { classes, mainModel, ruleSet, title, index } = this.props;
+    const { mainModel, ruleSet, title, index } = this.props;
     const rules =
       (mainModel.ruleBlockModel.rules &&
         mainModel.ruleBlockModel.rules[ruleSet] &&

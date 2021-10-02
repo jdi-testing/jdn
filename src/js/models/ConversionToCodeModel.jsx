@@ -1,16 +1,19 @@
-import { observable, action } from "mobx";
-import { saveAs } from "file-saver";
+import {action, observable} from "mobx";
+import {saveAs} from "file-saver";
 import JSZip from "jszip";
 import CyrillicToTranslit from "cyrillic-to-translit-js";
+
 // TODO: Export function
 
 function varName(name) {
-  return name[0].toLowerCase() + name.slice(1);
+  return name ? name[0].toLowerCase() + name.slice(1) : "";
 }
 
 function getClassName(name) {
+  if (!name) return '';
+
   if (isCyrillic(name)) {
-    name = CyrillicToTranslit().transform(name, " ");
+    name = new CyrillicToTranslit().transform(name, " ");
   }
   const words = name.split(new RegExp(" "));
   return words.map((word) => word[0].toUpperCase() + word.slice(1)).join("");
@@ -23,10 +26,7 @@ function isCyrillic(term) {
 
 function poName(name, poName) {
   let result = getClassName(name);
-  if (
-    result.length > 4 &&
-    result.substr(-4).toLowerCase() !== poName.toLowerCase()
-  ) {
+  if (result.length > 4 && result.substr(-4).toLowerCase() !== poName.toLowerCase()) {
     result += poName;
   }
   return result;
@@ -47,64 +47,42 @@ function locatorType(locator) {
 const isEmptyLocator = (locator) =>
   locator && locator.includes("EMPTY_LOCATOR");
 
-const isSection = (type, mainModel) => {
-  const { ruleBlockModel } = mainModel;
-  const composites = Object.keys(ruleBlockModel.rules.CompositeRules);
-
-  return composites[type];
-};
-
 function complexCode(type, locator, name, mainModel) {
-  const template = mainModel.settingsModel.template;
-  let complexTemplate = template.pageElementComplex;
-  complexTemplate = complexTemplate.replace(/({{type}})/g, type);
-  complexTemplate = complexTemplate.replace(/({{locators}})/, locator);
-  complexTemplate = complexTemplate.replace(/({{name}})/, varName(name));
+  let ct = mainModel.settingsModel.template.pageElementComplex;
+  ct = ct.replace(/({{type}})/g, type);
+  ct = ct.replace(/({{locators}})/, locator);
+  ct = ct.replace(/({{name}})/, varName(name));
 
-  return complexTemplate + "\n";
+  return ct + "\n";
 }
 
-export function simpleCode(locatorType, locator, elType, name, mainModel) {
+export function simpleCode(locatorType, locator, elType, name, mainModel, isList) {
   const template = mainModel.settingsModel.template;
-  let templatePath = "";
-
-  if (isEmptyLocator(locator)) {
-    templatePath = `    public ${elType} ${varName(name)};`;
-  } else {
-    templatePath =
-      locatorType === "Css"
-        ? template.pageElementCss
-        : template.pageElementXPath;
-    templatePath = templatePath.replace(/({{locator}})/, locator);
-    templatePath = templatePath.replace(/({{type}})/, elType);
-    templatePath = templatePath.replace(/({{name}})/, varName(name));
-  }
-
-  return templatePath + "\n";
+  let path = isEmptyLocator(locator)
+    ? `    public ${elType} ${varName(name)};`
+    : locatorPath(template, locator, locatorType, elType, name, isList);
+  return path + "\n";
 }
+
+function locatorPath(template, locator, locatorType, elType, name, isList) {
+  let path = locatorType === "Css"
+    ? template.pageElementCss
+    : template.pageElementXPath;
+  path = path.replace(/({{locator}})/, locator);
+  path = path.replace(/({{type}})/, isList ? `List<${elType}>` : elType);
+  path = path.replace(/({{name}})/, varName(name));
+  return path;
+}
+
 
 function pageElementCode(page, pageName, mainModel) {
-  const template = mainModel.settingsModel.template;
+  let ct = mainModel.settingsModel.template.siteElement;
+  ct = ct.replace( /({{url}})/g, page.url);
+  ct = ct.replace(/({{title}})/g, page.title);
+  ct = ct.replace(/({{type}})/g, getPageName(pageName));
+  ct = ct.replace(/({{name}})/g, varName(pageName));
 
-  let pageElementCodeTemplate = template.siteElement;
-  pageElementCodeTemplate = pageElementCodeTemplate.replace(
-    /({{url}})/,
-    page.url
-  );
-  pageElementCodeTemplate = pageElementCodeTemplate.replace(
-    /({{title}})/,
-    page.title
-  );
-  pageElementCodeTemplate = pageElementCodeTemplate.replace(
-    /({{type}})/,
-    getPageName(pageName)
-  );
-  pageElementCodeTemplate = pageElementCodeTemplate.replace(
-    /({{name}})/,
-    varName(pageName)
-  );
-
-  return pageElementCodeTemplate + "\n";
+  return ct + "\n";
 }
 
 function complexLocators(el, fields, mainModel) {
@@ -161,21 +139,20 @@ function isSimple(el, fields) {
   return count === 1;
 }
 
-function genEntities(parentId, arrOfElements, mainModel) {
-  const { ruleBlockModel, settingsModel } = mainModel;
+function genEntities(parentId, arrOfElements, formTypes, mainModel) {
+  const { settingsModel, ruleBlockModel } = mainModel;
+  const template = settingsModel.template;
   const complex = ruleBlockModel.rules.ComplexRules;
   const simple = ruleBlockModel.rules.SimpleRules;
-  const template = settingsModel.template;
   let entityTemplate = template.dataElement;
 
   return arrOfElements
     .filter(
-      (el) =>
-        el.parentId === parentId &&
-        (simple[el.Type] || complex[el.Type]) &&
-        el.Type !== "Button"
-    )
-    .map((el) => entityTemplate.replace(/({{name}})/, varName(el.Name)))
+      (el) => el.parentId === parentId &&
+        (simple[el.Type] || complex[el.Type])
+        && el.Type !== "Button"
+        && (formTypes.length === 0 || formTypes.includes(el.Type)))
+    .map((el) => entityTemplate.replace(/({{name}})/, varName(el?.Name) ?? ""))
     .join("\n");
 }
 
@@ -198,37 +175,24 @@ function genCodeOfElements(parentId, arrOfElements, mainModel, isAutoFind) {
 
     if (el.parentId === parentId && (el.Locator || el.Root)) {
       if (composites[el.Type] && !isAutoFind) {
-        result += simpleCode(
-          locatorType(el.Locator),
-          el.Locator,
-          getClassName(el.Name),
-          el.Name,
-          mainModel
-        );
+        const codeRow = simpleCode(locatorType(el.Locator), el.Locator, getClassName(el.Name),
+          el.Name, mainModel, el.isList);
+        if (!result.includes(codeRow)) {
+          result += codeRow;
+        }
       } else if (complex[el.Type] && !isAutoFind) {
         let fields = getFields(ruleBlockModel.elementFields[el.Type]);
-        result += isSimple(el, fields)
-          ? simpleCode(
-              locatorType(el.Root),
-              el.Root,
-              el.Type,
-              el.Name,
-              mainModel
-            )
-          : complexCode(
-              el.Type,
-              complexLocators(el, fields, mainModel),
-              el.Name,
-              mainModel
-            );
+        const codeRow = isSimple(el, fields)
+          ? simpleCode( locatorType(el.Root), el.Root, el.Type, el.Name, mainModel, el.isList)
+          : complexCode(el.Type, complexLocators(el, fields, mainModel), el.Name, mainModel);
+        if (!result.includes(codeRow)) {
+          result += codeRow;
+        }
       } else if (simple[el.Type] || isAutoFind) {
-        result += simpleCode(
-          locatorType(el.Locator),
-          el.Locator,
-          el.Type,
-          el.Name,
-          mainModel
-        );
+        const codeRow = simpleCode(locatorType(el.Locator), el.Locator, el.Type, el.Name, mainModel, el.isList);
+        if (!result.includes(codeRow)) {
+          result += codeRow;
+        }
       }
     }
   }
@@ -237,30 +201,27 @@ function genCodeOfElements(parentId, arrOfElements, mainModel, isAutoFind) {
 
 function getPageCode(mainModel) {
   return mainModel.generateBlockModel.pages
-    .map((page) => pageElementCode(page, getPageName(page.name), mainModel))
+    .map((page) => pageElementCode(page, page.name, mainModel))
     .join("");
 }
 
 function sectionTemplate(pack, name, code, mainModel) {
-  const template = mainModel.settingsModel.template;
-  let secTemplate = template.section;
-
-  secTemplate = secTemplate.replace(/({{package}})/, template.package || pack);
-  secTemplate = secTemplate.replace(/({{type}})/, getClassName(name));
-  secTemplate = secTemplate.replace(/({{elements}})/, code);
-
-  return secTemplate;
+  return  commonReplacement(
+    mainModel.settingsModel.template.section,
+    mainModel.settingsModel.template,
+    pack,
+    getClassName(name),
+    code);
 }
 
 function formTemplate(pack, name, code, entityName, mainModel) {
-  const template = mainModel.settingsModel.template;
-  let fTemplate = template.form;
-
-  fTemplate = fTemplate.replace(/({{package}})/g, template.package || pack);
-  fTemplate = fTemplate.replace(/({{type}})/g, getClassName(name));
-  fTemplate = fTemplate.replace(/({{data}})/g, entityName);
-  fTemplate = fTemplate.replace(/({{elements}})/g, code);
-
+  let fTemplate = commonReplacement(
+    mainModel.settingsModel.template.form,
+    mainModel.settingsModel.template,
+    pack,
+    getClassName(name),
+    code);
+  fTemplate = fTemplate.replace(/({{data}})/g, entityName ?? "");
   return fTemplate;
 }
 
@@ -275,48 +236,31 @@ export function sectionCode(pack, el, mainModel) {
     case "Section":
       return sectionTemplate(pack, el.Name, code, mainModel);
     case "Form":
-      return formTemplate(
-        pack,
-        el.Name,
-        code,
-        getEntityName(el.Name),
-        mainModel
-      );
+      return formTemplate(pack, el.Name, code, getEntityName(el.Name), mainModel);
   }
 }
 
-export function entityCode(pack, section, mainModel) {
-  const entityName = getEntityName(section.Name);
-  const template = mainModel.settingsModel.template;
-
-  let entityCodeTemplate = template.data;
-  entityCodeTemplate = entityCodeTemplate.replace(
-    /({{package}})/,
-    template.package || pack
-  );
-  entityCodeTemplate = entityCodeTemplate.replace(/({{type}})/g, entityName);
-  entityCodeTemplate = entityCodeTemplate.replace(
-    /({{elements}})/,
-    genEntities(section.elId, section.children, mainModel)
-  );
-
-  return entityCodeTemplate;
+export function entityCode(pack, form, mainModel) {
+  return commonReplacement(
+    mainModel.settingsModel.template.data,
+    mainModel.settingsModel.template,
+    pack,
+    getEntityName(form.Name),
+    genEntities(form.elId, form.children, form.entityFields ?? [], mainModel));
 }
 
 export function siteCode(pack, domain, name, mainModel) {
   const template = mainModel.settingsModel.template;
 
-  let siteTemplate = mainModel.settingsModel.template.site;
-  siteTemplate = siteTemplate.replace(
-    /({{package}})/g,
-    template.package || pack
-  );
-  siteTemplate = siteTemplate.replace(/({{domain}})/g, domain);
-  siteTemplate = siteTemplate.replace(
-    /({{siteName}})/g,
-    template.siteName || name
-  );
-  siteTemplate = siteTemplate.replace(/({{pages}})/, getPageCode(mainModel));
+  let siteTemplate = commonReplacement(
+    mainModel.settingsModel.template.site,
+    mainModel.settingsModel.template,
+    pack,
+    undefined,
+    undefined);
+  siteTemplate = siteTemplate.replace(/({{domain}})/g, domain ?? "");
+  siteTemplate = siteTemplate.replace( /({{siteName}})/g, template.siteName || (name ?? "") );
+  siteTemplate = siteTemplate.replace(/({{pages}})/, getPageCode(mainModel) ?? "");
 
   return siteTemplate;
 }
@@ -325,18 +269,21 @@ export function pageCode(page, mainModel, isAutoFind) {
   const pageName = getPageName(page.name);
   const template = mainModel.settingsModel.template;
 
-  let pageTemplate = template.page;
-  pageTemplate = pageTemplate.replace(
-    /({{package}})/g,
-    template.package || page.package
-  );
-  pageTemplate = pageTemplate.replace(/{{type}}/g, pageName);
-  pageTemplate = pageTemplate.replace(
-    /{{elements}}/,
-    genCodeOfElements(null, page.elements, mainModel, isAutoFind)
-  );
+  return commonReplacement(
+    template.page,
+    template,
+    page.package,
+    pageName,
+    genCodeOfElements(null, page.elements, mainModel, isAutoFind));
+}
 
-  return pageTemplate;
+function commonReplacement(fromTemplate, template, pack, pageName, elementsCode) {
+  let result = fromTemplate;
+  result = result.replace(/({{package}})/g, template.package || pack);
+  result = result.replace(/({{library_package}})/g, template.libPackage || pack);
+  result = result.replace(/{{type}}/g, pageName);
+  result = result.replace(/{{elements}}/g, elementsCode ?? "");
+  return result;
 }
 
 export default class ConversionToCodeModel {
@@ -378,9 +325,9 @@ export default class ConversionToCodeModel {
     let pack = mainModel.generateBlockModel.siteInfo.pack;
     let pages = mainModel.generateBlockModel.pages;
     let sections = mainModel.generateBlockModel.sections;
-    let siteTitle = mainModel.generateBlockModel.siteInfo.siteTitle;
     let extension = mainModel.settingsModel.extension;
     let origin = mainModel.generateBlockModel.siteInfo.origin;
+    let siteTitle = mainModel.generateBlockModel.siteInfo.siteTitle;
     if (!siteTitle) {
       return;
     }
@@ -388,12 +335,14 @@ export default class ConversionToCodeModel {
 
     zip.file(siteName + extension, siteCode(pack, origin, siteName, mainModel));
 
+    zip.folder("pages");
     this.generatedPages.forEach((page, index) => {
       zip
         .folder("pages")
         .file(getPageName(pages[index].name) + extension, page);
     });
 
+    zip.folder("sections");
     sections.forEach((section) => {
       zip
         .folder("sections")

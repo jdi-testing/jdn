@@ -36,8 +36,8 @@ For updating version in package.json and manifest.json you can run
 ```
   npm run patch
 ```
-or manualy change version in this files.
+or manually change version in these files.
 
 Commit and push changes.
 
-When your request has been merged, github actions will create draft of release with current package.json version tag.
+When your request has been merged, GitHub actions will create draft of release with current package.json version tag.

@@ -1,13 +1,14 @@
-import { observable, action } from "mobx";
-import { saveAs } from "file-saver";
-import RulesJson from "../json/rules";
+import {action, observable} from "mobx";
+import {saveAs} from "file-saver";
 import Log from "./Log";
+import HtmlRules from "../json/HtmlRules";
 
 export default class RulesBlockModel {
   @observable rules;
   rulesStorageName = "JDNElementRules";
   @observable elementFields = {};
   @observable log = {};
+  @observable registeredRules = [ HtmlRules ];
 
   commonFields = {
     //		"Name": "TextField",
@@ -17,8 +18,10 @@ export default class RulesBlockModel {
     elId: "internal",
   };
 
-  // TODO make this name editable in the next generation
-  @observable ruleName = "Default rules";
+  getRules() {
+    return this.registeredRules.find((r) => r.Name.toLowerCase() === this.rules.Name.toLowerCase());
+  }
+
 
   constructor() {
     const rulesStorage = window.localStorage;
@@ -28,8 +31,9 @@ export default class RulesBlockModel {
     if (rulesFromStorage) {
       this.rules = JSON.parse(rulesFromStorage);
     } else {
-      this.rules = JSON.parse(JSON.stringify(RulesJson));
-      rulesStorage.setItem(this.rulesStorageName, JSON.stringify(RulesJson));
+      const json = JSON.stringify(this.getRules());
+      this.rules = JSON.parse(json);
+      rulesStorage.setItem(this.rulesStorageName, json);
     }
 
     const composites = Object.keys(this.rules.CompositeRules);
@@ -107,8 +111,9 @@ export default class RulesBlockModel {
   clearRuleStorage() {
     const rulesStorage = window.localStorage;
     rulesStorage.removeItem(this.rulesStorageName);
-    this.rules = JSON.parse(JSON.stringify(RulesJson));
-    rulesStorage.setItem(this.rulesStorageName, JSON.stringify(RulesJson));
+    const jsonRule = JSON.stringify(this.getRules());
+    this.rules = JSON.parse(jsonRule);
+    rulesStorage.setItem(this.rulesStorageName, jsonRule);
   }
 
   @action
@@ -136,8 +141,7 @@ export default class RulesBlockModel {
   }
 
   updateRules() {
-    const rulesStorage = window.localStorage;
-    rulesStorage.setItem(this.rulesStorageName, JSON.stringify(this.rules));
+    window.localStorage.setItem(this.rulesStorageName, JSON.stringify(this.rules));
   }
 
   @action
@@ -180,10 +184,10 @@ export default class RulesBlockModel {
   // TODO delete rule e.g Button
   // TODO add new rule for unknown item next generation
 
-  downloadCurrentRules(framework) {
+  downloadCurrentRules() {
     let objToSave = {
       content: JSON.stringify(this.rules, null, "\t"),
-      name: `${framework}Rules.json`,
+      name: this.rules.Name + "Rules.json",
     };
     if (objToSave.content && objToSave.name) {
       let blob = new Blob([objToSave.content], {

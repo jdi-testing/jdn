@@ -1,14 +1,10 @@
 import React from "react";
 import ReactFileReader from "react-file-reader";
-import injectSheet from "react-jss";
-import { inject, observer } from "mobx-react";
-import { observable, action, toJS } from "mobx";
-import PropTypes from "prop-types";
-import { Button, Col } from "antd";
-import { exportIcon, importIcon } from "../../../icons";
-import { headerStyle } from "../BlockStyles";
-import { CaretRightOutlined, Icon } from "@ant-design/icons";
-import { RuleForElement } from "./RuleForElement";
+import {inject, observer} from "mobx-react";
+import {action, observable} from "mobx";
+import {Button} from "antd";
+import {CaretRightOutlined} from "@ant-design/icons";
+import {RuleForElement} from "./RuleForElement";
 
 @observer
 class ListOfHiddenItems extends React.Component {
@@ -23,7 +19,6 @@ class ListOfHiddenItems extends React.Component {
 
   render() {
     const { name, list, className, linkClass, ruleSet } = this.props;
-
 
     return (
       <li>
@@ -61,9 +56,7 @@ class ListOfHiddenItems extends React.Component {
 export class RulesBlock extends React.Component {
   handleExportRules = () => {
     const { mainModel } = this.props;
-    const rulesName = mainModel.settingsModel.framework;
-
-    mainModel.ruleBlockModel.downloadCurrentRules(rulesName);
+    mainModel.ruleBlockModel.downloadCurrentRules();
   };
 
   handleImportRules = (file) => {
@@ -74,13 +67,11 @@ export class RulesBlock extends React.Component {
   };
 
   render() {
-    const { classes, mainModel } = this.props;
-    const simpleRules =
-      Object.keys(mainModel.ruleBlockModel.rules.SimpleRules) || [];
-    const complexRules =
-      Object.keys(mainModel.ruleBlockModel.rules.ComplexRules) || [];
-    const compositeRules =
-      Object.keys(mainModel.ruleBlockModel.rules.CompositeRules) || [];
+    const { mainModel } = this.props;
+    const rules = mainModel.ruleBlockModel.rules;
+    const simpleRules = Object.keys(rules.SimpleRules) || [];
+    const complexRules = Object.keys(rules.ComplexRules) || [];
+    const compositeRules = Object.keys(rules.CompositeRules) || [];
 
     return (
       <div>

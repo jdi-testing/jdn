@@ -1,8 +1,7 @@
 import React from "react";
 import injectSheet from "react-jss";
-import { inject, observer } from "mobx-react";
-import PropTypes from "prop-types";
-import { errorIcon, successIcon, warningIcon } from "../../../icons/index";
+import {inject, observer} from "mobx-react";
+import {errorIcon, successIcon, warningIcon} from "../../../icons/index";
 
 const styles = {
   buttonContainer: {

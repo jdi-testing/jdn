@@ -109,10 +109,10 @@ export const highlightOnPage = () => {
   };
 
   const clearContainer = (parent) => {
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       if (parent.contains(node)) {
         const id = node.getAttribute('jdn-hash');
-        predictedElements.find(elem => elem.element_id === id).hidden = true;
+        predictedElements.find((elem) => elem.element_id === id).hidden = true;
         chrome.runtime.sendMessage({
           message: "REMOVE_ELEMENT",
           param: id,

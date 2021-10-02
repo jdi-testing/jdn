@@ -1,10 +1,7 @@
 import React from "react";
-import injectSheet from "react-jss";
-import PropTypes from "prop-types";
-import { inject, observer } from "mobx-react";
-import { SearchOutlined } from "@ant-design/icons";
-import { Button, Select } from "antd";
-import {computed, toJS} from "mobx";
+import {inject, observer} from "mobx-react";
+import {Button} from "antd";
+import {computed} from "mobx";
 
 
 @inject("mainModel")

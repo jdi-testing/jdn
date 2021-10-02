@@ -1,6 +1,6 @@
 export const defaultClass = "UIElement";
 
-export const JDIclasses = {
+export const JDIClasses = {
   button: "Button",
   link: "Link",
   iframe: defaultClass,
@@ -23,7 +23,7 @@ export const JDIclasses = {
   table: "Table",
 };
 
-export const getJDILabel = (label) => JDIclasses[label] || label;
+export const getJDILabel = (label) => JDIClasses[label] || label;
 
 export const getJdiClassName = (label) => {
   let jdiClass = getJDILabel(label);

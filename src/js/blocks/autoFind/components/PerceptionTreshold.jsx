@@ -1,9 +1,8 @@
-import React from "react";
+import React, {useState} from "react";
 import Text from "antd/lib/typography/Text";
-import { Col, Row, Slider, Tooltip } from "antd";
-import { useAutoFind } from "../autoFindProvider/AutoFindProvider";
-import { useState } from "react";
-import { Content } from "antd/lib/layout/layout";
+import {Col, Row, Slider, Tooltip} from "antd";
+import {useAutoFind} from "../autoFindProvider/AutoFindProvider";
+import {Content} from "antd/lib/layout/layout";
 import Icon from "@ant-design/icons";
 
 import QuestionFilled from "../../../../icons/question-filled.svg";
