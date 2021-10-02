@@ -12,7 +12,8 @@ import {{library_package}}.*;
 @Site("{{domain}}")
 public class {{siteName}} {
 {{pages}}
-}`,
+}
+`,
 
   siteElement: `    @Url("{{url}}") @Title("{{title}}") 
     public static {{type}} {{name}};`,
@@ -25,7 +26,8 @@ import {{library_package}}.*;
 
 public class {{type}} extends WebPage {
 {{elements}}	
-}`,
+}
+`,
   pageElementCss: `    @UI("{{locator}}") public {{type}} {{name}};`,
   pageElementXPath: `    @UI("{{locator}}") public {{type}} {{name}};`,
   pageElementComplex: ``,
@@ -39,7 +41,8 @@ import {{library_package}}.*;
 
 public class {{type}} extends Section {
 {{elements}}	
-}`,
+}
+`,
 
   form: `package {{package}}.sections;
 
@@ -48,16 +51,18 @@ import com.jdiai.annotations.*;
 import {{package}}.entities.*;
 import {{library_package}}.*;
 
-public class {{type}} extends Section {
+public class {{type}} extends Form<{{data}}> {
 {{elements}}	
-}`,
+}
+`,
   data: `package {{package}}.entities;
 
 import com.jdiai.tools.DataClass;
 
 public class {{type}} extends DataClass<{{type}}> {
 {{elements}}
-}`,
+}
+`,
   dataElement: `    public String {{name}};`,
 };
 

@@ -61,14 +61,6 @@ export default class SettingsModel {
   }
 
   @action
-  changePackage(appName, newPackage, libPackage, pageName) {
-    this.appName = appName;
-    this.template.package = newPackage;
-    this.template.libPackage = libPackage;
-    this.template.pageName = pageName;
-  }
-
-  @action
   setTemplate() {
     const settingsStorage = window.localStorage;
 
@@ -111,10 +103,9 @@ export default class SettingsModel {
   }
 
   saveTemplate(templateName, template, settingsStorage) {
-    const defaultTemplate = settingsStorage.getItem(templateName);
-    return defaultTemplate
-      ? JSON.parse(defaultTemplate)
-      : this.saveTemplateToStorage(templateName, template, settingsStorage);
+    return template
+      ? this.saveTemplateToStorage(templateName, template, settingsStorage)
+      : JSON.parse(settingsStorage.getItem(templateName));
   }
 
   saveTemplateToStorage(templateName, template, settingsStorage) {
@@ -218,7 +209,7 @@ export default class SettingsModel {
     }
   }
 
-  downloadCurrentSettings(rules) {
+  downloadCurrentSettings(rules, pageName) {
     const settings = {
       "language": this.currenLanguage(),
       "framework": this.currentFramework(),
@@ -226,7 +217,7 @@ export default class SettingsModel {
       "appName": this.template.appName,
       "package": this.template.package,
       "libPackage": this.template.libPackage,
-      "pageName": this.template.pageName,
+      "pageName": pageName,
       "downloadAfterGeneration": this.downloadAfterGeneration,
     }
     let objToSave = {
@@ -282,7 +273,7 @@ export default class SettingsModel {
               this.template.libPackage = newSettings.libPackage;
             }
             if (newSettings.pageName) {
-              this.template.pageName = newSettings.pageName;
+              mainModel.settingsModel.pageName = newSettings.pageName;
             }
             if (newSettings.downloadAfterGeneration) {
               this.downloadAfterGeneration = newSettings.downloadAfterGeneration;

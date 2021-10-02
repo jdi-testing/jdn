@@ -10,18 +10,6 @@ import RetailBankRules from "../../json/RetailBankRules";
 @inject("mainModel")
 @observer
 export default class GeneralSettings extends React.Component {
-  constructor(props) {
-    super(props);
-    const template = props.mainModel.settingsModel?.template;
-    this.state = {
-      appName: template?.appName || 'Awesome test project',
-      package: template?.package || 'com.jdiai',
-      libPackage: template?.libPackage || 'com.jdiai.elements',
-      pageName: template?.pageName || 'hash'
-    };
-    props.mainModel.settingsModel.changePackage(this.state.appName, this.state.package,
-      this.state.libPackage, this.state.pageName);
-  }
 
   handleCheckboxChange = (e) => {
     const { mainModel } = this.props;
@@ -80,15 +68,10 @@ export default class GeneralSettings extends React.Component {
     mainModel.settingsModel.pageName = value;
   }
 
-  handleSaveToStorage = () => {
-    const { mainModel } = this.props;
-    mainModel.settingsModel.changePackage(this.state.appName, this.state.package, this.state.libPackage, this.state.pageName);
-  }
-
   handleExportSettings = () => {
     const { mainModel } = this.props;
 
-    mainModel.settingsModel.downloadCurrentSettings(mainModel.ruleBlockModel.rules);
+    mainModel.settingsModel.downloadCurrentSettings(mainModel.ruleBlockModel.rules, mainModel.settingsModel.pageName);
   };
 
   handleImportSettings = (file) => {
@@ -100,12 +83,12 @@ export default class GeneralSettings extends React.Component {
 
   render() {
     const { mainModel } = this.props;
-    const defaultRule = mainModel.ruleBlockModel?.rules?.Name ?? "HtmlRules";
+    const defaultRule = mainModel.ruleBlockModel?.rules?.Name || "HtmlRules";
     const template = mainModel.settingsModel?.template;
-    const defaultAppName = template?.appName ?? "Awesome test project";
-    const defaultPackage = template?.package ?? "com.jdiai";
-    const defaultLibPackage = template?.libPackage ?? "com.jdiai.elements";
-    const defaultPageName = template?.pageName ?? "hash";
+    const defaultAppName = template?.appName || "Awesome test project";
+    const defaultPackage = template?.package || "com.jdiai";
+    const defaultLibPackage = template?.libPackage || "com.jdiai.elements";
+    const defaultPageName = mainModel.settingsModel?.pageName || "hash";
 
     if (!mainModel.registeredRules) {
       mainModel.registeredRules = [ HtmlRules, RetailBankRules ];
@@ -189,7 +172,6 @@ export default class GeneralSettings extends React.Component {
           />
         </div>
         <div className={"select-wrapper"}>
-          <Button shape="round" onClick={this.handleSaveToStorage}>Save</Button>
           <ReactFileReader
             handleFiles={(file) => {
               this.handleImportSettings(file);

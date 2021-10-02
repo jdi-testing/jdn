@@ -22,6 +22,11 @@ const RetailBankRules = {
   CompositeRules: {
     Section: [
       { Locator: "[data-role=section]", id: 0, uniqueness: "data-testid" },
+    ],
+    Form: [
+      {
+        Locator: "[data-role=form]", id: 0, uniqueness: "data-testid", entityFields: ["TextInput"]
+      }
     ]
   },
 };

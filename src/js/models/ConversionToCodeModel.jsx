@@ -139,7 +139,7 @@ function isSimple(el, fields) {
   return count === 1;
 }
 
-function genEntities(parentId, arrOfElements, mainModel) {
+function genEntities(parentId, arrOfElements, formTypes, mainModel) {
   const { settingsModel, ruleBlockModel } = mainModel;
   const template = settingsModel.template;
   const complex = ruleBlockModel.rules.ComplexRules;
@@ -148,11 +148,10 @@ function genEntities(parentId, arrOfElements, mainModel) {
 
   return arrOfElements
     .filter(
-      (el) =>
-        el.parentId === parentId &&
-        (simple[el.Type] || complex[el.Type]) &&
-        el.Type !== "Button"
-    )
+      (el) => el.parentId === parentId &&
+        (simple[el.Type] || complex[el.Type])
+        && el.Type !== "Button"
+        && (formTypes.length === 0 || formTypes.includes(el.Type)))
     .map((el) => entityTemplate.replace(/({{name}})/, varName(el?.Name) ?? ""))
     .join("\n");
 }
@@ -202,7 +201,7 @@ function genCodeOfElements(parentId, arrOfElements, mainModel, isAutoFind) {
 
 function getPageCode(mainModel) {
   return mainModel.generateBlockModel.pages
-    .map((page) => pageElementCode(page, getPageName(page.name), mainModel))
+    .map((page) => pageElementCode(page, page.name, mainModel))
     .join("");
 }
 
@@ -237,23 +236,17 @@ export function sectionCode(pack, el, mainModel) {
     case "Section":
       return sectionTemplate(pack, el.Name, code, mainModel);
     case "Form":
-      return formTemplate(
-        pack,
-        el.Name,
-        code,
-        getEntityName(el.Name),
-        mainModel
-      );
+      return formTemplate(pack, el.Name, code, getEntityName(el.Name), mainModel);
   }
 }
 
-export function entityCode(pack, section, mainModel) {
+export function entityCode(pack, form, mainModel) {
   return commonReplacement(
     mainModel.settingsModel.template.data,
     mainModel.settingsModel.template,
     pack,
-    getEntityName(section.Name),
-    genEntities(section.elId, section.children, mainModel));
+    getEntityName(form.Name),
+    genEntities(form.elId, form.children, form.entityFields ?? [], mainModel));
 }
 
 export function siteCode(pack, domain, name, mainModel) {

@@ -264,10 +264,12 @@ const applyFoundResult = ({ mainModel }, e, parent, ruleId) => {
     element.Locator = e.Locator;
     element.isSection = true;
     element.children = e.children || [];
+    if (e.entityFields) {
+      element.entityFields = e.entityFields;
+    }
     let found = generateBlockModel.sections.get(element.elId);
 
     if (found) {
-      // element = found;
       generateBlockModel.page.elements.push(found.elId);
     } else {
       for (let f in fields) {
@@ -315,12 +317,11 @@ function getValue(content, uniqueness) {
 }
 
 const showEmptyLocator = (mainModel, uniq) => {
-  const { settingsModel } = mainModel;
+  const { ruleBlockModel, settingsModel } = mainModel;
 
   if (settingsModel.framework === "jdiLight" || settingsModel.framework === "jdiNova") {
-    const ListOfSearchAttributes =
-      settingsModel.template.ListOfSearchAttributes || [];
-    if (ListOfSearchAttributes.includes(uniq)) {
+    const searchAttributes = ruleBlockModel.rules.ListOfSearchAttributes || [];
+    if (searchAttributes.includes(uniq)) {
       return true;
     }
   }
@@ -334,8 +335,7 @@ const isSimpleRule = (type, uniq, mainModel) => {
   return simples.includes(type) && showEmptyLocator(mainModel, uniq);
 };
 
-const defineElements = (
-  { results, mainModel }, dom, Locator, uniq, t, ruleId, parent) => {
+const defineElements = ({ results, mainModel }, dom, Locator, uniq, t) => {
   try {
     const {generateBlockModel} = mainModel;
     let uniqueness = getUniqueness(uniq);
@@ -343,20 +343,15 @@ const defineElements = (
     let isXpath = firstSearch.locatorType.xpath;
     let elements = firstSearch.elements;
     if (elements.length === 0) {
-      return;
+      return [];
     }
-    // if (elements.length === 1) {
-    //   let e = getOneElement(t, uniq, mainModel, firstSearch.locatorType.locator, elements[0], "");
-    //   fillEl({results, mainModel}, e, t, parent, ruleId);
-    //   return;
-    // }
     if (uniqueness.value === "tag" || uniqueness.value === "[") {
       generateBlockModel.log.addToLog({
         message: `Warning! Too much elements found by locator ${firstSearch.locatorType.locator}; uniqueness ${uniqueness.value}; ${elements.length} elements`,
         type: "warning",
       });
-      // document.querySelector('#refresh').click();
     }
+    const result = [];
     for (let i = 0; i < elements.length; i++) {
       let val = getValue(elements[i], uniqueness, Locator);
       if (!val) continue;
@@ -377,22 +372,22 @@ const defineElements = (
             e.Locator = smallFinalLocator;
           }
         }
-        fillEl({results, mainModel}, e, t, parent, ruleId);
+        result.push({ e, isList: false });
       } else {
         let e = {
           Locator: isSimpleRule(t, uniq, mainModel)
             ? `EMPTY_LOCATOR_${finalLocator}`
             : finalLocator,
-          // Locator: finalLocator,
           content: s2.elements[0],
           Name: nameElement(finalLocator, uniq, val, s2.elements[0]).slice(
             0,
             20
           ),
         };
-        fillEl({results, mainModel}, e, t, parent, ruleId, true);
+        result.push({ e, isList: true });
       }
     }
+    return result;
   } catch (e) { }
 };
 
@@ -429,15 +424,13 @@ function getComposite({ mainModel, results }, dom, t) {
 
   rules.forEach((rule) => {
     if (rule.Locator) {
-      defineElements(
-        { mainModel, results },
-        dom,
-        rule.Locator,
-        rule.uniqueness,
-        t,
-        rule.id,
-        null
-      );
+      const elements = defineElements({ mainModel, results }, dom, rule.Locator, rule.uniqueness, t);
+      for (let element of elements) {
+        if (rule.entityFields) {
+          element.e.entityFields = rule.entityFields;
+        }
+        fillEl({results, mainModel}, element.e, t, null, rule.id, element.isList)
+      }
     }
   });
 
@@ -487,15 +480,10 @@ function getComplex({ mainModel, results }, parent, t) {
   let rules = rulesObj.ComplexRules[t];
   rules.forEach((rule) => {
     if (rule.Root) {
-      defineElements(
-        { mainModel, results },
-        dom,
-        rule.Root,
-        rule.uniqueness,
-        t,
-        rule.id,
-        parent
-      );
+      const elements = defineElements({ mainModel, results }, dom, rule.Root, rule.uniqueness, t);
+      for (let element of elements) {
+        fillEl({results, mainModel}, element.e, t, parent, rule.id, element.isList)
+      }
     }
   });
 }
@@ -506,17 +494,12 @@ function getSimple({ mainModel, results }, parent, t) {
 
   let dom = parent.content;
   let rules = rulesObj.SimpleRules[t];
-  rules.forEach((rule, i) => {
+  rules.forEach((rule) => {
     if (rule.Locator) {
-      defineElements(
-        { mainModel, results },
-        dom,
-        rule.Locator,
-        rule.uniqueness,
-        t,
-        rule.id,
-        parent
-      );
+      const elements = defineElements({ mainModel, results }, dom, rule.Locator, rule.uniqueness, t);
+      for (let element of elements) {
+        fillEl({results, mainModel}, element.e, t, parent, rule.id, element.isList)
+      }
     }
   });
 }
@@ -526,8 +509,6 @@ export const generationCallBack = ({ mainModel }, r, err, generateSeveralPages) 
   const rDom = parser.parseFromString(r, "text/html");
 
   const observedDOM = rDom.body;
-  // document.evaluate(".//*[@ui='label' and contains(.,'Bootstrap')]", observedDOM, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-  //let copyOfDom = parser.parseFromString(r, "text/html").body;
   const {
     ruleBlockModel,
     settingsModel,
@@ -545,8 +526,6 @@ export const generationCallBack = ({ mainModel }, r, err, generateSeveralPages) 
       message: `Error, loading data from active page! ${err}`,
       type: "error",
     });
-    // objCopy.warningLog = [...objCopy.warningLog, getLog()];
-    // document.querySelector('#refresh').click();
   }
 
   if (r) {
@@ -558,8 +537,6 @@ export const generationCallBack = ({ mainModel }, r, err, generateSeveralPages) 
           message: `Error! Getting composite element: ${e}`,
           type: "error",
         });
-        // objCopy.warningLog = [...objCopy.warningLog, getLog()];
-        // document.querySelector('#refresh').click();
       }
     });
 
