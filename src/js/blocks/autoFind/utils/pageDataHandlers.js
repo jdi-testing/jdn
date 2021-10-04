@@ -8,6 +8,7 @@ import { getPage, predictedToConvert } from "./pageObject";
 import { autoFindStatus } from "./../autoFindProvider/AutoFindProvider";
 import { highlightOrder } from "./../contentScripts/highlightOrder";
 import { reportProblemPopup } from "../contentScripts/reportProblemPopup/reportProblemPopup";
+import { settingsPopup } from "../contentScripts/settingsPopup/settingsPopup";
 import { GENERATE_XPATH, MUI_PREDICT, request } from "./backend";
 /* global chrome*/
 
@@ -160,4 +161,8 @@ export const generatePageObject = (elements, mainModel) => {
 
 export const reportProblem = (predictedElements) => {
   chrome.storage.sync.set({ predictedElements }, connector.attachContentScript(reportProblemPopup));
+};
+
+export const openSettingsMenu = () => {
+  chrome.storage.sync.set({ }, connector.attachContentScript(settingsPopup));
 };
