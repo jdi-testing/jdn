@@ -19,9 +19,14 @@
 		],
 		"Label": [
 			{
-				"Locator": "[data-role=headings]",
+				"Locator": "h1",
 				"id": 0,
-				"uniqueness": "data-testid"
+				"uniqueness": "#pageTitle"
+			},
+			{
+				"Locator": "[data-role=headings]",
+				"id": 1,
+				"uniqueness": "text"
 			}
 		],
 		"Text": [

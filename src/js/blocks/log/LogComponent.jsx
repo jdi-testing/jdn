@@ -50,8 +50,8 @@ const styles = {
 @observer
 class LogComponent extends React.Component {
   triggerShow = () => {
-    const { mainModel } = this.props;
-    mainModel.triggerShowLog();
+    // const { mainModel } = this.props;
+    // mainModel.triggerShowLog();
   };
 
   displayLogIcon = () => {

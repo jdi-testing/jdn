@@ -8,7 +8,7 @@ export default class Log {
   }
 
   isEmpty() {
-    this.log.length ? false : true;
+    return this.log.length === 0;
   }
 
   @action

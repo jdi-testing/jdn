@@ -9,7 +9,7 @@ function varName(name) {
   return name ? name[0].toLowerCase() + name.slice(1) : "";
 }
 
-function getClassName(name) {
+export function getClassName(name) {
   if (!name) return '';
 
   if (isCyrillic(name)) {
@@ -38,6 +38,9 @@ function getSiteName(name) {
 
 function getPageName(name) {
   return poName(name, "Page");
+}
+function getPageType(pageName) {
+  return pageName[0].toLowerCase() + pageName.substring(1)
 }
 
 function locatorType(locator) {
@@ -77,10 +80,12 @@ function locatorPath(template, locator, locatorType, elType, name, isList) {
 
 function pageElementCode(page, pageName, mainModel) {
   let ct = mainModel.settingsModel.template.siteElement;
+  const pageObjectName = getPageName(pageName);
+  const pageVarName = getPageType(pageObjectName);
   ct = ct.replace( /({{url}})/g, page.url);
   ct = ct.replace(/({{title}})/g, page.title);
-  ct = ct.replace(/({{type}})/g, getPageName(pageName));
-  ct = ct.replace(/({{name}})/g, varName(pageName));
+  ct = ct.replace(/({{type}})/g, pageObjectName);
+  ct = ct.replace(/({{name}})/g, pageVarName);
 
   return ct + "\n";
 }
@@ -206,7 +211,7 @@ function getPageCode(mainModel) {
 }
 
 function sectionTemplate(pack, name, code, mainModel) {
-  return  commonReplacement(
+  return commonReplacement(
     mainModel.settingsModel.template.section,
     mainModel.settingsModel.template,
     pack,
@@ -261,10 +266,36 @@ export function siteCode(pack, domain, name, mainModel) {
   siteTemplate = siteTemplate.replace(/({{domain}})/g, domain ?? "");
   siteTemplate = siteTemplate.replace( /({{siteName}})/g, template.siteName || (name ?? "") );
   siteTemplate = siteTemplate.replace(/({{pages}})/, getPageCode(mainModel) ?? "");
+  siteTemplate = siteTemplate.replace(/({{get_pages}})/, pagesGettersCode(mainModel.generateBlockModel) ?? "");
 
   return siteTemplate;
 }
 
+function pagesGettersCode(model) {
+  const sections = model.sections;
+  const pages = model.pages;
+  let resultCode = "";
+  for (let section of sections.values()) {
+    let accessor = getPageType(getPageName(pages.find(p => p.elements.includes(section.elId)).name)) + ".";
+    if (section.parentId) {
+      accessor += getParents(sections, section.parentId);
+    }
+    accessor += section.Name;
+    resultCode +=
+`    public static ${section.typeName} ${section.Name}() {
+        return ${accessor};
+    }\n\n`;
+  }
+  return resultCode;
+}
+
+function getParents(sections, id) {
+  let section = sections.get(id);
+  let parents = section.parentId ? getParents(sections, section.parentId) : "";
+  return parents + section.Name + ".";
+}
+
+// mainModel.generateBlockModel.pages.find(p => p.elements.includes(198387314))
 export function pageCode(page, mainModel, isAutoFind) {
   const pageName = getPageName(page.name);
   const template = mainModel.settingsModel.template;

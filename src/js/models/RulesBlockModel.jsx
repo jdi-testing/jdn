@@ -31,6 +31,9 @@ export default class RulesBlockModel {
     if (rulesFromStorage) {
       this.rules = JSON.parse(rulesFromStorage);
     } else {
+      if (!this.rules) {
+        this.rules = HtmlRules;
+      }
       const json = JSON.stringify(this.getRules());
       this.rules = JSON.parse(json);
       rulesStorage.setItem(this.rulesStorageName, json);

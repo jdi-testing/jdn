@@ -7,11 +7,13 @@ const JavaJDINovaTemplate = {
 	
 import com.jdiai.annotations.*;
 import {{package}}.pages.*;
+import {{package}}.sections.*;
 import {{library_package}}.*;
 
 @Site("{{domain}}")
 public class {{siteName}} {
 {{pages}}
+{{get_pages}}
 }
 `,
 
@@ -21,6 +23,7 @@ public class {{siteName}} {
 
 import com.jdiai.*;
 import com.jdiai.annotations.*;
+import java.util.List;
 import {{package}}.sections.*;
 import {{library_package}}.*;
 
@@ -37,6 +40,7 @@ public class {{type}} extends WebPage {
 
 import com.jdiai.*;
 import com.jdiai.annotations.*;
+import java.util.List;
 import {{library_package}}.*;
 
 public class {{type}} extends Section {
@@ -48,6 +52,7 @@ public class {{type}} extends Section {
 
 import com.jdiai.*;
 import com.jdiai.annotations.*;
+import java.util.List;
 import {{package}}.entities.*;
 import {{library_package}}.*;
 
