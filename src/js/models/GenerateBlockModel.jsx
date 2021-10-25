@@ -745,9 +745,6 @@ export const getLocationCallBack = ({ mainModel }, location, title, h1, err) => 
         } else {
           generateBlockModel.page.name = PascalCase(uri);
         }
-        if (location.hash) {
-          generateBlockModel.siteInfo.domainName = location.host + location.pathname;
-        }
         break;
       case "uri":
         generateBlockModel.page.name = PascalCase(uri);
