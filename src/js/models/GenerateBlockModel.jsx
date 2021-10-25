@@ -5,6 +5,7 @@ import {action, observable} from "mobx";
 import Log from "./Log";
 import {SiteUrls} from "../json/siteUrls";
 import {saveAs} from "file-saver";
+import {getClassName} from "./ConversionToCodeModel";
 
 function isXpath(locator) {
   return locator[1] === "/";
@@ -94,20 +95,31 @@ export function camelCase(text) {
   return name[0].toLowerCase() + name.slice(1);
 }
 
-function nameElement(locator, uniqueness, value, content) {
-  if (uniqueness === "text" || uniqueness.includes("#text")) {
+function nameElement(locator, uniqValue, value, content) {
+  if (hasFixedName(uniqValue)) {
+    return getFixedName(uniqValue);
+  }
+  if (uniqValue === "text") {
     return value || (content.innerText || content.textContent).trim();
   }
-  if (uniqueness.includes("tag")) {
+  if (uniqValue.includes("tag")) {
     return content.tagName.toLowerCase();
   }
-  if (uniqueness.indexOf("[") === 0) {
+  if (uniqValue.startsWith("[")) {
     return locator.replace(/[\.\/\*\[\]@]/g, "");
   }
-  if (uniqueness === "class") {
+  if (uniqValue === "class") {
     return content.classList.value.split(" ")[0];
   }
-  return content.getAttribute(uniqueness);
+  return content.getAttribute(uniqValue);
+}
+
+function getFixedName(val) {
+  return val.substring(1, val.length-1);
+}
+function hasFixedName(val) {
+  return val.startsWith("'") && val.startsWith("'")
+  || val.startsWith("\"") && val.startsWith("\"");
 }
 
 function createCorrectXpath(originalLocator, uniqueness, value, locator) {
@@ -278,6 +290,7 @@ const applyFoundResult = ({ mainModel }, e, parent, ruleId) => {
         }
       }
       generateBlockModel.page.elements.push(element.elId);
+      element.typeName = getClassName(element.Name);
       generateBlockModel.sections.set(element.elId, element);
     }
     return;
@@ -338,51 +351,40 @@ const isSimpleRule = (type, uniq, mainModel) => {
 const defineElements = ({ results, mainModel }, dom, Locator, uniq, t) => {
   try {
     const {generateBlockModel} = mainModel;
-    let uniqueness = getUniqueness(uniq);
+    let uniqueness =  getUniqueness(uniq);
     let firstSearch = searchByWithoutValue( {log: generateBlockModel.log}, dom, Locator, uniqueness);
-    let isXpath = firstSearch.locatorType.xpath;
     let elements = firstSearch.elements;
-    if (elements.length === 0) {
+    if (elements.length === 0 || elements.length > 1 && hasFixedName(uniqueness.value)) {
       return [];
     }
-    if (uniqueness.value === "tag" || uniqueness.value === "[") {
-      generateBlockModel.log.addToLog({
-        message: `Warning! Too much elements found by locator ${firstSearch.locatorType.locator}; uniqueness ${uniqueness.value}; ${elements.length} elements`,
-        type: "warning",
-      });
+    if (elements.length === 1) {
+      let val = hasFixedName(uniqueness.value)
+        ? getFixedName(uniqueness.value)
+        : getValue(elements[0], uniqueness);
+      if (val) {
+        const name = camelCase(val).slice(0, 30);
+        const element = getOneUniqueElement(firstSearch, uniqueness, val, generateBlockModel, dom, mainModel, uniq, t, name);
+        return [element];
+      } else {
+        return [];
+      }
     }
+    generateBlockModel.log.addToLog({
+      message: `Search by ${Locator}. Found ${elements.length} elements`,
+      type: "warning",
+    });
     const result = [];
     for (let i = 0; i < elements.length; i++) {
-      let val = getValue(elements[i], uniqueness, Locator);
-      if (!val) continue;
-      let finalLocator = getComplexLocator(isXpath, firstSearch.locatorType.locator, uniqueness, val);
-      let s2 = getElements({log: generateBlockModel.log}, dom, {
-        locator: finalLocator,
-        xpath: isXpath,
-      });
-      if (s2.elements.length === 1) {
-        let e = getOneElement(t, uniq, mainModel, finalLocator, s2.elements[0], val);
-        if (!showEmptyLocator(mainModel, uniq)) {
-          let smallFinalLocator = getComplexLocator(isXpath, "", uniqueness, val);
-          let s3 = getElements({log: generateBlockModel.log}, dom, {
-            locator: smallFinalLocator,
-            xpath: isXpath,
-          });
-          if (s3.elements.length === 1) {
-            e.Locator = smallFinalLocator;
-          }
-        }
-        result.push({ e, isList: false });
+      let val = getValue(elements[i], uniqueness);
+      if (val) {
+        let element = getOneUniqueElement(firstSearch, uniqueness, val, generateBlockModel, dom, mainModel, uniq, t);
+        result.push(element);
       } else {
+        let name = camelCase(Locator.slice(0, 30));
         let e = {
-          Locator: isSimpleRule(t, uniq, mainModel)
-            ? `EMPTY_LOCATOR_${finalLocator}`
-            : finalLocator,
-          content: s2.elements[0],
-          Name: nameElement(finalLocator, uniq, val, s2.elements[0]).slice(
-            0,
-            20
-          ),
+          Locator,
+          content: elements[0],
+          Name: name,
         };
         result.push({ e, isList: true });
       }
@@ -395,6 +397,48 @@ const defineElements = ({ results, mainModel }, dom, Locator, uniq, t) => {
     });
   }
 };
+
+function getOneUniqueElement(search, uniqueness, val, generateBlockModel, dom, mainModel, uniq, t, name = undefined) {
+  let locator = search.locatorType.locator;
+  let isXpath = search.locatorType.xpath;
+  generateBlockModel.log.addToLog({
+    message: `Found 1 element by locator ${locator} with ${uniqueness}=${val}`,
+    type: "warning",
+  });
+  if (hasFixedName(uniqueness.value)) {
+    let found = getElements({log: generateBlockModel.log}, dom, {
+      locator: locator,
+      xpath: isXpath,
+    });
+    const e = getOneElement(t, uniq, mainModel, locator, found.elements[0], val, name);
+    return {e, isList: false}
+  }
+  let finalLocator = getComplexLocator(isXpath, "", uniqueness, val);
+  let found = getElements({log: generateBlockModel.log}, dom, {
+    locator: finalLocator,
+    xpath: isXpath,
+  });
+  if (!found) {
+    let finalLocator = getComplexLocator(isXpath, locator, uniqueness, val);
+    found = getElements({log: generateBlockModel.log}, dom, {
+      locator: finalLocator,
+      xpath: isXpath,
+    });
+  }
+  let e = getOneElement(t, uniq, mainModel, finalLocator, found.elements[0], val, name);
+  return {e, isList: false}
+}
+// if (!showEmptyLocator(mainModel, uniq)) {
+//   let smallFinalLocator = getComplexLocator(isXpath, "", uniqueness, val);
+//   let s3 = getElements({log: generateBlockModel.log}, dom, {
+//     locator: smallFinalLocator,
+//     xpath: isXpath,
+//   });
+//   if (s3.elements.length === 1) {
+//     e.Locator = smallFinalLocator;
+//   }
+//   return { e, isList: false }
+// }
 
 function getComplexLocator(isXpath, locator, uniqueness, val) {
   return isXpath
@@ -410,14 +454,14 @@ function getUniqueness(uniq) {
   };
 }
 
-function getOneElement(t, uniq, mainModel, locator, element, val) {
+function getOneElement(t, uniq, mainModel, locator, element, val, name) {
   return {
     Locator: isSimpleRule(t, uniq, mainModel)
       ? `EMPTY_LOCATOR_${locator}`
       : locator,
     // Locator: firstSearch.locatorType.locator,
     content: element,
-    Name: camelCase(nameElement(locator, uniq, val, element).slice(0, 30))
+    Name: name || camelCase(nameElement(locator, uniq, val, element).slice(0, 30))
   }
 }
 
@@ -642,20 +686,26 @@ export const getLocationCallBack = ({ mainModel }, location, title, h1, err) => 
       type: "error",
     });
   }
-  const uri = location.pathname + location.hash ?? '';
+  let uri;
+  let sitePath;
+  if (location.hash) {
+    uri = location.hash;
+    sitePath = location.origin + location.pathname;
+  } else {
+    uri = location.pathname;
+    sitePath = location.origin;
+  }
   generateBlockModel.page.url = uri;
   const hashId = hashCode(uri + title ?? '');
   generateBlockModel.page.id = hashId;
-  generateBlockModel.siteInfo.hostName = location.hostname;
   let sitePackage = getSitePackage(location.host);
   generateBlockModel.page.package = sitePackage;
   generateBlockModel.page.libPackage = sitePackage + ".elements";
   generateBlockModel.siteInfo.siteTitle = settingsModel.template.appName
     ? settingsModel.template.appName
     : PascalCaseTillLast(location.hostname, ".");
-  generateBlockModel.siteInfo.origin = location.origin;
+  generateBlockModel.siteInfo.origin = sitePath;
   generateBlockModel.currentPageId = hashId;
-  generateBlockModel.siteInfo.domainName = location.host;
   generateBlockModel.siteInfo.pack = sitePackage;
 
   if (title) {
@@ -694,6 +744,9 @@ export const getLocationCallBack = ({ mainModel }, location, title, h1, err) => 
           generateBlockModel.page.name = PascalCase(title);
         } else {
           generateBlockModel.page.name = PascalCase(uri);
+        }
+        if (location.hash) {
+          generateBlockModel.siteInfo.domainName = location.host + location.pathname;
         }
         break;
       case "uri":
